@@ -3,7 +3,7 @@ from flask import Flask
 from watchdog.events import PatternMatchingEventHandler
 from watchdog.observers import Observer
 
-from myblog.model.item import MdTextReader, TempData
+from myblog.model.item import MdTextReader, PostProcesser, TempData
 
 
 class FileTrigger(PatternMatchingEventHandler):
@@ -55,13 +55,14 @@ class Scheduler:
         post_paths = self.temp.posts_to_update
         if post_paths:
             for path in post_paths:
-                md_text_reader = MdTextReader(self.app, path)
-                self.app.logger.info(f"正在读取 {post_paths} ...")
+                self.app.logger.info(f"开始处理 {path.decode()} ...")
+                processer = PostProcesser(self.app, path.decode())
+                processer.process()
 
     def run(self):
         self.app.logger.info("启动定时任务")
         self.watcher.run()
 
-        self.scheduler.add_job(func=self.__job_1, trigger="interval", seconds=30)
+        self.scheduler.add_job(func=self.__job_1, trigger="interval", seconds=10)
 
         self.scheduler.start()

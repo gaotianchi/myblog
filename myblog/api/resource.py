@@ -11,4 +11,9 @@ def root():
 
 @api.route("/post")
 def post():
-    pass
+    return "post"
+
+
+@api.route("/image/<image_name>")
+def image(image_name):
+    return image_name
