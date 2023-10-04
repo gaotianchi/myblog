@@ -22,9 +22,7 @@ class BaseConfig:
 
 
 class DevelopmentConfig(BaseConfig):
-    FLASK_HOST = os.getenv("DEV_HOST")
-    FLASK_PORT = os.getenv("DEV_PORT")
-    DEBUG = True
+    SERVER_NAME = os.getenv("SERVER_NAME")
 
 
 config = {"development": DevelopmentConfig}

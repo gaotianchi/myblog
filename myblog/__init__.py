@@ -7,6 +7,7 @@ from flask import Flask
 
 from myblog.api.resource import api
 from myblog.model import pool
+from myblog.model.scheduler import Scheduler
 from myblog.setting import config
 
 
@@ -15,6 +16,10 @@ def create_app(config_name: str = "development"):
     app.config.from_object(config[config_name])
 
     Register.register(app)
+
+    with app.app_context():
+        scheduler = Scheduler(app)
+        scheduler.run()
 
     return app
 

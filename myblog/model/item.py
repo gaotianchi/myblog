@@ -1,11 +1,10 @@
 import os
 import re
-from ast import List
 from datetime import date
 
 import redis
 import yaml
-from flask import Flask, url_for
+from flask import Flask, current_app, url_for
 from markdown import markdown
 
 from myblog.model import pool
@@ -178,7 +177,12 @@ class BodyProcesser:
 
         def replace(match):
             image_name = match.group(1)
-            return f"![{image_name}]({image_name})"
+            with current_app.app_context():
+                image_url = url_for("api.image", image_name=image_name)
+                self.logger.debug(f"image_url: {image_url}")
+            self.logger.debug(f"current_app: {current_app}")
+
+            return f"![{image_name}]({image_url})"
 
         result = re.sub(pattern, replace, mdtext)
 

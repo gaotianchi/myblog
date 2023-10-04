@@ -57,7 +57,8 @@ class Scheduler:
             for path in post_paths:
                 self.app.logger.info(f"开始处理 {path.decode()} ...")
                 processer = PostProcesser(self.app, path.decode())
-                processer.process()
+                with self.app.app_context():
+                    processer.process()
 
     def run(self):
         self.app.logger.info("启动定时任务")
