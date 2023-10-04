@@ -3,7 +3,7 @@ from flask import Flask
 from watchdog.events import PatternMatchingEventHandler
 from watchdog.observers import Observer
 
-from myblog.model.item import MdTextReader, PostProcesser, TempData
+from myblog.model.item import PostCleaner, PostProcesser, TempData
 
 
 class FileTrigger(PatternMatchingEventHandler):
@@ -21,8 +21,15 @@ class FileTrigger(PatternMatchingEventHandler):
 
     def on_any_event(self, event):
         if event.event_type in ["created", "modified"]:
-            self.logger.info(f"{event.event_type}: {event.src_path}.")
+            self.logger.debug(f"{self} 检测到文件变动：{event.event_type}: {event.src_path}.")
             self.temp.add_to_update(event.src_path)
+
+        elif event.event_type == "deleted":
+            self.logger.debug(f"{self} 检测到文件变动：{event.event_type}: {event.src_path}.")
+            self.temp.add_to_delete(event.src_path)
+
+    def __str__(self) -> str:
+        return self.__class__.__name__
 
 
 class Watcher:
@@ -33,7 +40,7 @@ class Watcher:
         self.observer = Observer()
 
     def run(self):
-        self.app.logger.info("启动文件监视器")
+        self.app.logger.info(f"{self} 启动文件监视器")
         self.observer.schedule(
             event_handler=self.trigger,
             path=self.app.config["WATCH_DIR"],
@@ -41,6 +48,9 @@ class Watcher:
         )
 
         self.observer.start()
+
+    def __str__(self) -> str:
+        return self.__class__.__name__
 
 
 class Scheduler:
@@ -51,12 +61,19 @@ class Scheduler:
         self.scheduler = BackgroundScheduler()
         self.temp = TempData(app)
 
-    def __job_1(self):
+    def __update_data_to_db(self):
         post_paths = self.temp.posts_to_update
         if post_paths:
             for path in post_paths:
-                self.app.logger.info(f"开始处理 {path.decode()} ...")
                 processer = PostProcesser(self.app, path.decode())
+                with self.app.app_context():
+                    processer.process()
+
+    def __delete_data_from_db(self):
+        post_paths = self.temp.posts_to_delete
+        if post_paths:
+            for path in post_paths:
+                processer = PostCleaner(self.app, path.decode())
                 with self.app.app_context():
                     processer.process()
 
@@ -64,6 +81,14 @@ class Scheduler:
         self.app.logger.info("启动定时任务")
         self.watcher.run()
 
-        self.scheduler.add_job(func=self.__job_1, trigger="interval", seconds=10)
+        self.scheduler.add_job(
+            func=self.__update_data_to_db, trigger="interval", seconds=10
+        )
+        self.scheduler.add_job(
+            func=self.__delete_data_from_db, trigger="interval", seconds=10
+        )
 
         self.scheduler.start()
+
+    def __str__(self) -> str:
+        return self.__class__.__name__

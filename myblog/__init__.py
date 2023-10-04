@@ -40,7 +40,7 @@ class Register:
         handler = RotatingFileHandler(
             os.path.join(cls.app.config["LOG_DIR"], "myblog.log"),
             mode="a",
-            maxBytes=10 * 1024,
+            maxBytes=10 * 1024 * 1024,
             backupCount=3,
             encoding="UTF-8",
         )
