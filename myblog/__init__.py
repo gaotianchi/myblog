@@ -1,8 +1,10 @@
 import logging
 import os
+import shutil
 from logging.handlers import RotatingFileHandler
 
 import click
+import redis
 from flask import Flask
 
 from myblog.model import pool
@@ -57,11 +59,15 @@ class Register:
     def __register_command(cls):
         @cls.app.cli.command(help="清除数据库中的所有数据.")
         def init():
-            click.confirm("确定要清除所有数据吗？")
-
-            import redis
+            click.confirm("确定要清除所有数据吗？(包括 redis 数据库和文件夹中的数据)")
 
             conn = redis.Redis(connection_pool=pool)
 
             conn.flushall()
             click.echo("成功清除 redis 中的所有数据!")
+
+            path = cls.app.config["POSTSPACE"]
+            shutil.rmtree(path)
+            os.mkdir(path)
+
+            click.echo("成功将文件夹中的数据全部删除.")

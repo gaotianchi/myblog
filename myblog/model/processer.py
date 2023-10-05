@@ -349,17 +349,5 @@ class WritingSpaceReader:
     def data(self) -> dict:
         return self.__get_dict_config()
 
-    @property
-    def home_path(self) -> str:
-        temp = str(self.data["path"]["homePostPath"]).split("/")
-        home_post_path = os.path.join(self.app.config["DATA_DIR"], *temp)
-
-        if not os.path.exists(home_post_path):
-            raise FileNotFoundError(f"{self} 没有找到首页文章")
-        elif not home_post_path.endswith(".md"):
-            raise Exception(f"{self} 检测到首页文章不是 markdown 类型的文章")
-
-        return home_post_path
-
     def __str__(self) -> str:
         return self.__class__.__name__
