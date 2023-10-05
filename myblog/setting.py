@@ -14,9 +14,11 @@ class BaseConfig:
     # 配置默认路径
     LOG_DIR = os.path.join(basedir, "logs")
     DATA_DIR = os.path.join(basedir, "data")
-    WATCH_DIR = os.path.join(basedir, *["data", "posts"])
 
-    for path in [LOG_DIR, DATA_DIR, WATCH_DIR]:
+    POSTSPACE = os.path.join(DATA_DIR, "文章")
+    WRITINGSPACE = os.path.join(DATA_DIR, "writingspace.json")
+
+    for path in [LOG_DIR, DATA_DIR, POSTSPACE]:
         if not os.path.exists(path):
             os.makedirs(path, exist_ok=True)
 

@@ -3,15 +3,15 @@ from flask import Flask
 from watchdog.events import PatternMatchingEventHandler
 from watchdog.observers import Observer
 
-from myblog.model.item import PostCleaner, PostProcesser, TempData
+from myblog.model.processer import PostCleaner, PostProcesser, TempData
 
 
-class FileTrigger(PatternMatchingEventHandler):
+class PostWatcher(PatternMatchingEventHandler):
     def __init__(
         self,
         app: Flask,
         patterns=["*.md"],
-        ignore_patterns=[".*"],
+        ignore_patterns=[".*", "_*"],
         ignore_directories=True,
         case_sensitive=True,
     ):
@@ -36,14 +36,14 @@ class Watcher:
     def __init__(self, app: Flask) -> None:
         self.app = app
 
-        self.trigger = FileTrigger(app)
+        self.post_watcher = PostWatcher(app)
         self.observer = Observer()
 
     def run(self):
         self.app.logger.info(f"{self} 启动文件监视器")
         self.observer.schedule(
-            event_handler=self.trigger,
-            path=self.app.config["WATCH_DIR"],
+            event_handler=self.post_watcher,
+            path=self.app.config["POSTSPACE"],
             recursive=True,
         )
 

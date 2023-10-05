@@ -5,10 +5,10 @@ from logging.handlers import RotatingFileHandler
 import click
 from flask import Flask
 
-from myblog.api.resource import api
 from myblog.model import pool
 from myblog.model.scheduler import Scheduler
 from myblog.setting import config
+from myblog.view import api, user
 
 
 def create_app(config_name: str = "development"):
@@ -16,10 +16,6 @@ def create_app(config_name: str = "development"):
     app.config.from_object(config[config_name])
 
     Register.register(app)
-
-    with app.app_context():
-        scheduler = Scheduler(app)
-        scheduler.run()
 
     return app
 
@@ -32,6 +28,7 @@ class Register:
         cls.__register_blueprint(cls)
         cls.__register_logger(cls)
         cls.__register_command(cls)
+        cls.__register_scheduler(cls)
 
     def __register_logger(cls):
         formatter = logging.Formatter(
@@ -49,14 +46,18 @@ class Register:
         cls.app.logger.setLevel(logging.DEBUG)
 
     def __register_blueprint(cls):
-        cls.app.register_blueprint(api)
+        cls.app.register_blueprint(api.api)
+        cls.app.register_blueprint(user.user)
+
+    def __register_scheduler(cls):
+        with cls.app.app_context():
+            scheduler = Scheduler(cls.app)
+            scheduler.run()
 
     def __register_command(cls):
-        @cls.app.cli.command(help="初始化用户数据")
-        @click.option("--post", is_flag=True, help="只删除文章")
-        def init(post):
+        @cls.app.cli.command(help="清除数据库中的所有数据.")
+        def init():
             click.confirm("确定要清除所有数据吗？")
-            import shutil
 
             import redis
 
@@ -64,15 +65,3 @@ class Register:
 
             conn.flushall()
             click.echo("成功清除 redis 中的所有数据!")
-
-            path = cls.app.config["DATA_DIR"]
-            if post:
-                path = cls.app.config["WATCH_DIR"]
-
-            try:
-                shutil.rmtree(path)
-                click.echo("成功清除工作区中的数据！")
-            except:
-                click.echo("工作区中的数据未成功清除，请手动清除数据！")
-            finally:
-                os.makedirs(path)
