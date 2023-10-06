@@ -1,7 +1,7 @@
 import os
 
 import redis
-from flask import Flask, url_for
+from flask import Flask
 
 from myblog.model import pool
 from myblog.model.processer import WritingSpaceReader
@@ -43,65 +43,6 @@ class WritingSpace:
     @property
     def author(self) -> dict:
         return self.__reader.data["author"]
-
-    def __str__(self) -> str:
-        return self.__class__.__name__
-
-
-class Article:
-    def __init__(self, app: Flask, title: str) -> None:
-        self.app = app
-        self.title = title
-
-    @property
-    def date(self) -> str:
-        date = conn.hget(f"post:{self.title}:metadata", "date")
-
-        return date.decode()
-
-    @property
-    def body(self) -> str:
-        body = conn.get(f"post:{self.title}:body")
-
-        return body.decode()
-
-    @property
-    def url(self) -> str:
-        return url_for("api.article", title=self.title)
-
-    def __get_recent_article(self) -> list:
-        temp_recent = conn.zrange("post:recent", 0, -1)
-        recent = [title.decode() for title in temp_recent]
-
-        return recent if recent else []
-
-    @property
-    def older(self):
-        recent_list = self.__get_recent_article()
-
-        if not recent_list:
-            return None
-
-        if recent_list.index(self.title) == 0:
-            return None
-
-        older_title = recent_list[recent_list.index(self.title) - 1]
-
-        return Article(self.app, older_title)
-
-    @property
-    def newer(self):
-        recent_list = self.__get_recent_article()
-
-        if not recent_list:
-            return None
-
-        if recent_list.index(self.title) == len(recent_list) - 1:
-            return None
-
-        newer_title = recent_list[recent_list.index(self.title) + 1]
-
-        return Article(self.app, newer_title)
 
     def __str__(self) -> str:
         return self.__class__.__name__
