@@ -74,9 +74,6 @@ class Article:
     def older(self):
         recent_list = self.__get_recent_article()
 
-        self.app.logger.debug(f"{self} recent_list: {recent_list}")
-        self.app.logger.debug(f"{self} self_index: {recent_list.index(self.title)}")
-
         if not recent_list:
             return None
 
@@ -90,9 +87,6 @@ class Article:
     @property
     def newer(self):
         recent_list = self.__get_recent_article()
-
-        self.app.logger.debug(f"{self} recent_list: {recent_list}")
-        self.app.logger.debug(f"{self} self_index: {recent_list.index(self.title)}")
 
         if not recent_list:
             return None

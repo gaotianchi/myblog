@@ -1,9 +1,0 @@
-<article class="mb-4">
-    <h2>{{ article.title }}</h2>
-    <p class="mb-1" style="color: #727272;">{{ article.date }}</p>
-    {{ article.body|safe }}
-</article>
-<nav class="blog-pagination" aria-label="Pagination">
-    <a class="btn btn-outline-primary rounded-pill {% if not article.older %}disabled{% endif %}" href="{% if article.older %}{{ article.older.url }}{% else %}#{% endif %}" {% if not article.older %}aria-disabled="true"{% endif %}>Older</a>
-    <a class="btn btn-outline-primary rounded-pill {% if not article.newer %}disabled{% endif %}" href="{% if article.newer %}{{ article.newer.url }}{% else %}#{% endif %}" {% if not article.newer %}aria-disabled="true"{% endif %}>Newer</a>
-</nav>
