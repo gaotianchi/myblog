@@ -10,6 +10,7 @@ from flask import Flask, current_app, url_for
 from markdown import markdown
 
 from myblog.model import pool
+from myblog.utlis import generate_id
 
 conn = redis.Redis(connection_pool=pool)
 
@@ -231,15 +232,15 @@ class PostProcesser:
 
     def __process(self) -> None:
         metadata = self.__metaprocesser.metadata
-        post_title = metadata["title"]
+        post_id = generate_id(metadata["title"])
         post_date_to_score = int(str(metadata["date"]).replace("-", ""))
         body = self.__bodyprocesser.body
 
-        conn.hmset(f"post:{post_title}:metadata", metadata)
+        conn.hmset(f"post:{post_id}:metadata", metadata)
 
-        conn.zadd("post:recent", {metadata["title"]: post_date_to_score})
+        conn.zadd("post:recent", {post_id: post_date_to_score})
 
-        conn.set(f"post:{post_title}:body", body)
+        conn.set(f"post:{post_id}:body", body)
 
     def process(self) -> None:
         if self.valid:
@@ -298,13 +299,14 @@ class PostCleaner:
         post_title = os.path.basename(self.path).replace(".md", "").replace(" ", "")
 
         self.app.logger.debug(f"{self} 准备将 {post_title} 从数据库中删除")
+        post_id = generate_id(post_title)
 
         try:
-            metadata_name = f"post:{post_title}:metadata"
-            body_name = f"post:{post_title}:body"
+            metadata_name = f"post:{post_id}:metadata"
+            body_name = f"post:{post_id}:body"
 
             pipe = conn.pipeline()
-            pipe.zrem("post:recent", post_title)
+            pipe.zrem("post:recent", post_id)
             pipe.delete(*[metadata_name, body_name])
             pipe.execute()
 
