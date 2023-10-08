@@ -1,0 +1,20 @@
+{% if post.older %}
+{% set older_href = post.older.url %}
+{% set older_class = "btn btn-outline-primary" %}
+{% else %}
+{% set older_href = "#" %}
+{% set older_class = "btn btn-outline-primary disabled" %}
+{% endif %}
+
+{% if post.newer %}
+{% set newer_href = post.newer.url %}
+{% set newer_class = "btn btn-outline-primary" %}
+{% else %}
+{% set newer_href = "#" %}
+{% set newer_class = "btn btn-outline-primary disabled" %}
+{% endif %}
+
+<nav class="blog-pagination">
+    <a class="{{ older_class }}" href="{{ older_href }}">Older</a>
+    <a class="{{ newer_class }}" href="{{ newer_href }}">Newer</a>
+</nav>

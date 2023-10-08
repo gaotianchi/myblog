@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+
+{% block main %}
+<div class="col-md-8 blog-main">
+
+    {% if post %}
+
+    <!-- 博客文章正文 -->
+    {% include "./component/_article.html" %}
+
+    <!-- 新旧文章切换按钮 -->
+    {% include "./component/_pagination.html" %}
+
+    {% else %}
+
+    <p>没有找到相应文章</p>
+
+    {% endif %}
+
+</div>
+{% endblock main %}
