@@ -2,7 +2,7 @@ import os
 from typing import List
 
 import redis
-from flask import Flask
+from flask import Flask, url_for
 
 from myblog.model import pool
 from myblog.model.processer import WritingSpaceReader
@@ -60,7 +60,7 @@ class Post:
 
         self_index: int = recent.index(self.id)
 
-        if self_index == len(recent):
+        if self_index == len(recent) - 1:
             return None
 
         return Post(self.app, recent[self_index + 1])
@@ -68,6 +68,13 @@ class Post:
     @property
     def metadata(self) -> dict:
         return self.__get_post_metadata()
+
+    @property
+    def url(self) -> str:
+        with self.app.app_context():
+            url = url_for("user.read_post", id=self.id)
+
+        return url
 
     @property
     def title(self) -> str:
