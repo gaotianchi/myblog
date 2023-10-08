@@ -1,4 +1,5 @@
 import os
+from typing import List
 
 import redis
 from flask import Flask
@@ -8,6 +9,95 @@ from myblog.model.processer import WritingSpaceReader
 from myblog.utlis import generate_id
 
 conn = redis.Redis(connection_pool=pool)
+
+
+class Post:
+    def __init__(self, app: Flask, id: str) -> None:
+        self.app = app
+        self.id = id
+
+    def __get_post_metadata(self) -> dict:
+        name = f"post:{self.id}:metadata"
+        metadata = {}
+        keys = conn.hgetall(name)
+
+        for key in keys:
+            value = conn.hget(name, key)
+
+            key: bytes
+            value: bytes
+
+            if key == b"tags":
+                metadata[key.decode()] = eval(value.decode())
+            else:
+                metadata[key.decode()] = value.decode()
+
+        return metadata
+
+    def __get_recent_posts(self) -> List:
+        """从旧到新的排列方式"""
+
+        recent: List[bytes] = conn.zrange("post:recent", 0, -1)
+
+        return [post.decode() for post in recent]
+
+    @property
+    def older(self) -> "Post":
+        recent: List[str] = self.__get_recent_posts()
+        self.app.logger.debug(recent)
+
+        self_index: int = recent.index(self.id)
+        self.app.logger.debug(self_index)
+
+        if self_index == 0:
+            return None
+
+        return Post(self.app, recent[self_index - 1])
+
+    @property
+    def newer(self) -> "Post":
+        recent: List[str] = self.__get_recent_posts()
+
+        self_index: int = recent.index(self.id)
+
+        if self_index == len(recent):
+            return None
+
+        return Post(self.app, recent[self_index + 1])
+
+    @property
+    def metadata(self) -> dict:
+        return self.__get_post_metadata()
+
+    @property
+    def title(self) -> str:
+        title: bytes = conn.hget(f"post:{self.id}:metadata", "title")
+
+        return title.decode()
+
+    @property
+    def category(self) -> str:
+        category: bytes = conn.hget(f"post:{self.id}:metadata", "category")
+
+        return category.decode()
+
+    @property
+    def tags(self) -> List:
+        tags: bytes = conn.hget(f"post:{self.id}:metadata", "tags")
+
+        return eval(tags)
+
+    @property
+    def date(self) -> str:
+        date: bytes = conn.hget(f"post:{self.id}:metadata", "date")
+
+        return date.decode()
+
+    @property
+    def body(self) -> str:
+        body: bytes = conn.get(f"post:{self.id}:body")
+
+        return body.decode()
 
 
 class WritingSpace:
