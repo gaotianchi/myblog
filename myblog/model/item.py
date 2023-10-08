@@ -44,10 +44,8 @@ class Post:
     @property
     def older(self) -> "Post":
         recent: List[str] = self.__get_recent_posts()
-        self.app.logger.debug(recent)
 
         self_index: int = recent.index(self.id)
-        self.app.logger.debug(self_index)
 
         if self_index == 0:
             return None
@@ -68,6 +66,12 @@ class Post:
     @property
     def metadata(self) -> dict:
         return self.__get_post_metadata()
+
+    @property
+    def table(self) -> str:
+        t: bytes = conn.get(f"post:{self.id}:table")
+
+        return t.decode()
 
     @property
     def url(self) -> str:

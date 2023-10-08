@@ -190,8 +190,26 @@ class BodyProcesser:
         else:
             self.app.logger.warn(f"{self} 检测到正文不存在！")
 
+    def __check_table(self) -> None:
+        pattern = r'<div class="sticky-top">.*?</div>'
+        matches = re.findall(pattern, self.__body, re.DOTALL)
+
+        if not matches:
+            self.app.logger.warn(f"{self} 检测到本文没有添加目录，准备添加目录")
+            self.__body = "[TOC]" + "\n" + self.__body
+
+            self.app.logger.debug(self.__body[0:20])
+
     def __format_body(self) -> None:
-        self.__body = markdown(self.__format_image_url(self.__body))
+        exten_config = {
+            "toc": {"baselevel": 2, "permalink": "#", "toc_class": "sticky-top"}
+        }
+
+        self.__body = markdown(
+            self.__format_image_url(self.__body),
+            extensions=["toc"],
+            extension_configs=exten_config,
+        )
 
     def __format_image_url(self, mdtext: str) -> str:
         pattern = r"!\[\[(.*?)\]\]"
@@ -208,10 +226,36 @@ class BodyProcesser:
         return result
 
     @property
-    def body(self) -> str:
+    def table_and_body(self) -> str:
+        if self.valid:
+            self.__check_table()
+            self.__format_body()
+
+            return self.__body
+
+    @property
+    def table(self) -> str:
         if self.valid:
             self.__format_body()
-            return self.__body
+            pattern = r'<div class="sticky-top">.*?</div>'
+            matches = re.findall(pattern, self.table_and_body, re.DOTALL)
+
+            if matches:
+                return matches[0]
+
+            else:
+                self.app.logger.debug(f"{self} 检测到本文没有配置目录")
+
+                return ""
+
+    @property
+    def body(self) -> str:
+        if self.valid:
+            pattern = r'<div class="sticky-top">.*?</div>|\[TOC\]'
+
+            body = re.sub(pattern, "", self.table_and_body, 0, re.DOTALL)
+
+            return body.strip()
 
     @property
     def valid(self) -> bool:
@@ -235,12 +279,14 @@ class PostProcesser:
         post_id = generate_id(metadata["title"])
         post_date_to_score = int(str(metadata["date"]).replace("-", ""))
         body = self.__bodyprocesser.body
+        table = self.__bodyprocesser.table
 
         conn.hmset(f"post:{post_id}:metadata", metadata)
 
         conn.zadd("post:recent", {post_id: post_date_to_score})
 
         conn.set(f"post:{post_id}:body", body)
+        conn.set(f"post:{post_id}:table", table)
 
     def process(self) -> None:
         if self.valid:
