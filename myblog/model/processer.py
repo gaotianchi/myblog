@@ -209,12 +209,16 @@ class BodyProcesser:
 
     def __format_body(self) -> None:
         exten_config = {
-            "toc": {"baselevel": 2, "permalink": "#", "toc_class": f"{self.toc_class}"}
+            "toc": {"baselevel": 2, "permalink": "#", "toc_class": f"{self.toc_class}"},
+            "footnotes": {
+                "BACKLINK_TEXT": "&#8617;&#xFE0E;",
+                "BACKLINK_TITLE": "回到原文被引用的地方",
+            },
         }
 
         self.__body = markdown(
             self.__format_image_url(self.__body),
-            extensions=["toc", "fenced_code"],
+            extensions=["toc", "fenced_code", "footnotes"],
             extension_configs=exten_config,
         )
 
