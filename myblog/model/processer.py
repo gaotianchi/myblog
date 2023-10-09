@@ -117,7 +117,6 @@ class MetaProcesser:
     def __init__(self, app: Flask) -> None:
         self.app = app
         self.__metadata = {}
-        self.__valid = False
 
     def set_metadata(self, md_metadata: dict) -> None:
         self.__metadata = md_metadata
@@ -138,9 +137,19 @@ class MetaProcesser:
 
         if not tags:
             self.app.logger.warn(f"{self} 检测到 {post_path} 没有设置标签: {tags}.")
-
+            return False
         else:
-            self.__valid = True
+            return True
+
+    def __validate_summary(self) -> None:
+        summary: str = self.__metadata.get("summary", "")
+        post_path = self.__metadata["path"]
+
+        if not summary:
+            self.app.logger.warn(f"{self} 检测到 {post_path} 没有设置摘要！")
+            return False
+        else:
+            return True
 
     def __format_other_values(self) -> None:
         formated_meta = {}
@@ -166,15 +175,15 @@ class MetaProcesser:
 
     @property
     def valid(self) -> bool:
-        self.__validate_tag()
-
-        return self.__valid
+        return self.__validate_summary() and self.__validate_tag()
 
     def __str__(self) -> str:
         return f"{self.__class__.__name__}"
 
 
 class BodyProcesser:
+    toc_class = "sticky-top pt-3 pb-3"
+
     def __init__(self, app: Flask) -> None:
         self.app = app
         self.__body = ""
@@ -191,7 +200,7 @@ class BodyProcesser:
             self.app.logger.warn(f"{self} 检测到正文不存在！")
 
     def __check_table(self) -> None:
-        pattern = r'<div class="sticky-top">.*?</div>'
+        pattern = f'<div class="{self.toc_class}">.*?</div>'
         matches = re.findall(pattern, self.__body, re.DOTALL)
 
         if not matches:
@@ -202,7 +211,7 @@ class BodyProcesser:
 
     def __format_body(self) -> None:
         exten_config = {
-            "toc": {"baselevel": 2, "permalink": "#", "toc_class": "sticky-top"}
+            "toc": {"baselevel": 2, "permalink": "#", "toc_class": f"{self.toc_class}"}
         }
 
         self.__body = markdown(
@@ -237,7 +246,7 @@ class BodyProcesser:
     def table(self) -> str:
         if self.valid:
             self.__format_body()
-            pattern = r'<div class="sticky-top">.*?</div>'
+            pattern = f'<div class="{self.toc_class}">.*?</div>'
             matches = re.findall(pattern, self.table_and_body, re.DOTALL)
 
             if matches:
@@ -251,7 +260,7 @@ class BodyProcesser:
     @property
     def body(self) -> str:
         if self.valid:
-            pattern = r'<div class="sticky-top">.*?</div>|\[TOC\]'
+            pattern = f'<div class="{self.toc_class}">.*?</div>|\[TOC\]'
 
             body = re.sub(pattern, "", self.table_and_body, 0, re.DOTALL)
 
@@ -280,6 +289,8 @@ class PostProcesser:
         post_date_to_score = int(str(metadata["date"]).replace("-", ""))
         body = self.__bodyprocesser.body
         table = self.__bodyprocesser.table
+        updated = str(date.today())
+        metadata["updated"] = updated
 
         conn.hmset(f"post:{post_id}:metadata", metadata)
 

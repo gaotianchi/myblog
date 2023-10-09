@@ -105,6 +105,18 @@ class Post:
         return date.decode()
 
     @property
+    def summary(self) -> str:
+        summary: bytes = conn.hget(f"post:{self.id}:metadata", "summary")
+
+        return summary.decode()
+
+    @property
+    def updated(self) -> str:
+        updated_time: bytes = conn.hget(f"post:{self.id}:metadata", "updated")
+
+        return updated_time.decode()
+
+    @property
     def body(self) -> str:
         body: bytes = conn.get(f"post:{self.id}:body")
 
