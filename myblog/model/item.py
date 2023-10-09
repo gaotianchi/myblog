@@ -117,6 +117,12 @@ class Post:
         return updated_time.decode()
 
     @property
+    def author(self) -> str:
+        author: bytes = conn.hget(f"post:{self.id}:metadata", "author")
+
+        return author.decode()
+
+    @property
     def body(self) -> str:
         body: bytes = conn.get(f"post:{self.id}:body")
 

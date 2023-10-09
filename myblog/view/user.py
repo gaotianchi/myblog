@@ -10,4 +10,4 @@ def read_post():
     id: str = request.args.get("id")
     post = Post(current_app, id)
 
-    return render_template("post.html", post=post)
+    return render_template("page/post.html", post=post)

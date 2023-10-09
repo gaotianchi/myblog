@@ -182,7 +182,7 @@ class MetaProcesser:
 
 
 class BodyProcesser:
-    toc_class = "sticky-top pt-3 pb-3"
+    toc_class = "sticky-top p-3 mb-3 bg-light rounded"
 
     def __init__(self, app: Flask) -> None:
         self.app = app
@@ -291,6 +291,7 @@ class PostProcesser:
         table = self.__bodyprocesser.table
         updated = str(date.today())
         metadata["updated"] = updated
+        metadata["author"] = "高天驰"
 
         conn.hmset(f"post:{post_id}:metadata", metadata)
 
