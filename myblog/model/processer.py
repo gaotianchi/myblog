@@ -207,8 +207,6 @@ class BodyProcesser:
             self.app.logger.warn(f"{self} 检测到本文没有添加目录，准备添加目录")
             self.__body = "[TOC]" + "\n" + self.__body
 
-            self.app.logger.debug(self.__body[0:20])
-
     def __format_body(self) -> None:
         exten_config = {
             "toc": {"baselevel": 2, "permalink": "#", "toc_class": f"{self.toc_class}"}
@@ -216,7 +214,7 @@ class BodyProcesser:
 
         self.__body = markdown(
             self.__format_image_url(self.__body),
-            extensions=["toc"],
+            extensions=["toc", "fenced_code"],
             extension_configs=exten_config,
         )
 
