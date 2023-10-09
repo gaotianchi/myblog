@@ -1,4 +1,4 @@
-from flask import Blueprint, current_app, render_template, request
+from flask import Blueprint, current_app, redirect, render_template, request, url_for
 
 from myblog.model.item import Post
 
@@ -11,3 +11,8 @@ def read_post():
     post = Post(current_app, id)
 
     return render_template("page/post.html", post=post)
+
+
+@user.route("/")
+def home():
+    return redirect(url_for(".read_post", id="MUDf060"))
