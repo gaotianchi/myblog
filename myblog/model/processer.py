@@ -218,7 +218,7 @@ class BodyProcesser:
 
         self.__body = markdown(
             self.__format_image_url(self.__body),
-            extensions=["toc", "fenced_code", "footnotes"],
+            extensions=["toc", "fenced_code", "footnotes", "nl2br"],
             extension_configs=exten_config,
         )
 
