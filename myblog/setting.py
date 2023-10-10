@@ -24,7 +24,11 @@ class BaseConfig:
 
 
 class DevelopmentConfig(BaseConfig):
-    SERVER_NAME = os.getenv("SERVER_NAME")
+    SERVER_NAME = os.getenv("DEV_SERVER_NAME", "127.0.0.1:5000")
 
 
-config = {"development": DevelopmentConfig}
+class ProductionConfig(BaseConfig):
+    SERVER_NAME = os.getenv("PROD_SERVER_NAME")
+
+
+config = {"dev": DevelopmentConfig, "prod": ProductionConfig}

@@ -13,7 +13,7 @@ from myblog.setting import config
 from myblog.view import api, user
 
 
-def create_app(config_name: str = "development"):
+def create_app(config_name: str = "dev"):
     app = Flask("myblog")
     app.config.from_object(config[config_name])
 
