@@ -1,3 +1,5 @@
+import os
+
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask
 from watchdog.events import PatternMatchingEventHandler
@@ -12,21 +14,30 @@ class PostWatcher(PatternMatchingEventHandler):
         app: Flask,
         patterns=["*.md"],
         ignore_patterns=[".*", "_*"],
-        ignore_directories=True,
+        ignore_directories=False,
         case_sensitive=True,
     ):
         super().__init__(patterns, ignore_patterns, ignore_directories, case_sensitive)
-        self.logger = app.logger
         self.temp = TempData(app)
+        self.app = app
 
     def on_any_event(self, event):
+        postdir = os.path.dirname(event.src_path)
+        postspace = self.app.config["POSTSPACE"]
+
         if event.event_type in ["created", "modified"]:
-            self.logger.debug(f"{self} 检测到文件变动：{event.event_type}: {event.src_path}.")
-            self.temp.add_to_update(event.src_path)
+            if os.path.dirname(postdir) == postspace:
+                self.app.logger.debug(
+                    f"{self} 检测到文章变动：{event.event_type}: {os.path.basename(event.src_path)}."
+                )
+                self.temp.add_to_update(event.src_path)
 
         elif event.event_type == "deleted":
-            self.logger.debug(f"{self} 检测到文件变动：{event.event_type}: {event.src_path}.")
-            self.temp.add_to_delete(event.src_path)
+            if os.path.dirname(postdir) == postspace:
+                self.app.logger.debug(
+                    f"{self} 检测到文章变动：{event.event_type}: {os.path.basename(event.src_path)}."
+                )
+                self.temp.add_to_delete(event.src_path)
 
     def __str__(self) -> str:
         return self.__class__.__name__
@@ -43,7 +54,7 @@ class Watcher:
         self.app.logger.info(f"{self} 启动文件监视器")
         self.observer.schedule(
             event_handler=self.post_watcher,
-            path=self.app.config["POSTSPACE"],
+            path=self.app.config["DATA_DIR"],
             recursive=True,
         )
 

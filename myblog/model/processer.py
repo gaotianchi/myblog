@@ -122,8 +122,6 @@ class MetaProcesser:
         self.__metadata = md_metadata
         self.__post_path = md_metadata["path"]
 
-        self.app.logger.debug(f"{self} 接收元数据{type(self.__metadata)}: {self.__metadata}")
-
     def __format_date(self) -> str:
         publish_date = self.__metadata.get("date", "")
         if not isinstance(publish_date, date):
@@ -168,8 +166,6 @@ class MetaProcesser:
             result = self.__metadata
         else:
             result = {"path": self.__post_path}
-
-        self.app.logger.debug(f"{self} 处理的结果是 {type(result)}: {result}")
 
         return result
 
@@ -262,7 +258,8 @@ class BodyProcesser:
     @property
     def body(self) -> str:
         if self.valid:
-            pattern = f'<div class="{self.toc_class}">.*?</div>|\[TOC\]'
+            toc_class = self.toc_class
+            pattern = r'<div class="%s">.*?</div>|\[TOC\]' % toc_class
 
             body = re.sub(pattern, "", self.table_and_body, 0, re.DOTALL)
 
@@ -319,14 +316,10 @@ class PostProcesser:
         body = self.__bodyprocesser.body
 
         if not meta_valid:
-            self.app.logger.warn(
-                f"{self} 检测到文章 {metadata['path']} 的元数据不符合规定, metadata: {type(metadata)}: {metadata}"
-            )
+            self.app.logger.warn(f"{self} 检测到文章 {metadata['path']} 的元数据不符合规定！")
 
         if not body_valid:
-            self.app.logger.warn(
-                f"{self} 检测到文章 {metadata['path']} 的正文不符合规定, body: {type(body)}: {body}"
-            )
+            self.app.logger.warn(f"{self} 检测到文章 {metadata['path']} 的正文不符合规定！")
 
         return meta_valid and body_valid
 

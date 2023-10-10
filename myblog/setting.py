@@ -18,7 +18,7 @@ class BaseConfig:
     POSTSPACE = os.path.join(DATA_DIR, "文章")
     WRITINGSPACE = os.path.join(DATA_DIR, "writingspace.json")
 
-    for path in [LOG_DIR, DATA_DIR, POSTSPACE]:
+    for path in [LOG_DIR, DATA_DIR]:
         if not os.path.exists(path):
             os.makedirs(path, exist_ok=True)
 
