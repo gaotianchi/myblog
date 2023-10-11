@@ -2,7 +2,7 @@ import redis
 from flask import Blueprint, current_app, redirect, render_template, request, url_for
 
 from myblog.model import pool
-from myblog.model.item import Post
+from myblog.model.item import GitLog, Post
 
 user = Blueprint("user", __name__)
 
@@ -19,9 +19,10 @@ def read_post():
 
 @user.route("/")
 def home():
-    try:
-        recent_post_id: bytes = conn.zrange("post:recent", 0, -1)[0]
+    s = request.args.get("s", 7)
+    b = request.args.get("b", 0)
+    repo_path: str = current_app.config["GIT_REPO_PATH"]
 
-        return redirect(url_for(".read_post", id=recent_post_id.decode()))
-    except:
-        return "还没有发布文章"
+    logs = GitLog(repo_path, s=s, b=b).log
+
+    return render_template("page/home.html", logs=logs)

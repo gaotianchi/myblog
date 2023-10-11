@@ -2,5 +2,31 @@
 
 
 {% block main %}
+<div class="row">
+    <div class="col-md-8">
+        <h3>我的动态</h3>
+        {% if logs %}
 
+        {% for log in logs %}
+        {% if log.body %}
+        <div class="card">
+            <div class="card-header">
+                <small>{{ log.date }} </small>
+            </div>
+            <div class="card-body">
+                <h4 class="card-title">{{ log.summary }}</h4>
+                <p class="card-text">{{ log.body }}</p>
+            </div>
+            <!-- <div class="card-footer text-muted">
+            Footer
+        </div> -->
+        </div>
+        {% endif %}
+        {% endfor %}
+
+        {% else %}
+        <p>暂时还没有发布任何动态</p>
+        {% endif %}
+    </div>
+</div>
 {% endblock main %}
