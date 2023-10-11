@@ -1,8 +1,11 @@
 import os
+import re
+from datetime import datetime, timedelta
 from typing import List
 
 import redis
 from flask import Flask, url_for
+from git.repo import Repo
 
 from myblog.model import pool
 from myblog.model.processer import WritingSpaceReader
@@ -165,3 +168,50 @@ class WritingSpace:
 
     def __str__(self) -> str:
         return self.__class__.__name__
+
+
+class GitLog:
+    def __init__(self, path: str, count: int = 30, s: int = 7, b: int = 0) -> None:
+        self.path = path
+
+        self.__log_to_process = self.__get_log(count, s, b)
+
+    def __get_log(self, count: int, s: int, b: int) -> str:
+        repo = Repo(self.path)
+        b_date = datetime.now() - timedelta(days=b)
+        s_date = datetime.now() - timedelta(days=s)
+
+        git_log: str = repo.git.log(
+            '--pretty={"author":"%an","summary":"%s","body":"%b", "date":"%cd"}',
+            max_count=count,
+            date="format:%Y-%m-%d %H:%M",
+            since=s_date.date(),
+            before=b_date.date(),
+        )
+
+        return git_log
+
+    def __processer_log(self) -> List[dict]:
+        data = self.__log_to_process.replace("\n", "")
+
+        pattern = re.compile(
+            r'"author":"(.+?)","summary":"(.+?)","body":"(.*?)", "date":"(\d{4}-\d{2}-\d{2} \d{2}:\d{2})"',
+            re.DOTALL,
+        )
+
+        items = re.findall(pattern, data.replace("\n", ""))
+        result: List[dict] = []
+        if items:
+            for i in items:
+                item = {}
+                item["author"] = i[0]
+                item["summary"] = i[1]
+                item["body"] = i[2]
+                item["date"] = i[3]
+                result.append(item)
+
+        return result
+
+    @property
+    def log(self) -> List[dict]:
+        return self.__processer_log()
