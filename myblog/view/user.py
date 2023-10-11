@@ -19,6 +19,9 @@ def read_post():
 
 @user.route("/")
 def home():
-    recent_post_id: bytes = conn.zrange("post:recent", 0, -1)[0]
+    try:
+        recent_post_id: bytes = conn.zrange("post:recent", 0, -1)[0]
 
-    return redirect(url_for(".read", id=recent_post_id.decode()))
+        return redirect(url_for(".read_post", id=recent_post_id.decode()))
+    except:
+        return "还没有发布文章"
