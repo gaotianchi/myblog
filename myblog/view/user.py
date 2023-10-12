@@ -1,8 +1,8 @@
 import redis
-from flask import Blueprint, current_app, redirect, render_template, request, url_for
+from flask import Blueprint, current_app, render_template, request
 
 from myblog.model import pool
-from myblog.model.item import Author, GitLog, Post
+from myblog.model.item import Author, Post
 
 user = Blueprint("user", __name__)
 
