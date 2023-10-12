@@ -16,7 +16,7 @@ class BaseConfig:
     DATA_DIR = os.path.join(basedir, "data")
 
     POSTSPACE = os.path.join(DATA_DIR, "文章")
-    WRITINGSPACE = os.path.join(DATA_DIR, "writingspace.json")
+    WRITINGSPACE = os.path.join(DATA_DIR, "profile.json")
 
     GIT_REPO_PATH = basedir
 

@@ -376,7 +376,7 @@ class PostCleaner:
         return self.__class__.__name__
 
 
-class WritingSpaceReader:
+class ProfileReader:
     def __init__(self, app: Flask) -> None:
         self.app = app
 
@@ -384,7 +384,7 @@ class WritingSpaceReader:
         path = os.path.join(self.app.config["WRITINGSPACE"])
         if not os.path.exists(path):
             raise FileNotFoundError(
-                f"{self} 检测到写作空间 {self.app.config['DATA_DIR']} 内不存在配置文件 writingspace.json"
+                f"{self} 检测到写作空间 {self.app.config['DATA_DIR']} 内不存在配置文件 profile.json"
             )
         return path
 
@@ -393,10 +393,10 @@ class WritingSpaceReader:
             dict_config = json.load(f)
         if dict_config:
             self.app.logger.debug(
-                f"{self} 获取到 writingspace.json 的数据 {type(dict_config)}: {dict_config}"
+                f"{self} 获取到 profile.json 的数据 {type(dict_config)}: {dict_config}"
             )
         else:
-            raise FileError(f"{self} 检测到到 writingspace.json 的数据为空")
+            raise FileError(f"{self} 检测到到 profile.json 的数据为空")
 
         return dict_config
 

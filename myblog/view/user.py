@@ -2,7 +2,7 @@ import redis
 from flask import Blueprint, current_app, redirect, render_template, request, url_for
 
 from myblog.model import pool
-from myblog.model.item import GitLog, Post
+from myblog.model.item import Author, GitLog, Post
 
 user = Blueprint("user", __name__)
 
@@ -19,10 +19,12 @@ def read_post():
 
 @user.route("/")
 def home():
-    s = request.args.get("s", 7)
-    b = request.args.get("b", 0)
+    s = int(request.args.get("since", 7))
+    b = int(request.args.get("before", 0))
+    c = int(request.args.get("max_count", 20))
+
     repo_path: str = current_app.config["GIT_REPO_PATH"]
 
-    logs = GitLog(repo_path, s=s, b=b).log
+    author = Author(current_app, since=s, before=b, max_count=c, path=repo_path)
 
-    return render_template("page/home.html", logs=logs)
+    return render_template("page/home.html", author=author)

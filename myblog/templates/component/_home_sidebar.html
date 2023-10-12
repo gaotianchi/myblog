@@ -1,0 +1,30 @@
+<!-- 作者简介 -->
+<div class="p-3 mb-3 bg-light rounded">
+    <h4 class="font-italic">关于作者</h4>
+    <p class="mb-0">{{ profile.about }}</p><br>
+    <p class="blog-post-meta font-italic">联系我: {{ profile.email }}</p>
+</div>
+
+<!-- 最近文章 -->
+
+<div class="card bg-light rounded">
+    <!-- <img class="card-img-top" data-src="holder.js/100x180/?text=Image cap" alt="Card image cap"> -->
+    <div class="card-body">
+        <h4 class="font-italic">最近文章</h4>
+        <!-- <p class="card-text">Text</p> -->
+    </div>
+    {% if posts %}
+    <ul class="list-group list-group-flush">
+        {% for post in posts %}
+        <li class="list-group-item">
+            <a href="{{ post.url }}">{{ post.title }}</a>
+            <small class="blog-post-meta font-italic">{{ post.date }}</small>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">还没有发布文章</li>
+    </ul>
+    {% endif %}
+</div>

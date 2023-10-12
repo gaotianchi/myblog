@@ -1,0 +1,23 @@
+{% if logs %}
+
+{% for log in logs %}
+{% if log.body %}
+<div class="card">
+    <div class="card-header">
+        <small><a href="{{ log.commit_link }}">{{ log.date }}</a>
+            <a href="{{ log.author_link }}">{{ log.author }}</a></small>
+    </div>
+    <div class="card-body">
+        <h4 class="card-title">{{ log.summary }}</h4>
+        <p class="card-text">{{ log.body }}</p>
+    </div>
+    <!-- <div class="card-footer text-muted">
+    Footer
+</div> -->
+</div>
+{% endif %}
+{% endfor %}
+
+{% else %}
+<p>暂时还没有发布任何动态</p>
+{% endif %}
