@@ -1,4 +1,5 @@
 import os
+import shutil
 
 from dotenv import load_dotenv
 
@@ -8,21 +9,20 @@ basedir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
 
 class BaseConfig:
-    # 环境变量
     SECRET_KEY = os.getenv("SECRET_KEY")
+    USERDATA_DIR = os.getenv("USERDATA_DIR")
+    PROFILE_REQUIRE_ELEMENTS = os.getenv("PROFILE_REQUIRE_ELEMENTS")
+    USER_DEFAULT_DIR = os.path.join(basedir, "default")
+    LOG_DIR = os.path.join(basedir, "log")
+    POSTSPACE = os.path.join(USERDATA_DIR, "文章")
 
-    # 配置默认路径
-    LOG_DIR = os.path.join(basedir, "logs")
-    DATA_DIR = os.path.join(basedir, "data")
-
-    POSTSPACE = os.path.join(DATA_DIR, "文章")
-    WRITINGSPACE = os.path.join(DATA_DIR, "profile.json")
-
-    GIT_REPO_PATH = basedir
-
-    for path in [LOG_DIR, DATA_DIR]:
+    for path in [LOG_DIR, USERDATA_DIR]:
         if not os.path.exists(path):
             os.makedirs(path, exist_ok=True)
+
+    for i in os.listdir(USER_DEFAULT_DIR):
+        src = os.path.join(USER_DEFAULT_DIR, i)
+        shutil.move(src, USERDATA_DIR)
 
 
 class DevelopmentConfig(BaseConfig):

@@ -138,33 +138,8 @@ class Profile:
         self.__reader = ProfileReader(app)
 
     @property
-    def home_post_title(self) -> str:
-        temp = str(self.__reader.data["path"]["homePostPath"]).split("/")
-        home_post_path = os.path.join(self.app.config["DATA_DIR"], *temp)
-        self.app.logger.debug(f"{self} 检测到 home_post_path: {home_post_path}")
-
-        if not (os.path.exists(home_post_path) and home_post_path.endswith(".md")):
-            self.app.logger.debug(f"{self} 没有找到指定的主页文章路径，开始尝试在数据库中寻找最新的文章作为主页文章。")
-            latest_post = conn.zrange("post:recent", -1, -1)
-            if latest_post:
-                latest_post_id = latest_post[0].decode()
-                post_title = conn.hget(
-                    f"post:{latest_post_id}:metadata", "title"
-                ).decode()
-
-                self.app.logger.debug(f"{self} 在数据库中将最新的文章 {post_title} 作为首页文章。")
-
-                return latest_post_id
-            else:
-                self.app.logger.warn(f"{self} 没有找到任何文章作为首页文章！")
-                return None
-        else:
-            title = os.path.basename(home_post_path).replace(".md", "").replace(" ", "")
-            return generate_id(title)
-
-    @property
     def data(self) -> dict:
-        return self.__reader.data["author"]
+        return self.__reader.data
 
     def __str__(self) -> str:
         return self.__class__.__name__
@@ -172,7 +147,11 @@ class Profile:
 
 class GitLog:
     def __init__(
-        self, path: str, since: int = 7, before: int = 0, count: int = 20
+        self,
+        path: str,
+        since: int = 7,
+        before: int = 0,
+        count: int = 20,
     ) -> None:
         self.path = path
 
@@ -212,11 +191,8 @@ class GitLog:
                 item["author"] = i[0]
                 item["summary"] = i[1]
                 item["body"] = i[2]
-                item["date"] = i[3]
-                item[
-                    "commit_link"
-                ] = f"https://github.com/2022Jean/{remote_repo_name}/commit/{i[4]}"
-                item["author_link"] = "https://github.com/2022Jean"
+                item["date"] = datetime.strptime(i[3], "%Y-%m-%d %H:%M")
+                item["repo_name"] = remote_repo_name
 
                 result.append(item)
 
@@ -227,20 +203,24 @@ class GitLog:
         return self.__processer_log()
 
 
-class Author:
+class Home:
     def __init__(self, app: Flask, **kwargs) -> None:
         self.app = app
         self.kwargs = kwargs
 
     @property
-    def trend(self) -> GitLog:
-        count = self.kwargs.get("max_count", 20)
-        since = self.kwargs.get("since", 7)
-        before = self.kwargs.get("before", 0)
+    def trend(self) -> List[dict]:
+        count = int(self.kwargs.get("max_count", 20))
+        since = int(self.kwargs.get("since", 7))
+        before = int(self.kwargs.get("before", 0))
 
-        path = self.kwargs.get("path", self.app.config["GIT_REPO_PATH"])
+        paths: list = self.profile.data["gitrepo"]
+        result = []
+        for p in paths:
+            logs = GitLog(p, since, before, count).log
+            result += logs
 
-        return GitLog(path, int(since), int(before), int(count))
+        return sorted(result, key=lambda x: x["date"])
 
     @property
     def profile(self) -> Profile:
@@ -251,11 +231,9 @@ class Author:
         recent_post_count = int(self.kwargs.get("recent_post_count", 5))
 
         post_ids: List[bytes] = conn.zrange("post:recent", 0, -1)
-        self.app.logger.info(post_ids)
 
         posts: List[Post] = []
         for i in post_ids[0 : recent_post_count - 1]:
             posts.append(Post(self.app, i.decode()))
-        self.app.logger.info(posts)
 
         return posts

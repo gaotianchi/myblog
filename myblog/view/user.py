@@ -2,7 +2,7 @@ import redis
 from flask import Blueprint, current_app, render_template, request
 
 from myblog.model import pool
-from myblog.model.item import Author, Post
+from myblog.model.item import Home, Post
 
 user = Blueprint("user", __name__)
 
@@ -23,8 +23,6 @@ def home():
     b = int(request.args.get("before", 0))
     c = int(request.args.get("max_count", 20))
 
-    repo_path: str = current_app.config["GIT_REPO_PATH"]
+    home = Home(current_app, since=s, before=b, max_count=c)
 
-    author = Author(current_app, since=s, before=b, max_count=c, path=repo_path)
-
-    return render_template("page/home.html", author=author)
+    return render_template("page/home.html", home=home)

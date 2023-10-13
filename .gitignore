@@ -4,7 +4,8 @@
 data.db
 uploads/*
 data**
-logs/**
+log/**
+.flaskenv
 
 
 # Byte-compiled / optimized / DLL files

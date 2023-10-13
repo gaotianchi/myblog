@@ -4,10 +4,10 @@
 {% if log.body %}
 <div class="card mb-3">
     <div class="card-header font-italic">
-        <small>{{ log.date }} <a href="{{ log.author_link }}">{{ log.author }}</a></small>
+        <small>{{ log.date }} {{ log.author }} 发布在 {{ log.repo_name }}</small>
     </div>
     <div class="card-body">
-        <h5 class="card-title"><a href="{{ log.commit_link }}">{{ log.summary }}</a></h5>
+        <h5 class="card-title">{{ log.summary }}</h5>
         <p class="card-text">{{ log.body }}</p>
     </div>
     <!-- <div class="card-footer text-muted">

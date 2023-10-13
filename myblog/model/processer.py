@@ -1,6 +1,7 @@
 import json
 import os
 import re
+from ast import Dict
 from datetime import date
 
 import redis
@@ -16,6 +17,13 @@ conn = redis.Redis(connection_pool=pool)
 
 
 class TempData:
+    """
+    职责：储存临时数据，并在使用后销毁。
+    使用者：
+        1. scheduler.WritingSpaceWatcher
+        2. scheduler.Scheduler
+    """
+
     def __init__(self, app: Flask) -> None:
         self.app = app
 
@@ -46,6 +54,12 @@ class TempData:
 
 
 class MdTextReader:
+    """
+    职责：读取 .md 文件，返回文件内容。
+    使用者：
+        1. processer.PostProcesser
+    """
+
     def __init__(self, app: Flask, path: str) -> None:
         self.app = app
         self.path = path
@@ -114,6 +128,12 @@ class MdTextReader:
 
 
 class MetaProcesser:
+    """
+    职责：获取、验证然后返回文章的元数据。
+    使用者：
+        1. processer.PostProcesser
+    """
+
     def __init__(self, app: Flask) -> None:
         self.app = app
         self.__metadata = {}
@@ -122,8 +142,9 @@ class MetaProcesser:
         self.__metadata = md_metadata
         self.__post_path = md_metadata["path"]
 
-    def __format_date(self) -> str:
+    def __format_date(self):
         publish_date = self.__metadata.get("date", "")
+        self.app.logger.info(publish_date)
         if not isinstance(publish_date, date):
             publish_date = date.today()
 
@@ -178,6 +199,12 @@ class MetaProcesser:
 
 
 class BodyProcesser:
+    """
+    职责：文章正文处理器，获取、验证最终返回文章正文
+    使用者：
+        1. processer.PostProcesser
+    """
+
     toc_class = "sticky-top p-3 mb-3 bg-light rounded"
 
     def __init__(self, app: Flask) -> None:
@@ -276,6 +303,12 @@ class BodyProcesser:
 
 
 class PostProcesser:
+    """
+    职责：该类是文章元素的中心处理器，集成所有文章处理子系统，验证文章对象的是否符合规定，将子系统的处理结果储存到数据库中。
+    使用者：
+        1. scheduler.Scheduler
+    """
+
     def __init__(self, app: Flask, mdpath: str) -> None:
         self.app = app
         self.__mdreader = MdTextReader(app, mdpath)
@@ -313,7 +346,6 @@ class PostProcesser:
         body_valid = self.__bodyprocesser.valid
 
         metadata = self.__metaprocesser.metadata
-        body = self.__bodyprocesser.body
 
         if not meta_valid:
             self.app.logger.warn(f"{self} 检测到文章 {metadata['path']} 的元数据不符合规定！")
@@ -328,6 +360,12 @@ class PostProcesser:
 
 
 class PostCleaner:
+    """
+    职责：从数据库中删除文章相关内容
+    使用者：
+        1. scheduler.Scheduler
+    """
+
     def __init__(self, app: Flask, path: str) -> None:
         self.app = app
         self.path = path
@@ -377,32 +415,55 @@ class PostCleaner:
 
 
 class ProfileReader:
+    """
+    职责：读取用户文件夹中的 profile.json 文件，并返回该文件的数据
+    使用者：
+        1. item.Profile
+    """
+
     def __init__(self, app: Flask) -> None:
         self.app = app
+        self.__path = os.path.join(app.config["USERDATA_DIR"], "profile.json")
 
-    def __get_config_path(self) -> str:
-        path = os.path.join(self.app.config["WRITINGSPACE"])
-        if not os.path.exists(path):
-            raise FileNotFoundError(
-                f"{self} 检测到写作空间 {self.app.config['DATA_DIR']} 内不存在配置文件 profile.json"
-            )
-        return path
+    def __check_path(self) -> bool:
+        if not os.path.exists(self.__path):
+            filename = os.path.basename(self.__path)
+            self.app.logger.warn(f"{self} 检测到用户文件夹中缺失 {filename} 文件！")
 
-    def __get_dict_config(self) -> dict:
-        with open(self.__get_config_path(), "r", encoding="UTF-8") as f:
-            dict_config = json.load(f)
-        if dict_config:
-            self.app.logger.debug(
-                f"{self} 获取到 profile.json 的数据 {type(dict_config)}: {dict_config}"
-            )
-        else:
-            raise FileError(f"{self} 检测到到 profile.json 的数据为空")
+        return True
 
-        return dict_config
+    def __get_data(self) -> dict:
+        data = {}
+        if self.__check_path():
+            with open(self.__path, "r", encoding="UTF-8") as f:
+                data = json.load(f)
+
+        return data
+
+    def __check_element(self):
+        required_elements: list = self.app.config["PROFILE_REQUIRE_ELEMENTS"].split(",")
+        data = self.__get_data()
+
+        if not data:
+            self.app.logger.warn(f"{self} 检测到 profile.json 中数据为空！")
+
+            return False
+
+        missing_field = set(required_elements) - (set(data) & set(required_elements))
+        if missing_field:
+            self.app.logger.warn(f"{self} 检测到 profile.json 缺失以下字段 {missing_field}")
+
+            return False
+
+        return True
 
     @property
     def data(self) -> dict:
-        return self.__get_dict_config()
+        data = {}
+        if self.__check_element():
+            return self.__get_data()
+
+        return data
 
     def __str__(self) -> str:
         return self.__class__.__name__

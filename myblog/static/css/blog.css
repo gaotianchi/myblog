@@ -182,3 +182,12 @@ ul ul ul {
 .sticky-top li {
   font-size: small;
 }
+
+a {
+  color: #002FA7; 
+  text-decoration: none; 
+}
+
+a:hover {
+  color: #861AC5; 
+}

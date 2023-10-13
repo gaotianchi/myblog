@@ -8,7 +8,7 @@ from watchdog.observers import Observer
 from myblog.model.processer import PostCleaner, PostProcesser, TempData
 
 
-class PostWatcher(PatternMatchingEventHandler):
+class WritingSpaceWatcher(PatternMatchingEventHandler):
     def __init__(
         self,
         app: Flask,
@@ -47,14 +47,14 @@ class Watcher:
     def __init__(self, app: Flask) -> None:
         self.app = app
 
-        self.post_watcher = PostWatcher(app)
+        self.post_watcher = WritingSpaceWatcher(app)
         self.observer = Observer()
 
     def run(self):
         self.app.logger.info(f"{self} 启动文件监视器")
         self.observer.schedule(
             event_handler=self.post_watcher,
-            path=self.app.config["DATA_DIR"],
+            path=self.app.config["USERDATA_DIR"],
             recursive=True,
         )
 
