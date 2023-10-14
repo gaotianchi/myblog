@@ -22,7 +22,8 @@ class BaseConfig:
 
     for i in os.listdir(USER_DEFAULT_DIR):
         src = os.path.join(USER_DEFAULT_DIR, i)
-        shutil.move(src, USERDATA_DIR)
+        if not os.path.exists(src):
+            shutil.move(src, USERDATA_DIR)
 
 
 class DevelopmentConfig(BaseConfig):
