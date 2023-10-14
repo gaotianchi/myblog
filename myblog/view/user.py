@@ -19,10 +19,6 @@ def read_post():
 
 @user.route("/")
 def home():
-    s = int(request.args.get("since", 7))
-    b = int(request.args.get("before", 0))
-    c = int(request.args.get("max_count", 20))
-
-    home = Home(current_app, since=s, before=b, max_count=c)
+    home = Home(current_app)
 
     return render_template("page/home.html", home=home)

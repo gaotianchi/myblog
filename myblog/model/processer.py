@@ -1,7 +1,6 @@
 import json
 import os
 import re
-from ast import Dict
 from datetime import date
 
 import redis
@@ -140,15 +139,20 @@ class MetaProcesser:
 
     def set_metadata(self, md_metadata: dict) -> None:
         self.__metadata = md_metadata
+        self.app.logger.info(md_metadata)
         self.__post_path = md_metadata["path"]
 
     def __format_date(self):
         publish_date = self.__metadata.get("date", "")
-        self.app.logger.info(publish_date)
-        if not isinstance(publish_date, date):
-            publish_date = date.today()
 
-        self.__metadata["date"] = publish_date.isoformat()
+        if isinstance(publish_date, date):
+            self.__metadata["date"] = publish_date.isoformat()
+            return
+
+        if not re.match(r"\d{4}-\d{2}-\d{2}", publish_date):
+            publish_date = date.today()
+            self.__metadata["date"] = publish_date.isoformat()
+            return
 
     def __validate_tag(self) -> None:
         tags = self.__metadata.get("tags", "")
@@ -275,7 +279,13 @@ class BodyProcesser:
             matches = re.findall(pattern, self.table_and_body, re.DOTALL)
 
             if matches:
-                return matches[0]
+                pattern = f'<div class="{self.toc_class}">'
+                div_start = re.findall(pattern, matches[0], re.DOTALL)[0]
+                table_title = """
+                <h4 class="font-italic">文章目录</h4>
+                """
+                table = re.sub(div_start, div_start + table_title, matches[0])
+                return table
 
             else:
                 self.app.logger.debug(f"{self} 检测到本文没有配置目录")
@@ -395,10 +405,11 @@ class PostCleaner:
         try:
             metadata_name = f"post:{post_id}:metadata"
             body_name = f"post:{post_id}:body"
+            table_name = f"post:{post_id}:table"
 
             pipe = conn.pipeline()
             pipe.zrem("post:recent", post_id)
-            pipe.delete(*[metadata_name, body_name])
+            pipe.delete(*[metadata_name, body_name, table_name])
             pipe.execute()
 
             self.app.logger.debug(f"{self} 成功将 {post_title} 从数据库中删除。")

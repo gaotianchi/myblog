@@ -3,7 +3,7 @@
 
 {% block main %}
 <div class="row">
-    <div class="col-md-8">
+    <div class="col-md-8" id="trend-container">
         <h3>我的动态</h3>
         {% set logs = home.trend %}
 
@@ -22,3 +22,7 @@
     </aside>
 </div>
 {% endblock main %}
+
+{% block script %}
+<script src="../../static/js/home.js"></script>
+{% endblock script %}

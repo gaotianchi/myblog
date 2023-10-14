@@ -1,6 +1,6 @@
 import os
 import re
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from typing import List
 
 import redis
@@ -9,7 +9,6 @@ from git.repo import Repo
 
 from myblog.model import pool
 from myblog.model.processer import ProfileReader
-from myblog.utlis import generate_id
 
 conn = redis.Redis(connection_pool=pool)
 
@@ -149,25 +148,29 @@ class GitLog:
     def __init__(
         self,
         path: str,
-        since: int = 7,
-        before: int = 0,
+        since: datetime = None,
+        before: datetime = None,
         count: int = 20,
     ) -> None:
         self.path = path
 
         self.__log_to_process = self.__get_log(since, before, count)
 
-    def __get_log(self, s: int, b: int, count: int) -> str:
+    def __get_log(self, s: datetime, b: datetime, count: int) -> str:
+        if not b:
+            b = datetime.today()
+
+        if not s:
+            s = b - timedelta(days=7)
+
         repo = Repo(self.path)
-        b_date = datetime.now() - timedelta(days=b)
-        s_date = datetime.now() - timedelta(days=s)
 
         git_log: str = repo.git.log(
             '--pretty={"author":"%an","summary":"%s","body":"%b","date":"%cd","hash":"%H"}',
             max_count=count,
             date="format:%Y-%m-%d %H:%M",
-            since=s_date.date(),
-            before=b_date.date(),
+            since=s,
+            before=b,
         )
 
         return git_log
@@ -191,7 +194,7 @@ class GitLog:
                 item["author"] = i[0]
                 item["summary"] = i[1]
                 item["body"] = i[2]
-                item["date"] = datetime.strptime(i[3], "%Y-%m-%d %H:%M")
+                item["date"] = i[3]
                 item["repo_name"] = remote_repo_name
 
                 result.append(item)
@@ -204,23 +207,35 @@ class GitLog:
 
 
 class Home:
+    """
+    职责：为首页提供数据
+    使用者：首页视图函数
+    """
+
     def __init__(self, app: Flask, **kwargs) -> None:
         self.app = app
         self.kwargs = kwargs
 
     @property
     def trend(self) -> List[dict]:
-        count = int(self.kwargs.get("max_count", 20))
-        since = int(self.kwargs.get("since", 7))
-        before = int(self.kwargs.get("before", 0))
+        before = datetime.today()
+        since = before - timedelta(days=7)
+
+        count = int(self.kwargs.get("count", 20))
+
+        if since := self.kwargs.get("since", ""):
+            since = datetime.strptime(since, "%Y-%m-%d %H:%M")
+
+        if before := self.kwargs.get("before", ""):
+            before = datetime.strptime(before, "%Y-%m-%d %H:%M")
 
         paths: list = self.profile.data["gitrepo"]
-        result = []
-        for p in paths:
-            logs = GitLog(p, since, before, count).log
-            result += logs
 
-        return sorted(result, key=lambda x: x["date"])
+        timeline = LogTimeLine(
+            self.app, paths=paths, since=since, before=before, count=count
+        )
+
+        return timeline.logs
 
     @property
     def profile(self) -> Profile:
@@ -230,10 +245,57 @@ class Home:
     def recent_post(self) -> List[Post]:
         recent_post_count = int(self.kwargs.get("recent_post_count", 5))
 
-        post_ids: List[bytes] = conn.zrange("post:recent", 0, -1)
+        post_ids: List[bytes] = conn.zrange("post:recent", 0, -1, desc=True)
 
         posts: List[Post] = []
         for i in post_ids[0 : recent_post_count - 1]:
             posts.append(Post(self.app, i.decode()))
 
         return posts
+
+
+class LogTimeLine:
+    """
+    职责：将多个仓库的日志按照时间排序，返回一个列表
+    使用者: item.Home
+    组件:
+        1. item.GitLog
+        2. item.Profile
+    """
+
+    def __init__(self, app: Flask, paths: list, **kwargs) -> None:
+        self.app = app
+        self.paths = paths
+        self.kwargs = kwargs
+
+    def __sort_logs(self) -> list:
+        before = datetime.today()
+        since = before - timedelta(days=7)
+
+        count = int(self.kwargs.get("count", 20))
+
+        if since := self.kwargs.get("since", ""):
+            since = datetime.strptime(since, "%Y-%m-%d %H:%M")
+
+        if before := self.kwargs.get("before", ""):
+            before = datetime.strptime(before, "%Y-%m-%d %H:%M")
+
+        paths = self.paths
+
+        result = []
+        for p in paths:
+            loghandler = GitLog(p, since, before, count)
+            logs = loghandler.log
+            self.app.logger.debug(f"{self} 从 {p} 中获取到 {len(logs)} 个日志")
+            result += logs
+
+        result = sorted(result, key=lambda x: x["date"], reverse=True)
+
+        return result
+
+    @property
+    def logs(self) -> list:
+        return self.__sort_logs()
+
+    def __str__(self) -> str:
+        return self.__class__.__name__

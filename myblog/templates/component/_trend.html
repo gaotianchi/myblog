@@ -1,8 +1,7 @@
 {% if logs %}
 
 {% for log in logs %}
-{% if log.body %}
-<div class="card mb-3">
+<div class="card mb-3 card-item" data-date="{{ log.date }}">
     <div class="card-header font-italic">
         <small>{{ log.date }} {{ log.author }} 发布在 {{ log.repo_name }}</small>
     </div>
@@ -10,11 +9,8 @@
         <h5 class="card-title">{{ log.summary }}</h5>
         <p class="card-text">{{ log.body }}</p>
     </div>
-    <!-- <div class="card-footer text-muted">
-    Footer
-</div> -->
+
 </div>
-{% endif %}
 {% endfor %}
 
 {% else %}
