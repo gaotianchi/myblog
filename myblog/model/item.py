@@ -148,20 +148,21 @@ class GitLog:
     def __init__(
         self,
         path: str,
-        since: datetime = None,
-        before: datetime = None,
-        count: int = 20,
+        since: str = None,
+        before: str = None,
+        count: int = 50,
     ) -> None:
         self.path = path
 
         self.__log_to_process = self.__get_log(since, before, count)
 
-    def __get_log(self, s: datetime, b: datetime, count: int) -> str:
-        if not b:
-            b = datetime.today()
+    def __get_log(self, s: str, b: str, count: int) -> str:
+        b = datetime.strptime(b, "%Y-%m-%d").date() if b else date.today()
 
         if not s:
-            s = b - timedelta(days=7)
+            s = b - timedelta(days=3)
+        else:
+            s = datetime.strptime(s, "%Y-%m-%d")
 
         repo = Repo(self.path)
 
@@ -195,6 +196,7 @@ class GitLog:
                 item["summary"] = i[1]
                 item["body"] = i[2]
                 item["date"] = i[3]
+                item["hash"] = i[4]
                 item["repo_name"] = remote_repo_name
 
                 result.append(item)
@@ -218,16 +220,13 @@ class Home:
 
     @property
     def trend(self) -> List[dict]:
-        before = datetime.today()
-        since = before - timedelta(days=7)
+        before = str(date.today())
+        since = str(date.today() - timedelta(days=7))
 
         count = int(self.kwargs.get("count", 20))
 
-        if since := self.kwargs.get("since", ""):
-            since = datetime.strptime(since, "%Y-%m-%d %H:%M")
-
-        if before := self.kwargs.get("before", ""):
-            before = datetime.strptime(before, "%Y-%m-%d %H:%M")
+        since = self.kwargs.get("since", "")
+        before = self.kwargs.get("before", "")
 
         paths: list = self.profile.data["gitrepo"]
 
@@ -269,18 +268,15 @@ class LogTimeLine:
         self.kwargs = kwargs
 
     def __sort_logs(self) -> list:
-        before = datetime.today()
-        since = before - timedelta(days=7)
+        count = int(self.kwargs.get("count", 50))
 
-        count = int(self.kwargs.get("count", 20))
+        since = self.kwargs.get("since", "")
 
-        if since := self.kwargs.get("since", ""):
-            since = datetime.strptime(since, "%Y-%m-%d %H:%M")
-
-        if before := self.kwargs.get("before", ""):
-            before = datetime.strptime(before, "%Y-%m-%d %H:%M")
+        before = self.kwargs.get("before", "")
 
         paths = self.paths
+        self.app.logger.info(f"{self} 接收到的 before 值为 {before}")
+        self.app.logger.info(f"{self} 接收到的 since 值为 {since}")
 
         result = []
         for p in paths:
@@ -290,6 +286,7 @@ class LogTimeLine:
             result += logs
 
         result = sorted(result, key=lambda x: x["date"], reverse=True)
+        self.app.logger.info(f"{self} 获取到的 git 日志包括 {result}")
 
         return result
 

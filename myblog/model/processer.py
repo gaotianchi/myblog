@@ -139,7 +139,6 @@ class MetaProcesser:
 
     def set_metadata(self, md_metadata: dict) -> None:
         self.__metadata = md_metadata
-        self.app.logger.info(md_metadata)
         self.__post_path = md_metadata["path"]
 
     def __format_date(self):

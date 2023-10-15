@@ -1,7 +1,7 @@
 {% if logs %}
 
 {% for log in logs %}
-<div class="card mb-3 card-item" data-date="{{ log.date }}">
+<div class="card mb-3 card-item" data-date="{{ log.date.split(' ')[0] }}">
     <div class="card-header font-italic">
         <small>{{ log.date }} {{ log.author }} 发布在 {{ log.repo_name }}</small>
     </div>
