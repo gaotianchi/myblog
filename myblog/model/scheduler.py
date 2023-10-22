@@ -71,7 +71,7 @@ class Scheduler:
         self.scheduler.add_job(
             func=self.update_post,
             trigger="interval",
-            seconds=self.app.config["SCHEDULING_CYCLE"],
+            seconds=self.app.config["SCHEDULING_CYCLE_POST"],
         )
 
         self.scheduler.start()

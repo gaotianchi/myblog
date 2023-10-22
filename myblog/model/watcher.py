@@ -26,7 +26,9 @@ class PostWatcher:
         path_worktree_userdata = os.getenv("PATH_WORKTREE_USERDATA")
 
         repo = Repo(path_git_userdata)
-        interval = datetime.now() - timedelta(seconds=10)
+        interval = datetime.now() - timedelta(
+            seconds=self.app.config["SCHEDULING_CYCLE_POST"]
+        )
         commits = repo.iter_commits(since=interval)
 
         changed_files = []

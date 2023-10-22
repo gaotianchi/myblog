@@ -16,7 +16,7 @@ class Base:
     PATH_BASE = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     PATH_LOG = os.path.join(PATH_BASE, "log")
 
-    SCHEDULING_CYCLE = 10
+    SCHEDULING_CYCLE_POST = 10
     REQUIRED_POST_KEY = {"date": date, "summary": str}
 
     MYSQL_CONFIG = dict(
