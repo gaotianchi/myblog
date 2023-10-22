@@ -9,20 +9,23 @@ from datetime import date
 from flask import Flask
 from markdown import Markdown
 
-from myblog.model.mdexten import CustomTocExtension
 from myblog.model.utlis import get_meta_and_body
 
 
-class PostValidator(ABC):
+class Validator(ABC):
     @abstractmethod
     def set(self):
+        pass
+
+    @abstractmethod
+    def validate(self):
         pass
 
     def __str__(self) -> str:
         return self.__class__.__name__
 
 
-class PostPathValidator(PostValidator):
+class PostPathValidator(Validator):
     """
     职责：验证文章的位置是否符合规范
     被谁使用：文章处理器
@@ -55,14 +58,13 @@ class PostPathValidator(PostValidator):
     def __validate(self) -> None:
         self.__valid = self.__validate_file_format() and self.__validate_loacation()
 
-    @property
-    def valid(self) -> bool:
+    def validate(self) -> bool:
         self.__validate()
 
         return self.__valid
 
 
-class PostMetadataValidator(PostValidator):
+class PostMetadataValidator(Validator):
     """
     职责：验证文章的元数据是否符合规范
     """
@@ -111,14 +113,13 @@ class PostMetadataValidator(PostValidator):
     def __validate(self) -> None:
         self.__valid = self.__validate_required_key() and self.__valdate_date_format()
 
-    @property
-    def valid(self) -> bool:
+    def validate(self) -> bool:
         self.__validate()
 
         return self.__valid
 
 
-class PostBodyValidator(PostValidator):
+class PostBodyValidator(Validator):
     """
     职责：验证文章的正文是否符合规范
     """
@@ -131,7 +132,7 @@ class PostBodyValidator(PostValidator):
         self.body = get_meta_and_body(md_text)["body"]
 
     def __validate_table(self) -> None:
-        md = Markdown(extensions=[CustomTocExtension()])
+        md = Markdown(extensions=["toc"])
         md.convert(self.body)
         table: str = md.toc
         unexpected_html = '<divclass="toc"><ul></ul></div>'
@@ -146,8 +147,7 @@ class PostBodyValidator(PostValidator):
         if self.body and self.__validate_table():
             self.__valid = True
 
-    @property
-    def valid(self) -> bool:
+    def validate(self) -> bool:
         self.__validate()
 
         return self.__valid
@@ -157,7 +157,7 @@ class PostValidatorFactory:
     def __init__(self, app: Flask) -> None:
         self.app = app
 
-    def get_validator(self, name: str) -> PostValidator:
+    def get_validator(self, name: str) -> Validator:
         if name.lower() not in ["postpath", "postmetadata", "postbody"]:
             raise "请输入正确的验证器名称"
 

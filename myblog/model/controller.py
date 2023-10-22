@@ -34,7 +34,7 @@ class PostUpdater:
     def __process(self) -> None:
         pathvalidator = self.validator.get_validator("postpath")
         pathvalidator.set(self.p)
-        if not pathvalidator.valid:
+        if not pathvalidator.validate():
             return None
 
         if self.t == "D":
@@ -54,7 +54,7 @@ class PostUpdater:
         metavalidator.set(md_text)
         bodyvalidator.set(md_text)
 
-        if metavalidator.valid and bodyvalidator.valid:
+        if metavalidator.validate() and bodyvalidator.validate():
             self.metaprocesser.set(md_text, self.p)
             self.bodyprocesser.set(md_text)
 
