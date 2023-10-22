@@ -1,37 +1,30 @@
+"""
+职责：定义应用的稳定配置
+被哪些模块使用：
+依赖哪些模块：
+"""
+
 import os
-import shutil
-
-from dotenv import load_dotenv
-
-load_dotenv()
-
-basedir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+from datetime import date
 
 
-class BaseConfig:
-    SECRET_KEY = os.getenv("SECRET_KEY")
-    USERDATA_DIR = os.getenv("USERDATA_DIR")
-    PROFILE_REQUIRE_ELEMENTS = os.getenv("PROFILE_REQUIRE_ELEMENTS")
-    USER_DEFAULT_DIR = os.path.join(basedir, "default")
-    LOG_DIR = os.path.join(basedir, "log")
-    POSTSPACE = os.path.join(USERDATA_DIR, "文章")
+class Base:
+    """
+    职责：定义基本的配置项
+    """
 
-    for path in [LOG_DIR, USERDATA_DIR]:
-        if not os.path.exists(path):
-            os.makedirs(path, exist_ok=True)
+    PATH_BASE = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+    PATH_LOG = os.path.join(PATH_BASE, "log")
 
-    for i in os.listdir(USER_DEFAULT_DIR):
-        src = os.path.join(USER_DEFAULT_DIR, i)
-        if not os.path.exists(src):
-            shutil.move(src, USERDATA_DIR)
+    SCHEDULING_CYCLE = 10
+    REQUIRED_POST_KEY = {"date": date, "summary": str}
 
-
-class DevelopmentConfig(BaseConfig):
-    SERVER_NAME = os.getenv("DEV_SERVER_NAME", "127.0.0.1:5000")
+    MYSQL_CONFIG = dict(
+        host=os.getenv("MYSQL_HOST"),
+        user=os.getenv("MYSQL_USER"),
+        password=os.getenv("MYSQL_PASSWORD"),
+        database=os.getenv("MYSQL_DATABASE"),
+    )
 
 
-class ProductionConfig(BaseConfig):
-    SERVER_NAME = os.getenv("PROD_SERVER_NAME")
-
-
-config = {"dev": DevelopmentConfig, "prod": ProductionConfig}
+config = {"base": Base}

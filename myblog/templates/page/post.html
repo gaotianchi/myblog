@@ -1,31 +1,42 @@
-{% extends "base.html" %}
+<!-- 
+    职责：渲染文章正文以及附属组件
+    组件：
+      - 文章正文部分
+      - 侧边栏部分
+        - 文章摘要元数据卡片
+        - 文章目录
+ -->
 
+{% extends "base.html" %}
 
 {% block main %}
 <div class="row">
-    <div class="col-md-8 blog-main">
-
-        {% if post %}
-
-        <!-- 博客文章正文 -->
-        {% include "./component/_article.html" %}
-
-        <!-- 新旧文章切换按钮 -->
-        {% include "./component/_pagination.html" %}
-
-        {% else %}
-
-        <p>没有找到相应文章</p>
-
-        {% endif %}
-
+    <div class="col-md-8">
+        <article>
+            <h1 id="post-title">{{ data.title }}</h1>
+            <div id="post-body">{{ data.body|safe }}</div>
+        </article>
     </div>
 
-    <!-- 侧边栏 -->
-    <aside class="col-md-4 blog-sidebar">
 
-        {% include "./component/_post_sidebar.html" %}
+    <div class="col-md-4">
+        <!-- 组件一： 文章摘要元数据卡片 -->
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">关于这篇文章</h4>
+                <p class="card-text"><strong>摘要：</strong>{{ data.summary }}</p>
+                <p class="card-text">文章最早发布于 {{ data.date }}，最近更新日期为 {{ data.updated }}。
+                    作者{{ data.author }}将本文归类到 {{ data.category }}.</p>
+            </div>
+        </div>
 
-    </aside>
+        <!-- 组件二：文章目录 -->
+        <div class="card sticky-md-top">
+            <div class="card-body">
+                <h4 class="card-title">文章目录</h4>
+                <div class="card-text">{{ data.toc|safe }}</div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock main %}

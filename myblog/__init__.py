@@ -1,21 +1,22 @@
+"""
+职责：初始化 flask 应用
+"""
+
 import logging
 import os
-import shutil
 from logging.handlers import RotatingFileHandler
 
-import click
-import redis
 from flask import Flask
 
-from myblog.model import pool
+from myblog.model import MySQLHandler
 from myblog.model.scheduler import Scheduler
 from myblog.setting import config
-from myblog.view import api, user
+from myblog.view import api_bp, user_bp
 
 
-def create_app(config_name: str = "dev"):
+def create_app(name: str = "base"):
     app = Flask("myblog")
-    app.config.from_object(config[config_name])
+    app.config.from_object(config[name])
 
     Register.register(app)
 
@@ -29,15 +30,19 @@ class Register:
 
         cls.__register_blueprint(cls)
         cls.__register_logger(cls)
-        cls.__register_command(cls)
+        cls.__register_mysql(cls)
         cls.__register_scheduler(cls)
+
+    def __register_blueprint(cls):
+        cls.app.register_blueprint(user_bp)
+        cls.app.register_blueprint(api_bp)
 
     def __register_logger(cls):
         formatter = logging.Formatter(
             "[%(asctime)s]-[%(module)s]-[%(lineno)d]-[%(funcName)s]-[%(levelname)s]-[%(message)s]"
         )
         handler = RotatingFileHandler(
-            os.path.join(cls.app.config["LOG_DIR"], "myblog.log"),
+            os.path.join(cls.app.config["PATH_LOG"], "myblog.log"),
             mode="a",
             maxBytes=100 * 1024,
             backupCount=3,
@@ -47,27 +52,11 @@ class Register:
         cls.app.logger.addHandler(handler)
         cls.app.logger.setLevel(logging.DEBUG)
 
-    def __register_blueprint(cls):
-        cls.app.register_blueprint(api.api)
-        cls.app.register_blueprint(user.user)
+    def __register_mysql(cls):
+        config: dict = cls.app.config["MYSQL_CONFIG"]
+        mysql_handler = MySQLHandler(**config)
+        cls.app.config["MYSQL_HANDLER"] = mysql_handler
 
     def __register_scheduler(cls):
-        with cls.app.app_context():
-            scheduler = Scheduler(cls.app)
-            scheduler.run()
-
-    def __register_command(cls):
-        @cls.app.cli.command(help="清除数据库中的所有数据.")
-        def init():
-            click.confirm("确定要清除所有数据吗？(包括 redis 数据库和文件夹中的数据)")
-
-            conn = redis.Redis(connection_pool=pool)
-
-            conn.flushall()
-            click.echo("成功清除 redis 中的所有数据!")
-
-            path = cls.app.config["POSTSPACE"]
-            shutil.rmtree(path)
-            os.mkdir(path)
-
-            click.echo("成功将文件夹中的数据全部删除.")
+        timer = Scheduler(cls.app)
+        timer.run()

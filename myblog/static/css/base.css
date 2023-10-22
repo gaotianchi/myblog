@@ -1,0 +1,49 @@
+/* 全局样式
+================================================*/
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+
+
+
+
+
+/* header 样式
+=============================================== */
+
+header {
+    background-image: url(../img/cover-background.svg);
+}
+
+#cover-title {
+    max-width: 100%;
+    height: auto;
+}
+
+
+
+
+
+
+/* main 样式
+==================================================== */
+main {
+    min-height: calc(100vh - 100px);
+}
+
+
+
+
+
+
+
+/* footer 样式 
+====================================================*/
+
+footer {
+    line-height: 50px;
+    padding: 0 20px;
+}
