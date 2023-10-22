@@ -1,11 +1,10 @@
 .env
 .trash
 .venv
-data.db
-uploads/*
-data**
+.vscode
 log/**
-.flaskenv
+!log/.gitkeep
+
 
 
 # Byte-compiled / optimized / DLL files
