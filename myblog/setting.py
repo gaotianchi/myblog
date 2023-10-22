@@ -17,6 +17,7 @@ class Base:
     PATH_LOG = os.path.join(PATH_BASE, "log")
 
     SCHEDULING_CYCLE_POST = 10
+    SCHEDULING_CYCLE_TREND = 10
     REQUIRED_POST_KEY = {"date": date, "summary": str}
 
     MYSQL_CONFIG = dict(

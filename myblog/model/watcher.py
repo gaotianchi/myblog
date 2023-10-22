@@ -11,6 +11,44 @@ from flask import Flask
 from git import Repo
 
 
+class TrendWatcher:
+    def __init__(self, app: Flask) -> None:
+        self.app = app
+
+        self.__data = {}
+
+    def __load_trend_data(self) -> None:
+        paths: list = os.getenv("PATH_TREND_GIT_REPO").split(",")
+        for path in paths:
+            commits = self.__get_commits(path)
+
+            self.__data += commits
+
+    def __get_commits(self, path: str) -> list:
+        result = []
+        repo = Repo(path)
+        interval = datetime.now() - timedelta(
+            seconds=self.app.config["SCHEDULING_CYCLE_TREND"]
+        )
+        commits = repo.iter_commits(since=interval)
+
+        for commit in commits:
+            message: str = commit.message
+            time: datetime = commit.committed_datetime
+
+            item = dict(message=message, time=time)
+
+            result.append(item)
+
+        return result
+
+    @property
+    def data(self) -> list:
+        self.__load_trend_data()
+
+        return self.__data
+
+
 class PostWatcher:
     """
     职责：获取调度周期内发生变动的文章路径和变动类型。
