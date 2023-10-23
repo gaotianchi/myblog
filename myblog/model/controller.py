@@ -6,10 +6,43 @@ import os
 
 from flask import Flask
 
-from myblog.model.dbupdater import PostCleaner, PostDbUpdater
-from myblog.model.processer import BodyProcesser, MetadataProcesser
+from myblog.model.dbupdater import PostCleaner, PostDbUpdater, TrendDbUpdater
+from myblog.model.processer import BodyProcesser, MetadataProcesser, TrendProcesser
 from myblog.model.utlis import generate_id
-from myblog.model.validator import PostValidatorFactory
+from myblog.model.validator import TrendValidator, ValidatorFactory
+
+
+class TrendUpdater:
+    """
+    职责：更新数据库中的动态表
+    """
+
+    def __init__(self, app: Flask) -> None:
+        self.app = app
+
+        self.validator = TrendValidator(app)
+        self.processer = TrendProcesser(app)
+        self.dbupdater = TrendDbUpdater(app)
+
+    def set(self, commit_items: dict) -> None:
+        self.commit_items = commit_items
+
+    def __process(self) -> None:
+        self.validator.set(self.commit_items)
+        if self.validator.validate():
+            self.app.logger.warn("trend 通过验证")
+            self.processer.set(self.commit_items)
+
+            trend = self.processer.data
+            self.dbupdater.set(trend)
+
+            self.dbupdater.update()
+
+            self.app.logger.debug(f"动态 {trend["title"]} 更新完成")
+
+    def update(self) -> None:
+
+        self.__process()
 
 
 class PostUpdater:
@@ -21,7 +54,7 @@ class PostUpdater:
     def __init__(self, app: Flask) -> None:
         self.app = app
 
-        self.validator = PostValidatorFactory(app)
+        self.validator = ValidatorFactory(app)
         self.metaprocesser = MetadataProcesser(app)
         self.bodyprocesser = BodyProcesser(app)
         self.updater = PostDbUpdater(app)

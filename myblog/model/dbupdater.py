@@ -22,8 +22,8 @@ class TrendDbUpdater:
 
         self.__init_table()
 
-    def set(self, trends: dict) -> None:
-        self.trends = trends
+    def set(self, trend: dict) -> None:
+        self.trend = trend
 
     def __init_table(self) -> None:
         """
@@ -53,9 +53,10 @@ INSERT INTO
 VALUES
   ('{id}', '{title}', '{body}', '{time}', '{project}', '{author_name}', '{author_email}')
 """
-        self.mysql.execute_update(sql.format(**self.trends))
+        self.mysql.execute_update(sql.format(**self.trend))
 
     def update(self) -> None:
+        self.app.logger.warn("trend 运行了插入程序")
         self.__insert_trend()
 
 
@@ -80,6 +81,7 @@ class PostDbUpdater:
         """
         职责：主程序
         """
+        self.app.logger.warn("post 运行了插入程序")
         if self.__key_is_exist():
             self.__update_post()
         else:

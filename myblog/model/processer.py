@@ -27,7 +27,15 @@ class TrendProcesser:
     def __init__(self, app: Flask) -> None:
         self.app = app
 
-        self.__data = {}
+        self.__data: dict[str, str] = {
+            "id": "",
+            "title": "",
+            "body": "",
+            "time": "",
+            "project": "",
+            "author_name": "",
+            "author_email": "",
+        }
 
     def set(self, commit_items: dict) -> None:
         self.__data["id"] = commit_items["hash"]
@@ -49,7 +57,7 @@ class TrendProcesser:
         self.__data["time"] = self.time.strftime("%Y-%m-%d %H:%M:%S")
 
     @property
-    def data(self) -> dict:
+    def data(self) -> dict[str, str]:
         self.__format_body_to_html()
         self.__format_datetime()
 

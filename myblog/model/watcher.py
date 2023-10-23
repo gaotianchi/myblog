@@ -15,14 +15,21 @@ class TrendWatcher:
     def __init__(self, app: Flask) -> None:
         self.app = app
 
-        self.__data = {}
+        self.__data = []
 
     def __load_trend_data(self) -> None:
         paths: list = os.getenv("PATH_TREND_GIT_REPO").split(",")
+        result = []
         for path in paths:
-            commits = self.__get_commits(path)
+            try:
+                commits = self.__get_commits(path)
+                result += commits
 
-            self.__data += commits
+            except:
+                self.app.logger.warn(f"{path} 不是 git 仓库")
+                continue
+
+        self.__data = result
 
     def __get_commits(self, path: str) -> list:
         result = []
@@ -35,7 +42,7 @@ class TrendWatcher:
         for commit in commits:
             message: str = commit.message
             time: datetime = commit.committed_datetime
-            hash: str = commit.hexsha[:10]
+            hash: str = commit.hexsha[:20]
             author: dict = dict(name=commit.author.name, email=commit.author.email)
             project = os.path.basename(repo.working_dir)
 
