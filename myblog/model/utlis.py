@@ -18,7 +18,7 @@ def generate_id(title: str) -> str:
     return title_id
 
 
-def get_meta_and_body(md_text: str) -> dict:
+def get_meta_and_body(md_text: str) -> dict[str, str]:
     """
     职责：从 markdown 文档中获取 yaml 格式的元数据
     """
@@ -35,3 +35,19 @@ def get_meta_and_body(md_text: str) -> dict:
             return data
 
     return data
+
+
+def get_summary_and_body(git_message: str) -> dict:
+    """
+    职责：从 git 消息中分离出 summary 和 body
+    按照约定，第一个换行符前的段落为 summary, 其余的为 body
+    """
+
+    items: list[str] = git_message.strip().split("\n", 1)
+
+    if len(items) < 2:
+        return {"summary": "", "body": ""}
+
+    summary, body = items
+
+    return dict(summary=summary.strip(), body=body.strip())
