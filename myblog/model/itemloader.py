@@ -3,12 +3,53 @@
 被谁使用：视图函数以及模板
 """
 
-from datetime import date
+from datetime import date, datetime
 from typing import Dict, Union
 
 from flask import Flask
 
 from myblog.model import MySQLHandler
+
+
+class TrendLoader:
+    """
+    职责：从数据库中加载动态数据
+    """
+
+    def __init__(self, app: Flask) -> None:
+        self.app = app
+        self.mysql: MySQLHandler = app.config["MYSQL_HANDLER"]
+        self.mysql.connect()
+
+        self.__data: dict[str, Union[str, datetime]] = {
+            "id": "",
+            "title": "",
+            "body": "",
+            "time": None,
+            "project": "",
+            "author_name": "",
+            "author_email": "",
+        }
+
+    def set(self, trend_id: str) -> None:
+        self.trend_id = trend_id
+
+    def __load_trend_data(self) -> None:
+        sql: str = """
+SELECT id, title, body, time, project, author_name, author_email
+FROM trend
+WHERE id = '{trend_id}'
+"""
+        data = self.mysql.execute_query(sql.format(trend_id=self.trend_id))[0]
+
+        for k, v in zip(self.__data.keys(), data):
+            self.__data[k] = v
+
+    @property
+    def data(self) -> dict[str, Union[str, datetime]]:
+        self.__load_trend_data()
+
+        return self.__data
 
 
 class PostLoader:

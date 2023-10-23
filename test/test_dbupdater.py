@@ -11,7 +11,7 @@ from myblog.setting import config
 class TrendProcesserTestCase(unittest.TestCase):
     def setUp(self):
         mysql_config = config["base"].MYSQL_CONFIG
-        mysql_config["database"] = "test_db_1"
+        mysql_config["database"] = "test_db_trendproceser"
         app = Flask(__name__)
         app.config["MYSQL_HANDLER"] = MySQLHandler(**mysql_config)
 
@@ -19,7 +19,9 @@ class TrendProcesserTestCase(unittest.TestCase):
         self.trenddbupdater.mysql.connect()
 
     def tearDown(self):
-        self.trenddbupdater.mysql.execute_update("DROP DATABASE IF EXISTS test_db_1")
+        self.trenddbupdater.mysql.execute_update(
+            "DROP DATABASE IF EXISTS test_db_trendproceser"
+        )
 
         self.trenddbupdater.mysql.close()
 
