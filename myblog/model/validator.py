@@ -35,9 +35,17 @@ class TrendValidator(Validator):
         self.summary = get_summary_and_body(commit_item["message"])["summary"]
         self.body = get_summary_and_body(commit_item["message"])["body"]
         self.time = commit_item["time"]
+        self.author: dict = commit_item["author"]
 
     def __validate_datetime(self) -> bool:
         if not isinstance(self.time, datetime):
+            return False
+
+        return True
+
+    def __validate_author(self) -> bool:
+        if not self.author["email"] or not self.author["name"]:
+            self.app.logger.warn(f"动态信息中缺失作者信息，请检查 git config")
             return False
 
         return True
@@ -95,7 +103,8 @@ class TrendValidator(Validator):
 
     def validate(self):
         self.__valid = (
-            self.__validate_word_count()
+            self.__validate_author()
+            and self.__validate_word_count()
             and self.__validate_whether_to_publish()
             and self.__validate_datetime()
         )

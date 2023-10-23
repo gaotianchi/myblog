@@ -20,12 +20,25 @@ class TrendValidatorTestCase(unittest.TestCase):
         self.valid_commit_items: dict = {
             "message": "\n这是消息的摘要部分\n\n接下来是消息的正文部分，正文部分的最小字数为10个字。\n最大字数为1000个字。#publish",
             "time": datetime.today(),
+            "author": {"name": "高天驰", "email": "6159984@gmail.com"},
+            "project": "myblog",
+            "hash": "c0ffee1f2d",
         }
 
         self.invalid_commit_items: dict = {
             "message": "字太少\n字太少",
             "time": datetime.today(),
+            "author": {"name": "", "email": ""},
+            "project": "myblog",
         }
+
+    def test_valid_commit_items(self):
+        self.validator.set(self.valid_commit_items)
+        self.assertTrue(self.validator.validate())
+
+    def test_invalid_commit_items(self):
+        self.validator.set(self.invalid_commit_items)
+        self.assertFalse(self.validator.validate())
 
     def test_validate_datetime(self):
         self.validator.set(self.valid_commit_items)
