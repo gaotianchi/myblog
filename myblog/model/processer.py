@@ -3,14 +3,55 @@
 """
 
 import os
-from datetime import date
+import re
+from datetime import date, datetime
+from email.quoprimime import body_check
 
 from flask import Flask
-from markdown import Markdown
+from markdown import Markdown, markdown
 
 from myblog.model.mdexten import ConvertImgWikiToHtml
 from myblog.model.mdexten.customtoc import custom_slugify
-from myblog.model.utlis import generate_id, get_meta_and_body
+from myblog.model.utlis import generate_id, get_meta_and_body, get_summary_and_body
+
+
+class TrendProcesser:
+    """
+    职责：将动态消息处理成正确的符合规范的格式
+    被谁使用：控制器
+    使用谁： MARKDOWN 拓展
+    前置条件：接收的数据已经经过 TrendValidator 验证
+    后置条件：返回的数据可以被数据库储存
+    """
+
+    def __init__(self, app: Flask) -> None:
+        self.app = app
+
+        self.__data = {}
+
+    def set(self, commit_items: dict) -> None:
+        self.__data["summary"]: str = get_summary_and_body(commit_items["message"])[
+            "summary"
+        ]
+        self.body: str = get_summary_and_body(commit_items["message"])["body"]
+        self.time: datetime = commit_items["time"]
+
+    def __format_body_to_html(self) -> None:
+        TREND_PUBLISH_SINGAL = self.app.config["TREND_PUBLISH_SINGAL"]
+        self.body = re.sub(r"%s" % TREND_PUBLISH_SINGAL, "", self.body, re.DOTALL)
+
+        html: str = markdown(self.body)
+        self.__data["body"] = html
+
+    def __format_datetime(self) -> None:
+        self.__data["time"] = self.time.strftime("%Y-%m-%d %H:%M:%S")
+
+    @property
+    def data(self) -> dict:
+        self.__format_body_to_html()
+        self.__format_datetime()
+
+        return self.__data
 
 
 class MetadataProcesser:
@@ -73,16 +114,6 @@ class BodyProcesser:
           - ConvertImgWikiToHtml: 将 ![[imagename]] 转化为 <img src="/image?name=imagename">
           - toc: 生成文章目录
         """
-        custom_config = {
-            "custom_toc": {
-                "title": "文章目录",
-                "title_class": "",
-                "baselevel": 2,
-                "permalink": "#",
-                "toc_class": "",
-                "slugify": custom_slugify,
-            }
-        }
 
         self.__extension_items["extens"] = [
             "fenced_code",

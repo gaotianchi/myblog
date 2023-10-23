@@ -20,6 +20,14 @@ class Base:
     SCHEDULING_CYCLE_TREND = 10
     REQUIRED_POST_KEY = {"date": date, "summary": str}
 
+    TREND_PUBLISH_SINGAL = "#publish"
+
+    TREND_SUMMARY_MIN_WORD_COUNT = 5
+    TREND_SUMMARY_MAX_WORD_COUNT = 72
+
+    TREND_BODY_MIN_WORD_COUNT = 10
+    TREND_BODY_MAX_WORD_COUNT = 1000
+
     MYSQL_CONFIG = dict(
         host=os.getenv("MYSQL_HOST"),
         user=os.getenv("MYSQL_USER"),
