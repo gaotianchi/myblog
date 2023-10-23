@@ -8,6 +8,57 @@ from flask import Flask
 from myblog.model import MySQLHandler
 
 
+class TrendDbUpdater:
+    """
+    职责：更新、写入动态到数据库
+    前置条件：动态数据已经经过处理器处理
+    """
+
+    def __init__(self, app: Flask) -> None:
+        self.app = app
+        self.mysql: MySQLHandler = app.config["MYSQL_HANDLER"]
+
+        self.mysql.connect()
+
+        self.__init_table()
+
+    def set(self, trends: dict) -> None:
+        self.trends = trends
+
+    def __init_table(self) -> None:
+        """
+        职责：检查文章表是否存在，如果不存在则创建
+        """
+        self.mysql.execute_update(
+            """
+CREATE TABLE IF NOT EXISTS trend (
+  id VARCHAR(30) PRIMARY KEY,
+  title VARCHAR(300),
+  body TEXT,
+  time DATETIME,
+  project VARCHAR(255),
+  author_name VARCHAR(30),
+  author_email VARCHAR(255)
+);
+"""
+        )
+
+    def __insert_trend(self) -> None:
+        """
+        职责：向数据库写入动态数据
+        """
+        sql: str = """
+INSERT INTO
+  trend (id, title, body, time, project, author_name, author_email)
+VALUES
+  ('{id}', '{title}', '{body}', '{time}', '{project}', '{author_name}', '{author_email}')
+"""
+        self.mysql.execute_update(sql.format(**self.trends))
+
+    def update(self) -> None:
+        self.__insert_trend()
+
+
 class PostDbUpdater:
     """
     职责：负责更新、写入文章数据库
