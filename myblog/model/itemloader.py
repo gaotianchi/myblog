@@ -14,6 +14,7 @@ from myblog.model import MySQLHandler
 class TrendLoader:
     """
     职责：从数据库中加载动态数据
+    接收一个 id 列表，返回一个 trend 列表
     """
 
     def __init__(self, app: Flask) -> None:
@@ -21,7 +22,9 @@ class TrendLoader:
         self.mysql: MySQLHandler = app.config["MYSQL_HANDLER"]
         self.mysql.connect()
 
-        self.__data: dict[str, Union[str, datetime]] = {
+        self.__data: list[dict] = []
+
+        self.__item: dict[str, Union[str, datetime]] = {
             "id": "",
             "title": "",
             "body": "",
@@ -31,19 +34,29 @@ class TrendLoader:
             "author_email": "",
         }
 
-    def set(self, trend_id: str) -> None:
-        self.trend_id = trend_id
+    def set(self, *trend_ids) -> None:
+        self.trend_ids = trend_ids
 
     def __load_trend_data(self) -> None:
         sql: str = """
-SELECT id, title, body, time, project, author_name, author_email
-FROM trend
-WHERE id = '{trend_id}'
-"""
-        data = self.mysql.execute_query(sql.format(trend_id=self.trend_id))[0]
+        SELECT id, title, body, time, project, author_name, author_email
+        FROM trend
+        WHERE id IN ({})
+        ORDER BY time ASC
+        """
 
-        for k, v in zip(self.__data.keys(), data):
-            self.__data[k] = v
+        data = self.mysql.execute_query(
+            sql.format(",".join(["'{}'".format(tid) for tid in self.trend_ids]))
+        )
+        result = []
+
+        for d in data:
+            item = {}
+            for k, v in zip(self.__item.keys(), d):
+                item[k] = v
+            result.append(item)
+
+        self.__data = result
 
     @property
     def data(self) -> dict[str, Union[str, datetime]]:
