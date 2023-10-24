@@ -5,7 +5,7 @@
 
 from flask import Flask
 
-from myblog.model import MySQLHandler
+from myblog.model import MySQLHandler, RedisHandler
 
 
 class TrendDbUpdater:
@@ -17,6 +17,7 @@ class TrendDbUpdater:
     def __init__(self, app: Flask) -> None:
         self.app = app
         self.mysql: MySQLHandler = app.config["MYSQL_HANDLER"]
+        self.redis: RedisHandler = app.config["REDIS_HANDLER"]
 
         self.mysql.connect()
 
@@ -32,7 +33,7 @@ class TrendDbUpdater:
         self.mysql.execute_update(
             """
 CREATE TABLE IF NOT EXISTS trend (
-  id VARCHAR(30) PRIMARY KEY,
+  id INT AUTO_INCREMENT PRIMARY KEY,
   title VARCHAR(300),
   body TEXT,
   time DATETIME,
@@ -49,14 +50,13 @@ CREATE TABLE IF NOT EXISTS trend (
         """
         sql: str = """
 INSERT INTO
-  trend (id, title, body, time, project, author_name, author_email)
+  trend (title, body, time, project, author_name, author_email)
 VALUES
-  ('{id}', '{title}', '{body}', '{time}', '{project}', '{author_name}', '{author_email}')
+  ('{title}', '{body}', '{time}', '{project}', '{author_name}', '{author_email}')
 """
         self.mysql.execute_update(sql.format(**self.trend))
 
     def update(self) -> None:
-        self.app.logger.warn("trend 运行了插入程序")
         self.__insert_trend()
 
 
@@ -81,7 +81,6 @@ class PostDbUpdater:
         """
         职责：主程序
         """
-        self.app.logger.warn("post 运行了插入程序")
         if self.__key_is_exist():
             self.__update_post()
         else:

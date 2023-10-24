@@ -18,7 +18,6 @@ class TrendProcesserTestCase(unittest.TestCase):
         self.commit_items: dict = {
             "message": "\n这是消息的摘要部分\n\n接下来是消息的正文部分，正文部分的最小字数为10个字。\n最大字数为1000个字。#publish",
             "time": datetime.today(),
-            "hash": "hsdfksldfjls",
             "project": "myblog",
             "author": {"name": "高天驰", "email": "615984@gmail.com"},
         }

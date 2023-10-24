@@ -13,20 +13,15 @@ class RedisHandler:
     职责：操作 redis 数据库
     """
 
-    def __init__(self, host, port, password=None, db=0, max_connections=10):
+    def __init__(self, host, max_connections=10, **kwargs):
         self.host = host
-        self.port = port
-        self.password = password
-        self.db = db
         self.pool = self.__create_pool(max_connections)
         self.redis = self.__connect()
+        self.kwargs = kwargs
 
     def __create_pool(self, max_connections):
         return ConnectionPool(
             host=self.host,
-            port=self.port,
-            password=self.password,
-            db=self.db,
             max_connections=max_connections,
         )
 
@@ -41,6 +36,17 @@ class RedisHandler:
 
     def delete(self, key):
         self.redis.delete(key)
+
+    def push(self, key, *values):
+        self.redis.lpush(key, *values)
+        max_length = self.kwargs.get("recent_trend_list_max_length", 100)
+        if max_length:
+            self.redis.ltrim(key, 0, max_length - 1)
+
+    def get_list(self, key, start=0, end=-1) -> list[bytes]:
+        result = self.redis.lrange(key, start, end)
+
+        return result
 
 
 class MySQLHandler:

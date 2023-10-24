@@ -28,7 +28,6 @@ class TrendProcesser:
         self.app = app
 
         self.__data: dict[str, str] = {
-            "id": "",
             "title": "",
             "body": "",
             "time": "",
@@ -38,7 +37,6 @@ class TrendProcesser:
         }
 
     def set(self, commit_items: dict) -> None:
-        self.__data["id"] = commit_items["hash"]
         self.__data["title"] = get_summary_and_body(commit_items["message"])["summary"]
         self.__data["project"] = commit_items["project"]
         self.__data["author_name"] = commit_items["author"]["name"]

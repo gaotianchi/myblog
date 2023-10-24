@@ -42,12 +42,10 @@ class TrendWatcher:
         for commit in commits:
             message: str = commit.message
             time: datetime = commit.committed_datetime
-            hash: str = commit.hexsha[:20]
             author: dict = dict(name=commit.author.name, email=commit.author.email)
             project = os.path.basename(repo.working_dir)
 
             item = dict(
-                hash=hash,
                 message=message,
                 time=time,
                 author=author,

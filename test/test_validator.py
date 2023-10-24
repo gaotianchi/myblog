@@ -22,7 +22,6 @@ class TrendValidatorTestCase(unittest.TestCase):
             "time": datetime.today(),
             "author": {"name": "高天驰", "email": "6159984@gmail.com"},
             "project": "myblog",
-            "hash": "c0ffee1f2d",
         }
 
         self.invalid_commit_items: dict = {
