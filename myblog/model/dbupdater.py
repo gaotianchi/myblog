@@ -5,7 +5,7 @@
 
 from flask import Flask
 
-from myblog.model import MySQLHandler, RedisHandler
+from myblog.model import MySQLHandler
 
 
 class TrendDbUpdater:
@@ -17,7 +17,6 @@ class TrendDbUpdater:
     def __init__(self, app: Flask) -> None:
         self.app = app
         self.mysql: MySQLHandler = app.config["MYSQL_HANDLER"]
-        self.redis: RedisHandler = app.config["REDIS_HANDLER"]
 
         self.mysql.connect()
 
