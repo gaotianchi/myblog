@@ -10,13 +10,20 @@ from flask import Flask
 
 from myblog.model import MySQLHandler, RedisHandler
 from myblog.model.scheduler import Scheduler
-from myblog.setting import config
+from myblog.model.validator import SettingValidator
+from myblog.setting import REQUIRED_CONFIG, config
 from myblog.view import api_bp, user_bp
 
 
 def create_app(name: str = "base"):
     app = Flask("myblog")
     app.config.from_object(config[name])
+
+    validator = SettingValidator(app)
+    validator.set(REQUIRED_CONFIG)
+
+    if not validator.validate():
+        raise Exception("配置信息缺失")
 
     Register.register(app)
 
