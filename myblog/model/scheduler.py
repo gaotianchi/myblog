@@ -9,6 +9,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask
 
 from myblog.model.controller import PostUpdater, TrendUpdater
+from myblog.model.itemloader import ProfileLoader
 from myblog.model.watcher import PostWatcher, TrendWatcher
 
 
@@ -56,7 +57,8 @@ class TrendTask:
         self.updater = TrendUpdater(app)
 
     def update_trend(self) -> None:
-        paths: list[str] = os.getenv("PATH_TREND_GIT_REPO").split(",")
+        profile = ProfileLoader(self.app)
+        paths: list = profile.data["content"]["trend_repo"]
 
         if not paths:
             self.app.logger.warn("没有设置 git 仓库，无法获取动态内容")

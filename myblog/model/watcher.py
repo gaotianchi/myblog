@@ -10,6 +10,8 @@ from datetime import datetime, timedelta
 from flask import Flask
 from git import Repo
 
+from myblog.model.itemloader import ProfileLoader
+
 
 class TrendWatcher:
     def __init__(self, app: Flask) -> None:
@@ -18,7 +20,8 @@ class TrendWatcher:
         self.__data = []
 
     def __load_trend_data(self) -> None:
-        paths: list = os.getenv("PATH_TREND_GIT_REPO").split(",")
+        profile = ProfileLoader(self.app)
+        paths: list = profile.data["content"]["trend_repo"]
         result = []
         for path in paths:
             try:
