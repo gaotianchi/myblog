@@ -29,6 +29,9 @@ REQUIRED_CONFIG = [
     "TREND_SUMMARY_MAX_WORD_COUNT",
     "TREND_BODY_MIN_WORD_COUNT",
     "TREND_BODY_MAX_WORD_COUNT",
+    "REQUIRED_PROFILE_AUTHOR_KEY",
+    "REQUIRED_PROFILE_WEBSITE_KEY",
+    "REQUIRED_PRIFILE_CONTENT_KEY",
 ]
 
 
@@ -43,6 +46,14 @@ class Base:
     SCHEDULING_CYCLE_POST = 10
     SCHEDULING_CYCLE_TREND = 10
     REQUIRED_POST_KEY = {"date": date, "summary": str}
+    REQUIRED_PROFILE_AUTHOR_KEY = {"name": str, "email": str}
+    REQUIRED_PROFILE_WEBSITE_KEY = {
+        "title": str,
+        "building_time": str,
+        "description": str,
+    }
+    REQUIRED_PRIFILE_CONTENT_KEY = {"trend_repo": list[str]}
+
     HOME_RECENT_TREND_COUNT = 30
 
     TREND_PUBLISH_SINGAL = "#publish"
