@@ -28,6 +28,11 @@ class Base:
     TREND_BODY_MIN_WORD_COUNT = 10
     TREND_BODY_MAX_WORD_COUNT = 1000
 
+    REDIS_CONFIG = dict(
+        host=os.getenv("REDIS_HOST"),
+        max_connections=os.getenv("REDIS_MAX_CONNECTIONS"),
+    )
+
     MYSQL_CONFIG = dict(
         host=os.getenv("MYSQL_HOST"),
         user=os.getenv("MYSQL_USER"),
