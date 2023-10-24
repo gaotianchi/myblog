@@ -1,13 +1,19 @@
 from flask import Blueprint, current_app, render_template, request
 
-from myblog.model.pageitem import PostPage
+from myblog.model.pageitem import HomePage, PostPage
 
 user = Blueprint("user", __name__)
 
 
 @user.route("/")
 def index():
-    return render_template("base.html")
+    """
+    职责：渲染主页页面
+    """
+    homepage = HomePage(current_app)
+    data = homepage.data
+
+    return render_template("page/home.html", data=data)
 
 
 @user.route("/read")
