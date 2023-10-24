@@ -8,6 +8,7 @@ from abc import ABC, abstractmethod
 from datetime import date, datetime
 
 from flask import Flask
+from git import Repo
 from markdown import Markdown
 
 from myblog.model.utlis import get_meta_and_body, get_summary_and_body
@@ -24,6 +25,97 @@ class Validator(ABC):
 
     def __str__(self) -> str:
         return self.__class__.__name__
+
+
+class ProfileValidator(Validator):
+    """
+    职责：验证用户配置文件的有效性
+    """
+
+    def __init__(self, app: Flask) -> None:
+        self.app = app
+        self.__valid = False
+
+    def set(self, profile: dict) -> None:
+        self.author: dict = profile.get("author")
+        self.website: dict = profile.get("website")
+        self.content: dict = profile.get("content")
+
+    def __validate_trend_repo(self) -> bool:
+        trend_repo = self.content.get("trend_repo")
+        if not trend_repo:
+            self.app.logger.warn("缺失动态仓库路径，将无法加载动态！")
+            return False
+
+        if not isinstance(trend_repo, list):
+            self.app.logger.warn(f"trend_repo 应该是列表格式，而不是 {type(trend_repo)}")
+            return False
+
+        try:
+            for path in trend_repo:
+                repo = Repo(path)
+        except:
+            self.app.logger.warn(f"trend_repo 中存在某些非 git 仓库")
+            return False
+
+        return True
+
+    def __validate_author(self) -> bool:
+        required_items: dict = self.app.config["REQUIRED_PROFILE_AUTHOR_KEY"]
+
+        author_keys = self.author.keys()
+
+        missing_keys = set(required_items.keys()) - (
+            set(required_items.keys()) & set(author_keys)
+        )
+
+        if missing_keys:
+            self.app.logger.warn(f"缺失数据: {missing_keys}!")
+            return False
+
+        invalid_metadata = []
+        for k, t in required_items.items():
+            if not isinstance(self.author.get(k), t):
+                invalid_metadata.append(k)
+
+        if invalid_metadata:
+            self.app.logger.warn(f"数据类型异常: {invalid_metadata}")
+            return False
+
+        return True
+
+    def __validate_website(self) -> bool:
+        required_items: dict = self.app.config["REQUIRED_PROFILE_WEBSITE_KEY"]
+
+        website_keys = self.website.keys()
+
+        missing_keys = set(required_items.keys()) - (
+            set(required_items.keys()) & set(website_keys)
+        )
+
+        if missing_keys:
+            self.app.logger.warn(f"缺失数据: {missing_keys}!")
+            return False
+
+        invalid_metadata = []
+        for k, t in required_items.items():
+            if not isinstance(self.website.get(k), t):
+                invalid_metadata.append(k)
+
+        if invalid_metadata:
+            self.app.logger.warn(f"数据类型异常: {invalid_metadata}")
+            return False
+
+        return True
+
+    def validate(self):
+        self.__valid = (
+            self.__validate_author()
+            and self.__validate_trend_repo()
+            and self.__validate_website()
+        )
+
+        return self.__valid
 
 
 class SettingValidator(Validator):

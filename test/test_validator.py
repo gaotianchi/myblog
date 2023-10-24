@@ -1,16 +1,16 @@
+import profile
 import unittest
 from datetime import datetime
 
 from flask import Flask
 
-from myblog.model.validator import ValidatorFactory
+from myblog.model.utlis import get_data_from_json_file
+from myblog.model.validator import ProfileValidator, ValidatorFactory
 from myblog.setting import config
 
 
 class TrendValidatorTestCase(unittest.TestCase):
-    def __init__(self, methodName: str = "runTest") -> None:
-        super().__init__(methodName)
-
+    def setUp(self) -> None:
         app = Flask(__name__)
         app.config.from_object(config["base"])
 
@@ -54,3 +54,19 @@ class TrendValidatorTestCase(unittest.TestCase):
         self.assertTrue(self.validator._TrendValidator__validate_whether_to_publish())
         self.validator.set(self.invalid_commit_items)
         self.assertFalse(self.validator._TrendValidator__validate_whether_to_publish())
+
+
+class ProfileValidatorTestCase(unittest.TestCase):
+    def setUp(self) -> None:
+        app = Flask(__name__)
+        app.config.from_object(config["base"])
+        self.validator = ProfileValidator(app)
+
+    def test_valid_profile(self):
+        path = "D:\\dev\\repo\\myblog\\test\\example_file\\profile.json"
+        profile = get_data_from_json_file(path)
+        self.validator.set(profile)
+
+        self.assertTrue(self.validator._ProfileValidator__validate_trend_repo())
+        self.assertTrue(self.validator._ProfileValidator__validate_author())
+        self.assertTrue(self.validator._ProfileValidator__validate_website())
