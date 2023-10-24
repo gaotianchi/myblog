@@ -62,8 +62,10 @@ class TrendLoader:
         self.__data = result
 
     def recent(self, count: int) -> list[dict[str, Union[str, datetime]]]:
-        sql: str = "SELECT * FROM trend ORDER BY time DESC"
-        data = self.mysql.execute_query(sql)[:count]
+        sql: str = "SELECT * FROM trend ORDER BY time DESC LIMIT {count};".format(
+            count=count
+        )
+        data = self.mysql.execute_query(sql)
         result = []
 
         for d in data:
@@ -150,6 +152,25 @@ ORDER BY date ASC;
             post = PostLoader(self.app)
             post.set(id_list[current_index - 1])
             self.__data["older"] = post
+
+    def recent(self, count: int) -> list[dict[str, Union[str, date, None]]]:
+        """
+        职责：加载指定数量的最近文章
+        """
+        sql: str = "SELECT * FROM post ORDER BY date DESC LIMIT {count};".format(
+            count=count
+        )
+        data: tuple = self.mysql.execute_query(sql)
+
+        result = []
+
+        for d in data:
+            item = {}
+            for k, v in zip(self.__data.keys(), d):
+                item[k] = v
+            result.append(item)
+
+        return result
 
     @property
     def data(self) -> Dict[str, Union[str, date, "PostLoader", None]]:
