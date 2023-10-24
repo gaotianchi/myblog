@@ -4,7 +4,9 @@ from datetime import date, datetime
 from flask import Flask
 
 from myblog.model import MySQLHandler
-from myblog.model.itemloader import PostLoader, TrendLoader
+from myblog.model.itemloader import PostLoader, ProfileLoader, TrendLoader
+from myblog.model.utlis import get_data_from_json_file
+from myblog.model.validator import ProfileValidator
 from myblog.setting import config
 
 
@@ -132,3 +134,26 @@ VALUES
         self.assertEqual(data["title"], "你好世界")
         self.assertEqual(data["body"], "你好你好世界你好世界你好世界")
         self.assertTrue(isinstance(data["time"], datetime))
+
+
+class ProfileLoaderTestCase(unittest.TestCase):
+    def setUp(self) -> None:
+        app = Flask(__name__)
+        app.config.from_object(config["base"])
+        self.loader = ProfileLoader(app)
+
+    def test_valid_profile(self):
+        path = "D:\\dev\\repo\\myblog\\test\\example_file\\profile.json"
+        self.loader.path = path
+
+        data = self.loader.data
+
+        self.assertEqual(data["author"]["name"], "高天驰")
+        self.assertEqual(data["author"]["email"], "6159984@gmail.com")
+        self.assertEqual(data["website"]["title"], "高天驰的个人博客")
+        self.assertEqual(data["website"]["building_time"], "2023-10-24")
+        self.assertEqual(
+            data["website"]["description"],
+            "本站专注于记录作者的编程学习过程，以具体的项目为驱动，不求完美，希望能让自己的编程技能达到实习水平。",
+        )
+        self.assertEqual(data["content"]["trend_repo"], ["D:\\dev\\data\\myblog\\ws2"])

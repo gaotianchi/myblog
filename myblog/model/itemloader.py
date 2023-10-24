@@ -3,12 +3,66 @@
 被谁使用：视图函数以及模板
 """
 
+import os
 from datetime import date, datetime
 from typing import Dict, Union
 
 from flask import Flask
 
 from myblog.model import MySQLHandler
+from myblog.model.utlis import get_data_from_json_file
+from myblog.model.validator import ProfileValidator
+
+
+class ProfileLoader:
+    """
+    职责：从指定文件中加载用户的简历数据
+    """
+
+    def __init__(self, app: Flask) -> None:
+        self.app = app
+        self.validator = ProfileValidator(app)
+        self.path = self.__get_profile_path()
+
+        self.__data = {
+            "author": {
+                "name": "作者名称",
+                "brith_date": date.today().isoformat(),
+                "email": "example@example.com",
+                "github": None,
+                "motto": None,
+            },
+            "website": {
+                "title": "MYBLOG",
+                "subtitle": None,
+                "building_time": date.today().isoformat(),
+                "description": "这是我的个人网站",
+            },
+            "content": {"trend_repo": []},
+        }
+
+    def __get_profile_path(self) -> str:
+        PATH_WORKTREE_USERDATA = os.getenv("PATH_WORKTREE_USERDATA")
+        profile_path = os.path.join(PATH_WORKTREE_USERDATA, "profile.json")
+
+        return profile_path
+
+    def __load_data(self) -> None:
+        if os.path.exists(self.path):
+            profile = get_data_from_json_file(self.path)
+
+            self.validator.set(profile)
+
+            if self.validator.validate():
+                self.__data.update(profile)
+            else:
+                self.app.logger.warn("profile.json 内容不符合规范，无法更新 profile 信息！")
+
+    @property
+    def data(self) -> dict:
+        self.__load_data()
+
+        return self.__data
 
 
 class TrendLoader:
