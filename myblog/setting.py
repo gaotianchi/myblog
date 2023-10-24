@@ -19,6 +19,7 @@ class Base:
     SCHEDULING_CYCLE_POST = 10
     SCHEDULING_CYCLE_TREND = 10
     REQUIRED_POST_KEY = {"date": date, "summary": str}
+    HOME_RECENT_TREND_COUNT = 30
 
     TREND_PUBLISH_SINGAL = "#publish"
 
@@ -30,7 +31,8 @@ class Base:
 
     REDIS_CONFIG = dict(
         host=os.getenv("REDIS_HOST"),
-        max_connections=os.getenv("REDIS_MAX_CONNECTIONS"),
+        max_connections=int(os.getenv("REDIS_MAX_CONNECTIONS")),
+        recent_trend_list_max_length=100,
     )
 
     MYSQL_CONFIG = dict(

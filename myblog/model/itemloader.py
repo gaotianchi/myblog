@@ -38,11 +38,14 @@ class TrendLoader:
         self.trend_ids = trend_ids
 
     def __load_trend_data(self) -> None:
+        """
+        默认排序是从新到旧
+        """
         sql: str = """
         SELECT id, title, body, time, project, author_name, author_email
         FROM trend
         WHERE id IN ({})
-        ORDER BY time ASC
+        ORDER BY time DESC
         """
 
         data = self.mysql.execute_query(
@@ -58,8 +61,21 @@ class TrendLoader:
 
         self.__data = result
 
+    def recent(self, count: int) -> list[dict[str, Union[str, datetime]]]:
+        sql: str = "SELECT * FROM trend ORDER BY time DESC"
+        data = self.mysql.execute_query(sql)[:count]
+        result = []
+
+        for d in data:
+            item = {}
+            for k, v in zip(self.__item.keys(), d):
+                item[k] = v
+            result.append(item)
+
+        return result
+
     @property
-    def data(self) -> dict[str, Union[str, datetime]]:
+    def data(self) -> list[dict[str, Union[str, datetime]]]:
         self.__load_trend_data()
 
         return self.__data

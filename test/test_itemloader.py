@@ -30,11 +30,6 @@ CREATE TABLE IF NOT EXISTS trend (
 );
 """
         )
-
-    def tearDown(self) -> None:
-        self.loader.mysql.execute_update("DROP DATABASE IF EXISTS test_db_trendloader")
-
-    def test_data(self):
         time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.loader.mysql.execute_update(
             """
@@ -46,8 +41,18 @@ VALUES
             % time
         )
 
+    def tearDown(self) -> None:
+        self.loader.mysql.execute_update("DROP DATABASE IF EXISTS test_db_trendloader")
+
+    def test_data(self):
         self.loader.set("kkjkkjkkjd")
-        data = self.loader.data
+        data = self.loader.data[0]
+        self.assertEqual(data["title"], "你好世界")
+        self.assertEqual(data["body"], "你好你好世界你好世界你好世界")
+        self.assertTrue(isinstance(data["time"], datetime))
+
+    def test_recent(self):
+        data = self.loader.recent(1)[0]
         self.assertEqual(data["title"], "你好世界")
         self.assertEqual(data["body"], "你好你好世界你好世界你好世界")
         self.assertTrue(isinstance(data["time"], datetime))
