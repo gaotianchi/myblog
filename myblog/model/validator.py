@@ -26,6 +26,33 @@ class Validator(ABC):
         return self.__class__.__name__
 
 
+class SettingValidator(Validator):
+    def __init__(self, app: Flask) -> None:
+        self.app = app
+        self.__valid = False
+
+    def set(self, required_config: list):
+        self.configs = required_config
+
+    def __validate_exist(self) -> bool:
+        missing_config = []
+        for k in self.configs:
+            v = self.app.config.get(k) or os.getenv(k)
+            if not v:
+                missing_config.append(k)
+
+        if missing_config:
+            self.app.logger.warn(f"缺失下列配置信息，请配置完成后再启动应用：{missing_config}")
+            return False
+
+        return True
+
+    def validate(self) -> bool:
+        self.__valid = self.__validate_exist()
+
+        return self.__valid
+
+
 class TrendValidator(Validator):
     def __init__(self, app: Flask) -> None:
         self.app = app
