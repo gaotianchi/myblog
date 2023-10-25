@@ -10,7 +10,7 @@ from email.quoprimime import body_check
 from flask import Flask
 from markdown import Markdown, markdown
 
-from myblog.model.mdexten import ConvertImgWikiToHtml
+from myblog.model.mdexten import ConvertImgWikiToHtml, CustomTableExtension
 from myblog.model.mdexten.customtoc import custom_slugify
 from myblog.model.utlis import generate_id, get_meta_and_body, get_summary_and_body
 
@@ -118,7 +118,7 @@ class BodyProcesser:
           - fenced_code: 生成代码块
           - nl2br: 提供非严格 markdown 换行
           - footnotes: 提供引用角标
-          - tables: 表格
+          - CustomTableExtension: 自定义适用于 bootstrap 的表格
           - ConvertImgWikiToHtml: 将 ![[imagename]] 转化为 <img src="/image?name=imagename">
           - toc: 生成文章目录
         """
@@ -127,7 +127,7 @@ class BodyProcesser:
             "fenced_code",
             "nl2br",
             "footnotes",
-            "tables",
+            CustomTableExtension(),
             "toc",
             ConvertImgWikiToHtml(),
         ]
