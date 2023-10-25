@@ -35,7 +35,7 @@
         {% set newer_class = "btn btn-outline-secondary disabled" %}
         {% endif %}
 
-        <nav class="blog-pagination" aria-label="Pagination">
+        <nav class="blog-pagination mb-3" aria-label="Pagination">
             <a class="{{ older_class }}" href="{{ older_href }}">Older</a>
             <a class="{{ newer_class }}" href="{{ newer_href }}">Newer</a>
         </nav>
@@ -51,7 +51,7 @@
                 <h4 class="card-title">关于这篇文章</h4>
                 <p class="card-text"><strong>摘要：</strong>{{ data.summary }}</p>
                 <p class="card-text">文章最早发布于 {{ data.date }}，最近更新日期为 {{ data.updated }}。
-                    作者{{ data.author }}将本文归类到 {{ data.category }}.</p>
+                    作者{{ data.author }}将本文归类到 <strong>{{ data.category }}</strong>.</p>
             </div>
         </div>
 

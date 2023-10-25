@@ -98,7 +98,7 @@ class TrendLoaderTestCase(unittest.TestCase):
         self.loader.mysql.execute_update(
             """
 CREATE TABLE IF NOT EXISTS trend (
-  id VARCHAR(30) PRIMARY KEY,
+  id INT AUTO_INCREMENT PRIMARY KEY,
   title VARCHAR(300),
   body TEXT,
   time DATETIME,
@@ -114,7 +114,7 @@ CREATE TABLE IF NOT EXISTS trend (
 INSERT INTO
   trend (id, title, body, time, project, author_name, author_email)
 VALUES
-('kkjkkjkkjd', '你好世界', '你好你好世界你好世界你好世界', '%s', '项目名称', '高天驰', '6159984@gmail.com')
+(1, '你好世界', '你好你好世界你好世界你好世界', '%s', '项目名称', '高天驰', '6159984@gmail.com')
 """
             % time
         )
@@ -123,7 +123,7 @@ VALUES
         self.loader.mysql.execute_update("DROP DATABASE IF EXISTS test_db_trendloader")
 
     def test_data(self):
-        self.loader.set("kkjkkjkkjd")
+        self.loader.set(1)
         data = self.loader.data[0]
         self.assertEqual(data["title"], "你好世界")
         self.assertEqual(data["body"], "你好你好世界你好世界你好世界")

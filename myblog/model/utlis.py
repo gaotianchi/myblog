@@ -65,6 +65,6 @@ def get_data_from_json_file(path: str) -> dict:
 
 def convert_datetime(obj):
     if isinstance(obj, datetime.datetime):
-        return obj.strftime("%Y-%m-%d %H:%M:%S")
+        return obj.strftime("%Y-%m-%d %H:%M")
     if isinstance(obj, datetime.date):
         return obj.strftime("%Y-%m-%d")
