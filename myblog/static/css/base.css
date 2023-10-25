@@ -1,49 +1,160 @@
 /* 全局样式
-================================================*/
+===============================================================================*/
 
-html, body {
-    height: 100%;
-    margin: 0;
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+/* 全局链接样式
+=============================== */
+a {
+  text-decoration: none;
+  color: #002fa7;
+}
+
+a:hover {
+  color: #7d1bc4;
+}
+
+/* 全局字体段落样式
+================================ */
+body {
+  font-family: "Microsoft Yahei", Arial, sans-serif;
+  font-size: 62.5%;
+}
+
+h1 {
+  font-weight: bold;
+  font-size: 2.5em;
+}
+
+h2 {
+  font-weight: bold;
+  margin-bottom: 18px;
+  font-size: 2em;
+}
+
+h3 {
+  font-weight: bold;
+  margin-bottom: 16px;
+  font-size: 1.7em;
+}
+
+h4 {
+  font-weight: bold;
+  margin-bottom: 14px;
+  font-size: 1.5em;
+}
+
+h5 {
+  font-weight: bold;
+  margin-bottom: 12px;
+  font-size: 1.3em;
+}
+
+h6 {
+  font-weight: bold;
+  margin-bottom: 10px;
+  font-size: 1.2em;
+}
+
+p {
+  margin-bottom: 2em;
+}
+
+/* 全局表格样式
+=================================== */
+table {
+  margin-top: 2em;
+  margin-bottom: 2em;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* 文章目录样式
+======================================== */
+.toc ul {
+  list-style-type: none;
+  padding-left: 5px;
+}
+
+.toc ul li {
+  position: relative;
+}
+
+.toc ul li:before {
+  content: "▸";
+  position: absolute;
+  left: -10px;
+}
+
+.toc ul ul {
+  margin-left: 20px;
 }
 
 
+/* card 自定义样式
+================================================= */
+.card-footer:last-child {
+  font-size: 0.3em;
+  background-color: #FFFFFF;
+  border-top: none;
+  text-align: right;
+  height: auto;
+  padding-top: 0;
+}
 
+.card-body {
+  padding-bottom: 0;
+}
 
+.card-header:first-child {
+  background-color: #FFFFFF;
+  height: 3em;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
+.card-text p {
+  margin-bottom: 1em;
+}
+
+/* 引用块样式
+==================================================== */
+blockquote {
+  background-color: #ffffff;
+  padding: 20px;
+  margin: 20px 0;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 47, 167, 0.2);
+}
 
 /* header 样式
-=============================================== */
+================================================================================== */
 
 header {
-    background-image: url(../img/cover-background.svg);
+  background-image: url(../img/cover-background.svg);
 }
 
 #cover-title {
-    max-width: 100%;
-    height: auto;
+  max-width: 100%;
+  height: auto;
 }
-
-
-
-
-
 
 /* main 样式
-==================================================== */
+===================================================================================== */
 main {
-    min-height: calc(100vh - 100px);
+  min-height: calc(100vh - 100px);
 }
-
-
-
-
-
-
 
 /* footer 样式 
 ====================================================*/
 
 footer {
-    line-height: 50px;
-    padding: 0 20px;
+  line-height: 50px;
+  padding: 0 20px;
 }
