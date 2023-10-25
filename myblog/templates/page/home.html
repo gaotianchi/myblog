@@ -16,13 +16,13 @@
             {% set trends = data.recent_trend %}
             {% if trends %}
             {% for trend in trends %}
-            <div class="card mb-3">
+            <div class="card mb-3" data-trendid="{{ trend.id }}">
                 <div class="card-body">
                     <h4 class="card-title">{{ trend.title }}</h4>
-                    <p class="card-text">{{ trend.body|safe }}</p>
+                    <div class="card-text">{{ trend.body|safe }}</div>
                 </div>
                 <div class="card-footer text-muted">
-                    {{ trend.author_name }} {{ trend.time }} 发布在 {{ trend.project }}
+                    {{ trend.time.strftime("%Y-%m-%d %H:%M") }} 发布在 {{ trend.project }}
                 </div>
             </div>
             {% endfor %}
@@ -40,7 +40,7 @@
             <div class="card-body">
                 <h4 class="card-title">关于本站</h4>
                 <p class="card-text">{{ profile.website.description }}</p>
-                <p class="card-text">创建时间: {{ profile.website.building_time }}</p>
+                <p class="card-text">建站时间: {{ profile.website.building_time }}</p>
                 <p class="card-text">作者邮箱: {{ profile.author.email }}</p>
             </div>
         </div>
@@ -48,7 +48,7 @@
         <!-- 最近文章组件 -->
         {% set posts = data.recent_post %}
 
-        <div class="card">
+        <div class="card mb-3">
             <div class="card-body">
                 <h4 class="card-title">最近文章</h4>
             </div>
@@ -56,7 +56,7 @@
                 {% if posts %}
                 {% for post in posts %}
                 <a href="{{ url_for('user.read_post', post=post.id) }}">
-                    <li class="list-group-item">{{ post.title }}</li>
+                    <li class="list-group-item">{{ post.title }} <i>{{ post.date.strftime("%m/%d") }}</i></li>
                 </a>
                 {% endfor %}
                 {% else %}
@@ -68,3 +68,7 @@
     </div>
 </div>
 {% endblock main %}
+
+{% block script %}
+<script src="../../static/js/base.js"></script>
+{% endblock %}
