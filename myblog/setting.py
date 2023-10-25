@@ -68,7 +68,7 @@ class Base:
 
     REDIS_CONFIG = dict(
         host=os.getenv("REDIS_HOST"),
-        max_connections=int(os.getenv("REDIS_MAX_CONNECTIONS")),
+        max_connections=int(os.getenv("REDIS_MAX_CONNECTIONS", 50)),
         recent_trend_list_max_length=100,
     )
 
