@@ -16,8 +16,6 @@ REQUIRED_CONFIG = [
     "MYSQL_USER",
     "MYSQL_PASSWORD",
     "MYSQL_DATABASE",
-    "REDIS_HOST",
-    "REDIS_MAX_CONNECTIONS",
     "PATH_BASE",
     "PATH_LOG",
     "SCHEDULING_CYCLE_POST",
@@ -65,12 +63,6 @@ class Base:
 
     TREND_BODY_MIN_WORD_COUNT = 10
     TREND_BODY_MAX_WORD_COUNT = 1000
-
-    REDIS_CONFIG = dict(
-        host=os.getenv("REDIS_HOST"),
-        max_connections=int(os.getenv("REDIS_MAX_CONNECTIONS")),
-        recent_trend_list_max_length=100,
-    )
 
     MYSQL_CONFIG = dict(
         host=os.getenv("MYSQL_HOST"),
