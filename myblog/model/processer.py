@@ -10,8 +10,12 @@ from flask import Flask
 from markdown import Markdown, markdown
 
 from myblog.model.mdexten import ConvertImgWikiToHtml, CustomTableExtension
-from myblog.model.mdexten.customtoc import custom_slugify
-from myblog.model.utlis import generate_id, get_meta_and_body, get_summary_and_body
+from myblog.model.utlis import (
+    custom_slugify,
+    generate_id,
+    get_meta_and_body,
+    get_summary_and_body,
+)
 
 
 class TrendProcesser:

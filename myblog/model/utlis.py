@@ -10,6 +10,13 @@ import re
 import yaml
 
 
+def custom_slugify(value, separator):
+    """自定义锚点链接"""
+
+    value = re.sub(r"[^\w\s-]", "", value).strip().lower()
+    return re.sub(r"[{}\s]+".format(separator), separator, value)
+
+
 def generate_id(title: str) -> str:
     hash_object = hashlib.md5(title.encode())
     hash_digest = hash_object.digest()
