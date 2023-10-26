@@ -8,7 +8,7 @@ from logging.handlers import RotatingFileHandler
 
 from flask import Flask
 
-from myblog.model import MySQLHandler, RedisHandler
+from myblog.model import MySQLHandler
 from myblog.model.scheduler import Scheduler
 from myblog.model.validator import SettingValidator
 from myblog.setting import REQUIRED_CONFIG, config
@@ -61,13 +61,10 @@ class Register:
 
     def __register_mysql(cls):
         mysql_config: dict = cls.app.config["MYSQL_CONFIG"]
-        redis_config: dict = cls.app.config["REDIS_CONFIG"]
 
         mysql_handler = MySQLHandler(**mysql_config)
-        redis_handler = RedisHandler(**redis_config)
 
         cls.app.config["MYSQL_HANDLER"] = mysql_handler
-        cls.app.config["REDIS_HANDLER"] = redis_handler
 
     def __register_scheduler(cls):
         timer = Scheduler(cls.app)
