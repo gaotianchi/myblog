@@ -5,7 +5,6 @@
 import os
 import re
 from datetime import date, datetime
-from email.quoprimime import body_check
 
 from flask import Flask
 from markdown import Markdown, markdown

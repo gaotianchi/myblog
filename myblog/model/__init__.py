@@ -4,49 +4,6 @@
 
 
 import pymysql
-import redis
-from redis import ConnectionPool
-
-
-class RedisHandler:
-    """
-    职责：操作 redis 数据库
-    """
-
-    def __init__(self, host, max_connections=10, **kwargs):
-        self.host = host
-        self.pool = self.__create_pool(max_connections)
-        self.redis = self.__connect()
-        self.kwargs = kwargs
-
-    def __create_pool(self, max_connections):
-        return ConnectionPool(
-            host=self.host,
-            max_connections=max_connections,
-        )
-
-    def __connect(self):
-        return redis.Redis(connection_pool=self.pool)
-
-    def set(self, key, value):
-        self.redis.set(key, value)
-
-    def get(self, key) -> bytes:
-        return self.redis.get(key)
-
-    def delete(self, key):
-        self.redis.delete(key)
-
-    def push(self, key, *values):
-        self.redis.lpush(key, *values)
-        max_length = self.kwargs.get("recent_trend_list_max_length", 100)
-        if max_length:
-            self.redis.ltrim(key, 0, max_length - 1)
-
-    def get_list(self, key, start=0, end=-1) -> list[bytes]:
-        result = self.redis.lrange(key, start, end)
-
-        return result
 
 
 class MySQLHandler:

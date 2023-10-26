@@ -60,7 +60,6 @@ h6 {
   font-size: 1.2em;
 }
 
-
 /* 全局表格样式
 =================================== */
 table {
@@ -95,6 +94,7 @@ table {
 /* card 自定义样式
 ================================================= */
 .card-footer:last-child {
+  margin-bottom: 1em;
   font-size: 0.3em;
   background-color: #FFFFFF;
   border-top: none;
