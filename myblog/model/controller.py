@@ -38,10 +38,9 @@ class TrendUpdater:
 
             self.dbupdater.update()
 
-            self.app.logger.debug(f"动态 {trend["title"]} 更新完成")
+            self.app.logger.debug(f"动态 {trend['title']} 更新完成")
 
     def update(self) -> None:
-
         self.__process()
 
 

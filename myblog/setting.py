@@ -7,6 +7,10 @@
 import os
 from datetime import date
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 REQUIRED_CONFIG = [
     "GIT_PYTHON_GIT_EXECUTABLE",
     "GIT_PYTHON_REFRESH",
