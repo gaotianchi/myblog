@@ -50,32 +50,28 @@ class Post(db.Model):
 
         return json.dumps(data, ensure_ascii=False, default=json_serial)
 
-    def update_from_json(self, data: str) -> None:
-        data_dict: dict = json.loads(data)
-
-        self.id = generate_id(data_dict["title"])
-        self.title = data_dict["title"]
-        self.body = data_dict["body"]
-        self.toc = data_dict["toc"]
-        self.author = data_dict["author"]
-        self.release = date.fromisoformat(data_dict["release"])
-        self.updated = date.fromisoformat(data_dict["updated"])
-        self.summary = data_dict["summary"]
-        self.category = data_dict["category"]
+    def update_from_json(self, data) -> None:
+        self.id = generate_id(data["title"])
+        self.title = data["title"]
+        self.body = data["body"]
+        self.toc = data["toc"]
+        self.author = data["author"]
+        self.release = date.fromisoformat(data["release"])
+        self.updated = date.fromisoformat(data["updated"])
+        self.summary = data["summary"]
+        self.category = data["category"]
 
     @classmethod
     def from_json(cls, data):
-        data_dict = json.loads(data)
-
         post = cls(
-            title=data_dict["title"],
-            body=data_dict["body"],
-            toc=data_dict["toc"],
-            author=data_dict["author"],
-            release=date.fromisoformat(data_dict["release"]),
-            updated=date.fromisoformat(data_dict["updated"]),
-            summary=data_dict["summary"],
-            category=data_dict["category"],
+            title=data["title"],
+            body=data["body"],
+            toc=data["toc"],
+            author=data["author"],
+            release=date.fromisoformat(data["release"]),
+            updated=date.fromisoformat(data["updated"]),
+            summary=data["summary"],
+            category=data["category"],
         )
 
         return post
