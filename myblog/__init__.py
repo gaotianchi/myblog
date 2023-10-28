@@ -8,8 +8,8 @@ import click
 from flask import Flask
 
 from myblog.config import get_config
+from myblog.controller.api import api
 from myblog.model.database import Post, db
-from myblog.view import user_bp
 
 config = get_config()
 
@@ -31,7 +31,7 @@ def create_app():
 
 
 def register_blueprint(app: Flask) -> None:
-    app.register_blueprint(user_bp)
+    app.register_blueprint(api)
 
 
 def register_extension(app: Flask) -> None:
