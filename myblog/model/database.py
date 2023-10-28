@@ -2,7 +2,6 @@
 职责：定义数据库表
 """
 import json
-from abc import ABC, abstractmethod
 from datetime import date
 
 from flask_sqlalchemy import SQLAlchemy
@@ -53,6 +52,7 @@ class Post(db.Model):
 
     def update_from_json(self, data: str) -> None:
         data_dict: dict = json.loads(data)
+
         self.id = generate_id(data_dict["title"])
         self.title = data_dict["title"]
         self.body = data_dict["body"]
@@ -62,3 +62,20 @@ class Post(db.Model):
         self.updated = date.fromisoformat(data_dict["updated"])
         self.summary = data_dict["summary"]
         self.category = data_dict["category"]
+
+    @classmethod
+    def from_json(cls, data):
+        data_dict = json.loads(data)
+
+        post = cls(
+            title=data_dict["title"],
+            body=data_dict["body"],
+            toc=data_dict["toc"],
+            author=data_dict["author"],
+            release=date.fromisoformat(data_dict["release"]),
+            updated=date.fromisoformat(data_dict["updated"]),
+            summary=data_dict["summary"],
+            category=data_dict["category"],
+        )
+
+        return post
