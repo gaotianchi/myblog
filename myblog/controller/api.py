@@ -2,9 +2,9 @@ from flask import Blueprint, jsonify, request
 from flask.views import MethodView
 from flask.wrappers import Response
 
-from myblog.model.database import db
+from myblog.model.database import Post, db
 
-api = Blueprint("api", __name__, subdomain="api")
+api = Blueprint("api", __name__)
 
 
 class ItemAPI(MethodView):
@@ -44,14 +44,15 @@ class GroupAPI(MethodView):
         self.model = model
 
     def get(self):
-        ...
+        items = self.model.query.all()
+        return jsonify([item.to_json() for item in items])
 
     def post(self):
-        ...
+        item = self.model.from_json(request.json)
+        db.session.add(item)
+        db.session.commit()
+        return jsonify(item.to_json())
 
 
-def register_api(app: Blueprint, model, name):
-    item = ItemAPI.as_view(f"{name}-item", model)
-    group = GroupAPI.as_view(f"{name}-group", model)
-    app.add_url_rule(f"/{name}/<int:id>", view_func=item)
-    app.add_url_rule(f"/{name}/", view_func=group)
+api.add_url_rule("/post/<id>", view_func=ItemAPI.as_view("post_item", Post))
+api.add_url_rule("/post", view_func=GroupAPI.as_view("post_group", Post))
