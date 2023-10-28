@@ -4,32 +4,43 @@ from flask.views import MethodView
 api = Blueprint("api", __name__, subdomain="api")
 
 
-class PostAPI(MethodView):
+from flask.views import MethodView
+
+
+class ItemAPI(MethodView):
+    init_every_request = False
+
+    def __init__(self, model):
+        self.model = model
+
+    def _get_item(self, id):
+        ...
+
+    def get(self, id):
+        ...
+
+    def patch(self, id):
+        ...
+
+    def delete(self, id):
+        ...
+
+
+class GroupAPI(MethodView):
     init_every_request = False
 
     def __init__(self, model):
         self.model = model
 
     def get(self):
-        """
-        职责：处理 GET 请求，返回单个文章数据
-        """
         ...
 
     def post(self):
-        """
-        职责：处理 POST 请求，创建新文章
-        """
         ...
 
-    def patch(self):
-        """
-        职责：处理 PATCH 请求，更新已存在的文章
-        """
-        ...
 
-    def delete(self):
-        """
-        职责：处理 DELETE 请求，删除指定文章
-        """
-        ...
+def register_api(app: Blueprint, model, name):
+    item = ItemAPI.as_view(f"{name}-item", model)
+    group = GroupAPI.as_view(f"{name}-group", model)
+    app.add_url_rule(f"/{name}/<int:id>", view_func=item)
+    app.add_url_rule(f"/{name}/", view_func=group)
