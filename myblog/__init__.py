@@ -8,7 +8,7 @@ import click
 from flask import Flask
 
 from myblog.config import get_config
-from myblog.model.database import db
+from myblog.model.database import Post, db
 from myblog.view import user_bp
 
 config = get_config()
@@ -25,6 +25,7 @@ def create_app():
     register_extension(app)
     register_blueprint(app)
     register_command(app)
+    register_shell_context(app)
 
     return app
 
@@ -47,3 +48,9 @@ def register_command(app: Flask) -> None:
             click.echo("成功删除所有的数据库表。")
         db.create_all()
         click.echo("完成数据库初始化。")
+
+
+def register_shell_context(app: Flask):
+    @app.shell_context_processor
+    def make_shell_context():
+        return dict(db=db, post=Post)
