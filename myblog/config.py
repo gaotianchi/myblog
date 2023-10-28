@@ -11,15 +11,17 @@ class BaseConfig:
     职责：定义基础配置
     """
 
-    PATH_BASE = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-    PATH_LOG = os.path.join(PATH_BASE, "log")
-    PATH_LOG_CONFIG = os.path.join(PATH_BASE, "logging.conf")
+    PATH_BASE: str = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+    PATH_LOG: str = os.path.join(PATH_BASE, "log")
+    PATH_LOG_CONFIG: str = os.path.join(PATH_BASE, "logging.conf")
 
 
 class DevConfig(BaseConfig):
     """
     职责：定义开发环境下的配置信息
     """
+
+    SQLALCHEMY_DATABASE_URI = os.getenv("DEV_SQLALCHEMY_DATABASE_URI")
 
 
 class TestingConfig(BaseConfig):
@@ -35,7 +37,7 @@ class ProductionConfig(BaseConfig):
 
 
 def get_config():
-    match os.getenv("ENV_CONFIG"):
+    match os.getenv("ENVIRONMENT"):
         case "dev":
             return DevConfig
         case "testing":

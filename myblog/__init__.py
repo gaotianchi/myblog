@@ -5,7 +5,7 @@
 import logging
 import logging.config
 
-from flask import Flask, request
+from flask import Flask
 
 from myblog.config import get_config
 
@@ -19,12 +19,5 @@ logger = logging.getLogger("root")
 def create_app():
     app = Flask(__package__)
     app.config.from_object(config)
-
-    @app.route("/update", methods=["POST"])
-    def update():
-        data = request.get_json()
-
-        logger.warn(data)
-        return "ok"
 
     return app
