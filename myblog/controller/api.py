@@ -1,10 +1,10 @@
-from flask import Blueprint
+from flask import Blueprint, jsonify, request
 from flask.views import MethodView
+from flask.wrappers import Response
+
+from myblog.model.database import db
 
 api = Blueprint("api", __name__, subdomain="api")
-
-
-from flask.views import MethodView
 
 
 class ItemAPI(MethodView):
@@ -12,18 +12,29 @@ class ItemAPI(MethodView):
 
     def __init__(self, model):
         self.model = model
+        self.validator = ""
 
     def _get_item(self, id):
-        ...
+        return self.model.query.get_or_404(id)
 
-    def get(self, id):
-        ...
+    def get(self, id) -> Response:
+        item = self._get_item(id)
 
-    def patch(self, id):
-        ...
+        return jsonify(item.to_json())
 
-    def delete(self, id):
-        ...
+    def patch(self, id) -> Response:
+        item = self._get_item(id)
+
+        item.update_from_json(request.json)
+        db.session.commit()
+
+        return jsonify(item.to_json())
+
+    def delete(self, id) -> Response:
+        item = self._get_item(id)
+        db.session.delete(item)
+        db.session.commit()
+        return "", 204
 
 
 class GroupAPI(MethodView):
