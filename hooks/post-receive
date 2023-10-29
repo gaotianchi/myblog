@@ -51,12 +51,19 @@ subprocess.check_output(
 
 def get_changed_files(oldrev, newrev):
     diff_output = subprocess.check_output(
-        ["git", "diff", "--name-only", oldrev, newrev]
+        ["git", "diff", "--name-status", oldrev, newrev]
     )
 
     diff_output = diff_output.decode("utf-8").strip().split("\n")
 
-    return diff_output
+    changed_files = []
+    for line in diff_output:
+        parts = line.split("\t")
+        if len(parts) == 2:
+            status, path = parts
+            changed_files.append({"status": status, "path": path})
+
+    return changed_files
 
 
 def send_request(data: str):
