@@ -1,5 +1,5 @@
 """
-职责：定义数据库表
+职责：
 """
 import json
 from datetime import date
@@ -50,16 +50,19 @@ class Post(db.Model):
 
         return json.dumps(data, ensure_ascii=False, default=json_serial)
 
-    def update_from_json(self, data) -> None:
-        self.id = generate_id(data["title"])
-        self.title = data["title"]
-        self.body = data["body"]
-        self.toc = data["toc"]
-        self.author = data["author"]
-        self.release = date.fromisoformat(data["release"])
-        self.updated = date.fromisoformat(data["updated"])
-        self.summary = data["summary"]
-        self.category = data["category"]
+    def update_from_json(self, data: dict) -> None:
+        """
+        在当前情况下，修改标题后文章的 ID 会发生变化。
+        """
+        self.title = data.get("title", self.title)
+        self.id = generate_id(self.title)
+        self.body = data.get("body", self.body)
+        self.toc = data.get("toc", self.toc)
+        self.author = data.get("author", self.author)
+        self.release = date.fromisoformat(data.get("release", self.release.isoformat()))
+        self.updated = date.fromisoformat(data.get("updated", self.updated.isoformat()))
+        self.summary = data.get("summary", self.summary)
+        self.category = data.get("category", self.category)
 
     @classmethod
     def from_json(cls, data):
