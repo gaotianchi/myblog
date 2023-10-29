@@ -1,0 +1,82 @@
+#!/usr/bin/env python3
+
+import json
+import logging
+import os
+import subprocess
+import sys
+import urllib.request
+from urllib.error import HTTPError, URLError
+
+hooks_dir = os.path.abspath(os.path.dirname(__file__))
+
+with open(os.path.join(hooks_dir, "hooks.json"), "r", encoding="UTF-8") as file:
+    hook_config: dict = json.load(file)
+
+post_receive_config = hook_config["post_receive"]
+
+
+log_file = post_receive_config["log"]["log_file"]
+
+match post_receive_config["log"]["level"]:
+    case "debug":
+        level = logging.DEBUG
+    case "info":
+        level = logging.INFO
+    case _:
+        level = logging.DEBUG
+
+log_format = post_receive_config["log"].get(
+    "format", "%(asctime)s %(levelname)s: %(message)s"
+)
+
+logging.basicConfig(
+    filename=log_file,
+    level=level,
+    format=log_format,
+)
+
+logging.debug(post_receive_config)
+
+subprocess.check_output(
+    [
+        "git",
+        f"--work-tree={post_receive_config['path_worktree']}",
+        f"--git-dir={post_receive_config['path_gitdir']}",
+        "checkout",
+        "-f",
+    ]
+)
+
+
+def get_changed_files(oldrev, newrev):
+    diff_output = subprocess.check_output(
+        ["git", "diff", "--name-only", oldrev, newrev]
+    )
+
+    diff_output = diff_output.decode("utf-8").strip().split("\n")
+
+    return diff_output
+
+
+def send_request(data: str):
+    url = post_receive_config["tasks"]["sent_changed_files"]["url_rule"]
+    headers = {"Content-Type": "application/json"}
+    data = data.encode("utf-8")
+
+    req = urllib.request.Request(url, data=data, headers=headers)
+    try:
+        response = urllib.request.urlopen(req)
+        logging.info(f"获得响应 {response}")
+    except HTTPError as e:
+        logging.warning(f"HTTPError: {e.code}, {e.reason}")
+    except URLError as e:
+        logging.warning(f"URLError: {e.reason}")
+
+
+for line in sys.stdin:
+    oldrev, newrev, refname = line.strip().split()
+    changed_files = get_changed_files(oldrev, newrev)
+    serialized_data = json.dumps(changed_files, ensure_ascii=False)
+
+    send_request(serialized_data)

@@ -1,0 +1,17 @@
+{
+    "post_receive": {
+        "path_worktree": "/home/gaotianchi/repo/worktree/myblog",
+        "path_gitdir": "/home/gaotianchi/repo/gitdir/myblog.git",
+        "log": {
+            "log_file": "/home/gaotianchi/repo/gitdir/myblog.git/hooks/post-receive.log",
+            "level": "debug",
+            "format": "%(asctime)s %(levelname)s: %(message)s"
+        },
+        "tasks": {
+            "sent_changed_files": {
+                "url_rule": "http://127.0.0.1/changed-files",
+                "methods": "POST"
+            }
+        }
+    }
+}
