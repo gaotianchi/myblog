@@ -4,7 +4,7 @@ from flask.wrappers import Response
 
 from myblog.model.database import Post, db
 
-api = Blueprint("api", __name__)
+api = Blueprint("api", __name__, subdomain="api")
 
 
 class ItemAPI(MethodView):
