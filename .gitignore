@@ -3,8 +3,7 @@
 .venv
 .vscode
 log/**
-!**/.gitkeep
-doc/**
+!log/.gitkeep
 
 
 # Byte-compiled / optimized / DLL files
