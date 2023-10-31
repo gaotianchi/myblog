@@ -30,11 +30,11 @@ def register_command(app: Flask) -> None:
         if os.path.exists(gitdir) and os.listdir(gitdir):
             raise f"{gitdir} 已经存在并且非空，请选择其他位置作为 git 裸仓库。"
 
-        if os.listdir(worktree):
+        if os.path.exists(worktree) and os.listdir(worktree):
             raise f"{worktree} 必须为空！当前 wortree 文件夹不为空。"
 
-        os.makedirs(gitdir)
-        os.makedirs(worktree)
+        os.makedirs(gitdir, exist_ok=True)
+        os.makedirs(worktree, exist_ok=True)
 
         Repo.init(gitdir, bare=True)
 
