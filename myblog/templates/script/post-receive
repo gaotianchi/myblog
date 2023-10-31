@@ -1,0 +1,85 @@
+#!{{ data.path_env }}
+
+import json
+import logging
+import subprocess
+import sys
+import urllib.request
+from datetime import datetime
+from urllib.error import HTTPError, URLError
+
+from cryptography.fernet import Fernet
+
+subprocess.check_output(
+    [
+        "git",
+        "--work-tree={{ data.path_worktree }}",
+        "--git-dir={{ data.path_gitdir }}",
+        "checkout",
+        "-f",
+    ]
+)
+
+logging.basicConfig(
+    filename="{{ data.path_log }}",
+    level=logging.DEBUG,
+    format="%(asctime)s %(levelname)s: %(message)s",
+)
+
+
+def encrypt_json(secret_key: str, data: str) -> str:
+    """职责：加密 json 数据"""
+    data_bytes = data.encode("utf-8")
+
+    f = Fernet(secret_key)
+
+    encrypted_bytes = f.encrypt(data_bytes)
+
+    encrypted_text = encrypted_bytes.decode("utf-8")
+
+    return encrypted_text
+
+
+def get_changed_files(oldrev, newrev) -> list:
+    """职责：获取变动文件的路径和状态"""
+    diff_output = subprocess.check_output(
+        ["git", "diff", "--name-status", oldrev, newrev]
+    )
+
+    diff_output = diff_output.decode("utf-8").strip().split("\n")
+
+    changed_files = []
+    for line in diff_output:
+        parts = line.split("\t")
+        if len(parts) == 2:
+            status, path = parts
+            changed_files.append({"status": status, "path": path})
+
+    return changed_files
+
+
+def send_request(data: str):
+    """职责：发送请求，传输变动文件的加密信息"""
+    url = ""
+    headers = {"Content-Type": "application/json"}
+    data = data.encode("utf-8")
+
+    req = urllib.request.Request(url, data=data, headers=headers)
+    try:
+        response = urllib.request.urlopen(req)
+        logging.info(f"获得响应 {response}")
+    except HTTPError as e:
+        logging.warning(f"HTTPError: {e.code}, {e.reason}")
+    except URLError as e:
+        logging.warning(f"URLError: {e.reason}")
+
+
+for line in sys.stdin:
+    oldrev, newrev, refname = line.strip().split()
+    changed_files = get_changed_files(oldrev, newrev)
+    timestamp: str = datetime.now().isoformat()
+    data: dict = dict(changed_files=changed_files, timestamp=timestamp)
+    serialized_data = json.dumps(data, ensure_ascii=False)
+    secret_data: str = encrypt_json("{{ data.secret_key }}", serialized_data)
+
+    send_request(secret_data)
