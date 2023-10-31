@@ -24,7 +24,7 @@ def create_app():
 
     @app.route("/", methods=["POST"])
     def index():
-        logger.info(request.json)
+        logger.info(request.data)
 
         return "hello world"
 
