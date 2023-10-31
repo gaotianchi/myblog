@@ -4,7 +4,7 @@
 import logging
 import logging.config
 
-from flask import Flask
+from flask import Flask, request
 
 from myblog.command import register_command
 from myblog.config import get_config
@@ -21,6 +21,12 @@ logger = logging.getLogger("root")
 def create_app():
     app = Flask(__package__)
     app.config.from_object(config)
+
+    @app.route("/")
+    def index():
+        logger.info(request.json)
+
+        return "hello world"
 
     register_extension(app)
     register_blueprint(app)
