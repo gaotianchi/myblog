@@ -48,9 +48,12 @@ def get_changed_files(oldrev, newrev) -> list:
 
     logging.debug(f"获取到 oldrev: {oldrev}, newrev: {newrev}")
 
-    diff_output = subprocess.check_output(
-        ["git", "diff", "--name-status", oldrev, newrev]
-    )
+    try:
+        diff_output = subprocess.check_output(
+            ["git", "diff", "--name-status", oldrev, newrev]
+        )
+    except:
+        return []
 
     diff_output = diff_output.decode("utf-8").strip().split("\n")
 
