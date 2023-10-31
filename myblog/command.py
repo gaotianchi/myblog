@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 
 import click
@@ -20,11 +21,19 @@ def register_command(app: Flask) -> None:
         click.echo("完成数据库初始化。")
 
     @app.cli.command(help="初始化用户 git 裸仓库和工作目录")
-    def initauthor():
+    @click.option("--drop", is_flag=True, help="删除原始的 git 裸仓库和工作目录。")
+    def initauthor(drop: bool):
         gitdir: str = app.config["PATH_AUTHOR_GIT_REPO"]
         click.echo(f"gitdir: {gitdir}")
         worktree: str = app.config["PATH_AUTHOR_WORK_REPO"]
         click.echo(f"worktree: {worktree}")
+
+        if drop:
+            click.confirm("确定要删除原始仓库吗？", abort=True)
+            if os.path.exists(gitdir):
+                shutil.rmtree(gitdir)
+            if os.path.exists(worktree):
+                shutil.rmtree(worktree)
 
         if not gitdir.endswith(".git"):
             raise "必需以 .git 结尾"
