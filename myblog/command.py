@@ -39,6 +39,7 @@ def register_command(app: Flask) -> None:
         Repo.init(gitdir, bare=True)
 
         data = dict(
+            path_env=os.path.join(app.config["PATH_BASE"], *[".venv", "bin", "python"]),
             path_worktree=worktree,
             path_gitdir=gitdir,
             path_log=os.path.join(app.config["PATH_LOG"], "post-receive.log"),
