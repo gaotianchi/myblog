@@ -61,11 +61,10 @@ def get_changed_files(oldrev, newrev) -> list:
     return changed_files
 
 
-def send_request(data: str):
+def send_request(data):
     """职责：发送请求，传输变动文件的加密信息"""
     url = "{{ data.url }}"
     headers = {"Content-Type": "application/json"}
-    data = data.encode("utf-8")
     logging.debug(dict(data=data))
 
     req = urllib.request.Request(url, data=data, headers=headers, method="post")
@@ -85,7 +84,7 @@ for line in sys.stdin:
     data: dict = dict(changed_files=changed_files, timestamp=timestamp)
     serialized_data = json.dumps(data, ensure_ascii=False)
     logging.debug(dict(serialized_data=serialized_data))
-    secret_data: str = encrypt_json({{data.secret_key}}, serialized_data)
-    logging.debug(dict(secret_data=secret_data))
+    secret_data = encrypt_json({{data.secret_key}}, serialized_data)
+    logging.debug(type(secret_data))
 
     send_request(secret_data)
