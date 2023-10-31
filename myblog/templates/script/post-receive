@@ -27,7 +27,7 @@ logging.basicConfig(
 )
 
 
-def encrypt_json(secret_key: str, data: str) -> str:
+def encrypt_json(secret_key: bytes, data: str) -> str:
     """职责：加密 json 数据"""
     data_bytes = data.encode("utf-8")
 
@@ -42,6 +42,9 @@ def encrypt_json(secret_key: str, data: str) -> str:
 
 def get_changed_files(oldrev, newrev) -> list:
     """职责：获取变动文件的路径和状态"""
+
+    logging.debug(f"获取到 oldrev: {oldrev}, newrev: {newrev}")
+
     diff_output = subprocess.check_output(
         ["git", "diff", "--name-status", oldrev, newrev]
     )
@@ -80,6 +83,6 @@ for line in sys.stdin:
     timestamp: str = datetime.now().isoformat()
     data: dict = dict(changed_files=changed_files, timestamp=timestamp)
     serialized_data = json.dumps(data, ensure_ascii=False)
-    secret_data: str = encrypt_json("{{ data.secret_key }}", serialized_data)
+    secret_data: str = encrypt_json({{data.secret_key}}, serialized_data)
 
     send_request(secret_data)
