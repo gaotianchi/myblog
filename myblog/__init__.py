@@ -22,7 +22,7 @@ def create_app():
     app = Flask(__package__)
     app.config.from_object(config)
 
-    @app.route("/")
+    @app.route("/", methods=["POST"])
     def index():
         logger.info(request.json)
 
