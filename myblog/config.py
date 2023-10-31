@@ -16,7 +16,11 @@ class BaseConfig:
     PATH_BASE: str = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     PATH_LOG: str = os.path.join(PATH_BASE, "log")
     PATH_LOG_CONFIG: str = os.path.join(PATH_BASE, "logging.conf")
-    SECRET_KEY = Fernet.generate_key()
+    PATH_KEY: str = os.path.join(PATH_BASE, "KEY")
+    SECRET_KEY: bytes = Fernet.generate_key()
+
+    with open(PATH_KEY, "w", encoding="utf-8") as f:
+        f.write(SECRET_KEY.decode("utf-8"))
 
 
 class DevConfig(BaseConfig):
@@ -27,6 +31,8 @@ class DevConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = os.getenv("DEV_SQLALCHEMY_DATABASE_URI")
     PATH_AUTHOR_GIT_REPO = os.getenv("DEV_PATH_AUTHOR_GIT_REPO")
     PATH_AUTHOR_WORK_REPO = os.getenv("DEV_PATH_AUTHOR_WORK_REPO")
+
+    SERVER_NAME = "127.0.0.1:5000"
 
 
 class TestingConfig(BaseConfig):

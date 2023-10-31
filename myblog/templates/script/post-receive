@@ -27,9 +27,12 @@ logging.basicConfig(
 )
 
 
-def encrypt_json(secret_key: bytes, data: str) -> str:
+def encrypt_json(path_key: str, data: str) -> str:
     """职责：加密 json 数据"""
     data_bytes = data.encode("utf-8")
+
+    with open(path_key, "r", encoding="utf-8") as f:
+        secret_key: bytes = (f.read()).encode("utf-8")
 
     f = Fernet(secret_key)
 
@@ -65,7 +68,6 @@ def send_request(data: bytes):
     """职责：发送请求，传输变动文件的加密信息"""
     url = "{{ data.url }}"
     headers = {"Content-Type": "application/json"}
-    logging.debug(dict(data=data))
 
     req = urllib.request.Request(url, data=data, headers=headers, method="post")
     try:
@@ -83,7 +85,6 @@ for line in sys.stdin:
     timestamp: str = datetime.now().isoformat()
     data: dict = dict(changed_files=changed_files, timestamp=timestamp)
     serialized_data = json.dumps(data, ensure_ascii=False)
-    logging.debug(dict(serialized_data=serialized_data))
-    secret_data = encrypt_json({{data.secret_key}}, serialized_data)
+    secret_data = encrypt_json("{{data.path_key}}", serialized_data)
 
     send_request(secret_data.encode("utf-8"))

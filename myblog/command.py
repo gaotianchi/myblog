@@ -57,8 +57,8 @@ def register_command(app: Flask) -> None:
             path_worktree=worktree,
             path_gitdir=gitdir,
             path_log=os.path.join(app.config["PATH_LOG"], "post-receive.log"),
-            secret_key=app.config["SECRET_KEY"],
-            url="http://localhost:5000",
+            path_key=app.config["PATH_KEY"],
+            url=url_for("index"),
         )
 
         target_post_receive: str = os.path.join(gitdir, *["hooks", "post-receive"])
