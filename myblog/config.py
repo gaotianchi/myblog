@@ -15,7 +15,7 @@ class BaseConfig:
     PATH_BASE: str = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     PATH_LOG: str = os.path.join(PATH_BASE, "log")
     PATH_LOG_CONFIG: str = os.path.join(PATH_BASE, "logging.conf")
-    SECRET_KEY: str = secrets.token_hex(17)
+    SECRET_KEY: str = secrets.token_urlsafe(32)
 
 
 class DevConfig(BaseConfig):
