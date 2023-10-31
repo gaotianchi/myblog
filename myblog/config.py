@@ -4,6 +4,7 @@
 """
 
 import os
+import secrets
 
 
 class BaseConfig:
@@ -14,6 +15,7 @@ class BaseConfig:
     PATH_BASE: str = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     PATH_LOG: str = os.path.join(PATH_BASE, "log")
     PATH_LOG_CONFIG: str = os.path.join(PATH_BASE, "logging.conf")
+    SECRET_KEY: str = secrets.token_hex(17)
 
 
 class DevConfig(BaseConfig):
@@ -22,6 +24,8 @@ class DevConfig(BaseConfig):
     """
 
     SQLALCHEMY_DATABASE_URI = os.getenv("DEV_SQLALCHEMY_DATABASE_URI")
+    PATH_AUTHOR_GIT_REPO = os.getenv("DEV_PATH_AUTHOR_GIT_REPO")
+    PATH_AUTHOR_WORK_REPO = os.getenv("DEV_PATH_AUTHOR_WORK_REPO")
 
 
 class TestingConfig(BaseConfig):
@@ -45,4 +49,4 @@ def get_config():
         case "production":
             return ProductionConfig
         case _:
-            raise Exception("没有检测到配置选项，请在环境")
+            raise Exception("没有检测到配置选项，请在环境变量中添加 ENV_CONFIG 配置项")
