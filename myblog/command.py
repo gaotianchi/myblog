@@ -36,13 +36,13 @@ def register_command(app: Flask) -> None:
                 shutil.rmtree(worktree)
 
         if not gitdir.endswith(".git"):
-            raise "必需以 .git 结尾"
+            raise Exception("必需以 .git 结尾")
 
         if os.path.exists(gitdir) and os.listdir(gitdir):
-            raise f"{gitdir} 已经存在并且非空，请选择其他位置作为 git 裸仓库。"
+            raise Exception(f"{gitdir} 已经存在并且非空，请选择其他位置作为 git 裸仓库。")
 
         if os.path.exists(worktree) and os.listdir(worktree):
-            raise f"{worktree} 必须为空！当前 wortree 文件夹不为空。"
+            raise Exception(f"{worktree} 必须为空！当前 wortree 文件夹不为空。")
 
         os.makedirs(gitdir, exist_ok=True)
         click.echo(f"gitdir {gitdir} 创建完成。")
