@@ -22,7 +22,9 @@ def register_command(app: Flask) -> None:
     @app.cli.command(help="初始化用户 git 裸仓库和工作目录")
     def initauthor():
         gitdir: str = app.config["PATH_AUTHOR_GIT_REPO"]
+        click.echo(f"gitdir: {gitdir}")
         worktree: str = app.config["PATH_AUTHOR_WORK_REPO"]
+        click.echo(f"worktree: {worktree}")
 
         if not gitdir.endswith(".git"):
             raise "必需以 .git 结尾"
@@ -34,9 +36,12 @@ def register_command(app: Flask) -> None:
             raise f"{worktree} 必须为空！当前 wortree 文件夹不为空。"
 
         os.makedirs(gitdir, exist_ok=True)
+        click.echo(f"gitdir {gitdir} 创建完成。")
         os.makedirs(worktree, exist_ok=True)
+        click.echo(f"worktree {worktree} 创建完成。")
 
         Repo.init(gitdir, bare=True)
+        click.echo(f"gitdir 裸仓库初始化完成。")
 
         data = dict(
             path_env=os.path.join(app.config["PATH_BASE"], *[".venv", "bin", "python"]),
