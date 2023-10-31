@@ -63,7 +63,7 @@ def get_changed_files(oldrev, newrev) -> list:
 
 def send_request(data: str):
     """职责：发送请求，传输变动文件的加密信息"""
-    url = ""
+    url = "{{ data.url }}"
     headers = {"Content-Type": "application/json"}
     data = data.encode("utf-8")
 
