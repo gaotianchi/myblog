@@ -9,7 +9,8 @@ from flask import Flask, request
 from myblog.command import register_command
 from myblog.config import get_config
 from myblog.controller.api import api
-from myblog.model.database import Post, db
+from myblog.extension import db, login_manager
+from myblog.model.database import Author, Post
 
 config = get_config()
 
@@ -42,9 +43,10 @@ def register_blueprint(app: Flask) -> None:
 
 def register_extension(app: Flask) -> None:
     db.init_app(app)
+    login_manager.init_app(app)
 
 
 def register_shell_context(app: Flask):
     @app.shell_context_processor
     def make_shell_context():
-        return dict(db=db, post=Post)
+        return dict(db=db, post=Post, author=Author)

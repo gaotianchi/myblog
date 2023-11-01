@@ -3,7 +3,8 @@
 备注：每个类源自于作者的行为
 """
 
-from flask import Blueprint, request
+
+from flask import Blueprint
 from flask import typing as ft
 from flask.views import View
 
@@ -43,6 +44,6 @@ class UpdatePost(View):
         return super().dispatch_request()
 
 
-author.add_url_rule("/author/add-post", AddPost.as_view("add-post"))
-author.add_url_rule("/author/delete-post/<id>", DeletePost.as_view("delete-post"))
-author.add_url_rule("/author/update-post/<id>", UpdatePost.as_view("update-post"))
+author.add_url_rule("/author/add-post", AddPost.as_view("add_post"))
+author.add_url_rule("/author/delete-post/<id>", DeletePost.as_view("delete_post"))
+author.add_url_rule("/author/update-post/<id>", UpdatePost.as_view("update_post"))

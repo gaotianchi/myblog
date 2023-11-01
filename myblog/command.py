@@ -6,7 +6,7 @@ import click
 from flask import Flask, render_template, url_for
 from git import Repo
 
-from myblog.model.database import db
+from myblog.extension import db
 
 
 def register_command(app: Flask) -> None:

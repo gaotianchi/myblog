@@ -10,7 +10,7 @@ def json_serial(obj):
         return obj.isoformat()
 
 
-def generate_id(title: str) -> str:
+def generate_post_id(title: str) -> str:
     hash_object = hashlib.md5(title.encode())
     hash_digest = hash_object.digest()
 
