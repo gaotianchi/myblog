@@ -1,0 +1,74 @@
+<!-- 
+    职责：渲染首页页面
+    组件：
+      - 动态
+      - 作者简介
+      - 最近文章
+ -->
+
+{% extends "base.html" %}
+
+{% block main %}
+<div class="row">
+    <div class="col-md-8">
+        <!-- 动态主页面 -->
+        <div id="trends-container">
+            {% set trends = data.recent_trend %}
+            {% if trends %}
+            {% for trend in trends %}
+            <div class="card mb-3" data-trendid="{{ trend.id }}">
+                <div class="card-body">
+                    <h4 class="card-title">{{ trend.title }}</h4>
+                    <div class="card-text">{{ trend.body|safe }}</div>
+                </div>
+                <div class="card-footer text-muted">
+                    {{ trend.time.strftime("%Y-%m-%d %H:%M") }} 发布在 {{ trend.project }}
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p>目前还没有发布动态</p>
+            {% endif %}
+
+        </div>
+
+    </div>
+    <div class="col-md-4">
+        <!-- 作者简介组件 -->
+        {% set profile = data.profile %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h4 class="card-title">关于本站</h4>
+                <p class="card-text">{{ profile.website.description }}</p>
+                <p class="card-text">建站时间: {{ profile.website.building_time }}</p>
+                <p class="card-text">作者邮箱: {{ profile.author.email }}</p>
+            </div>
+        </div>
+
+        <!-- 最近文章组件 -->
+        {% set posts = data.recent_post %}
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h4 class="card-title">最近文章</h4>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% if posts %}
+                {% for post in posts %}
+                <a href="{{ url_for('user.read_post', post=post.id) }}">
+                    <li class="list-group-item">{{ post.title }} <i>{{ post.date.strftime("%m/%d") }}</i></li>
+                </a>
+                {% endfor %}
+                {% else %}
+                <li class="list-group-item">还没有发布文章</li>
+                {% endif %}
+            </ul>
+        </div>
+
+    </div>
+</div>
+{% endblock main %}
+
+{% block script %}
+<script src="../../static/js/base.js"></script>
+{% endblock %}
