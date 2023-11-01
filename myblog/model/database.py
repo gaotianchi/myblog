@@ -4,13 +4,27 @@
 import json
 from datetime import date
 
-from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
 from sqlalchemy import Date, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
+from werkzeug.security import check_password_hash, generate_password_hash
 
-from myblog.utlis import generate_id, json_serial
+from myblog.extension import db
+from myblog.utlis import generate_post_id, json_serial
 
-db = SQLAlchemy()
+
+class Author(db.Model, UserMixin):
+    email: Mapped[str] = mapped_column(String(20), primary_key=True)
+    password_hash: Mapped[str] = mapped_column(String(128))
+
+    def get_id(self):
+        return self.email
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def validate_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
 
 class Post(db.Model):
@@ -25,7 +39,7 @@ class Post(db.Model):
     category: Mapped[str] = mapped_column(String(30), nullable=False)
 
     def __init__(self, title, body, toc, author, release, updated, summary, category):
-        self.id = generate_id(title)
+        self.id = generate_post_id(title)
         self.title = title
         self.body = body
         self.toc = toc
@@ -55,7 +69,7 @@ class Post(db.Model):
         在当前情况下，修改标题后文章的 ID 会发生变化。
         """
         self.title = data.get("title", self.title)
-        self.id = generate_id(self.title)
+        self.id = generate_post_id(self.title)
         self.body = data.get("body", self.body)
         self.toc = data.get("toc", self.toc)
         self.author = data.get("author", self.author)
