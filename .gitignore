@@ -5,6 +5,7 @@
 log/**
 !log/.gitkeep
 KEY
+myblog
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
