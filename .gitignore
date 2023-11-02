@@ -4,10 +4,7 @@
 .vscode
 log/**
 !log/.gitkeep
-KEY
-myblog
-test
-logging.conf
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
