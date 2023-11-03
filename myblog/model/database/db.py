@@ -14,9 +14,35 @@ Copyright (C) 2023 Gao Tianchi
 import json
 from datetime import date
 
+from werkzeug.security import check_password_hash, generate_password_hash
+
 from myblog.help import get_post_id, serialize_datetime
 
-from .table import PostTable
+from .table import OwnerTable, PostTable
+
+
+class Owner(OwnerTable):
+    def __init__(
+        self,
+        name: str,
+        password_hash: None,
+        email: str,
+        about: str,
+        brith: date,
+        country: str,
+    ) -> None:
+        self.name = name
+        self.password_hash = password_hash
+        self.email = email
+        self.about = about
+        self.brith = brith
+        self.country = country
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def validate_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
 
 class Post(PostTable):
@@ -24,12 +50,12 @@ class Post(PostTable):
         self,
         title: str,
         body: str,
-        toc: str,
         author: str,
         release: date,
         updated: date,
         summary: str,
         category: str,
+        toc: str = None,
     ) -> None:
         self.id = get_post_id(title)
         self.title = title
