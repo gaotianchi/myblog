@@ -20,6 +20,7 @@ from myblog.flaskexten import db
 
 
 class PostTable(db.Model):
+    __tablename__ = "post"
     id: Mapped[str] = mapped_column(String(20), primary_key=True)
     title: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
     body: Mapped[str] = mapped_column(Text, nullable=False)
@@ -29,3 +30,13 @@ class PostTable(db.Model):
     updated: Mapped[date] = mapped_column(Date, default=date.today())
     summary: Mapped[str] = mapped_column(Text, nullable=False)
     category: Mapped[str] = mapped_column(String(30), nullable=False)
+
+
+class OwnerTable(db.Model):
+    __tablename__ = "owner"
+    name: Mapped[str] = mapped_column(String(128), primary_key=True)
+    password_hash: Mapped[str] = mapped_column(String(128))
+    email: Mapped[str] = mapped_column(String(128))
+    about: Mapped[str] = mapped_column(String(255))
+    brith: Mapped[date] = mapped_column(Date)
+    country: Mapped[str] = mapped_column(String(128))
