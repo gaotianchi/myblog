@@ -13,8 +13,8 @@ Copyright (C) 2023 Gao Tianchi
 
 from datetime import date
 
-from sqlalchemy import Date, String, Text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import Date, ForeignKey, String, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from myblog.flaskexten import db
 
@@ -24,19 +24,30 @@ class PostTable(db.Model):
     id: Mapped[str] = mapped_column(String(20), primary_key=True)
     title: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
     body: Mapped[str] = mapped_column(Text, nullable=False)
-    toc: Mapped[str] = mapped_column(Text, nullable=False)
-    author: Mapped[str] = mapped_column(String(50), nullable=False)
+    toc: Mapped[str] = mapped_column(Text, nullable=True)
     release: Mapped[date] = mapped_column(Date, default=date.today())
     updated: Mapped[date] = mapped_column(Date, default=date.today())
     summary: Mapped[str] = mapped_column(Text, nullable=False)
     category: Mapped[str] = mapped_column(String(30), nullable=False)
+    author = mapped_column(String(128), ForeignKey("owner.name"))
 
 
 class OwnerTable(db.Model):
     __tablename__ = "owner"
     name: Mapped[str] = mapped_column(String(128), primary_key=True)
     password_hash: Mapped[str] = mapped_column(String(128))
-    email: Mapped[str] = mapped_column(String(128))
-    about: Mapped[str] = mapped_column(String(255))
-    brith: Mapped[date] = mapped_column(Date)
-    country: Mapped[str] = mapped_column(String(128))
+    email: Mapped[str] = mapped_column(String(128), nullable=True)
+    about: Mapped[str] = mapped_column(String(255), nullable=True)
+    brith: Mapped[date] = mapped_column(Date, nullable=True)
+    country: Mapped[str] = mapped_column(String(128), nullable=True)
+    posts = relationship("PostTable", backref="owner")
+    site = relationship("SiteTable", backref="owner")
+
+
+class SiteTable(db.Model):
+    __tablename__ = "site"
+    blogtitle: Mapped[str] = mapped_column(String(128), primary_key=True)
+    blogsubtitle: Mapped[str] = mapped_column(String(128), nullable=True)
+    buildingdate: Mapped[date] = mapped_column(Date)
+    about: Mapped[str] = mapped_column(String(255), nullable=True)
+    owner = mapped_column(String(128), ForeignKey("owner.name"))
