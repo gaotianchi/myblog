@@ -16,15 +16,21 @@ from cryptography.fernet import Fernet
 
 class BaseConfig:
     SECRET_KEY: bytes = Fernet.generate_key()
-    TOKEN_EXPRIATION: int = 3600
     PATH_BASE: str = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     PATH_LOG: str = os.path.join(PATH_BASE, "log")
     PATH_STATIC: str = os.path.join(PATH_BASE, *["myblog", "view", "static"])
     PATH_TEMPLATE: str = os.path.join(PATH_BASE, *["myblog", "view", "templates"])
+    PATH_KEY: str = os.path.join(PATH_BASE, "KEY")
+
+    with open(PATH_KEY) as f:
+        f.write(SECRET_KEY.decode("utf-8"))
 
 
 class DevelopmentConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI: str = os.getenv("DEV_SQLALCHEMY_DATABASE_URI")
+    PATH_OWNER_GIT_REPO: str = os.getenv("DEV_PATH_OWNER_GIT_REPO")
+    PATH_OWNER_WORK_REPO: str = os.getenv("DEV_PATH_OWNER_WORK_REPO")
+    PATH_OWNER_POST: str = os.path.join(PATH_OWNER_WORK_REPO, "post")
 
 
 class TestingConfig(BaseConfig):
