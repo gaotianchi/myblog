@@ -28,13 +28,6 @@ auth_bp = Blueprint("auth", __name__)
 login_manager.login_view = "auth.login"
 
 
-def encrypt_token(secret_key: bytes, data: str) -> str:
-    fernet = Fernet(secret_key)
-    token = fernet.encrypt(data.encode("utf-8"))
-
-    return token.decode("utf-8")
-
-
 def decrypt_token(secret_key: bytes, token: str) -> str:
     fernet = Fernet(secret_key)
     decrypted_data = fernet.decrypt(token.encode("utf-8"))
