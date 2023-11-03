@@ -1,0 +1,91 @@
+#!{{path_env}}
+
+from datetime import datetime
+import logging
+import os
+import subprocess
+import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname("{{path_env}}"))))
+
+from cryptography.fernet import Fernet
+
+from myblog.help import get_post_id
+from myblog.config import get_config
+
+config = get_config()
+
+
+path_log: str = os.path.join(config.PATH_LOG, "post-receive.log")
+
+
+logging.basicConfig(
+    filename=path_log,
+    filemode="a",
+    level=logging.DEBUG,
+    format="%(asctime)s-%(levelname)s-%(funcName)s-%(message)s",
+)
+
+subprocess.check_output(
+    [
+        "git",
+        f"--work-tree={config.PATH_OWNER_WORK_REPO}",
+        f"--git-dir={config.PATH_OWNER_GIT_REPO}",
+        "checkout",
+        "-f",
+    ]
+)
+
+def encrypt_token(secret_key: bytes, data: str) -> str:
+    fernet = Fernet(secret_key)
+    token = fernet.encrypt(data.encode("utf-8"))
+
+    return token.decode("utf-8")
+
+
+def get_changed_files(oldrev, newrev) -> list:
+    try:
+        diff_output = subprocess.check_output(
+            ["git", "diff", "--name-status", oldrev, newrev]
+        )
+    except:
+        logging.error(f"An exception occurred during the process of obtaining the changed file. The parameters include
+                       Old branch hash value: {oldrev},
+                       Current branch hash: {newrev}.")
+
+    diff_output = diff_output.decode("utf-8").strip().split("\n")
+
+    changed_files = []
+    for line in diff_output:
+        parts = line.split("\t")
+        if len(parts) == 2:
+            status, path = parts
+            changed_files.append({"status": status, "path": path})
+
+    return changed_files
+
+
+def is_post(filename: str) -> bool:
+    
+    post_dirname: str = os.path.basename(config.PATH_OWNER_POST)
+    file_dirname: str = os.path.dirname(os.path.dirname(filename))
+
+    return post_dirname == file_dirname
+
+
+for line in sys.stdin:
+    oldrev, newrev, refname = line.strip().split()
+    changed_files: list[dict] = get_changed_files(oldrev, newrev)
+    for fileitems in changed_files:
+        filename: str = fileitems["path"]
+        if is_post(filename):
+            posttitle: str = os.path.basename(filename).replace(".md")
+            post_id: str = get_post_id(posttitle)
+            
+            match fileitems["status"]:
+                case "A":
+                    ...
+                case "M":
+                    ...
+                case "D":
+                    ...
