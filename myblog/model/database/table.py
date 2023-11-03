@@ -35,7 +35,7 @@ class PostTable(db.Model):
 class OwnerTable(db.Model):
     __tablename__ = "owner"
     name: Mapped[str] = mapped_column(String(128), primary_key=True)
-    password_hash: Mapped[str] = mapped_column(String(128))
+    password_hash: Mapped[str] = mapped_column(String(255))
     email: Mapped[str] = mapped_column(String(128), nullable=True)
     about: Mapped[str] = mapped_column(String(255), nullable=True)
     brith: Mapped[date] = mapped_column(Date, nullable=True)
@@ -50,4 +50,4 @@ class SiteTable(db.Model):
     blogsubtitle: Mapped[str] = mapped_column(String(128), nullable=True)
     buildingdate: Mapped[date] = mapped_column(Date)
     about: Mapped[str] = mapped_column(String(255), nullable=True)
-    owner = mapped_column(String(128), ForeignKey("owner.name"))
+    author = mapped_column(String(128), ForeignKey("owner.name"))

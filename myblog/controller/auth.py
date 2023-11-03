@@ -13,49 +13,56 @@ Latest modified date: 2023-11-03
 Copyright (C) 2023 Gao Tianchi
 """
 
+import json
 
-from flask import current_app
+from cryptography.fernet import Fernet
+from flask import Blueprint, current_app
 from flask.wrappers import Request
-from itsdangerous import BadSignature, Serializer, SignatureExpired
+from flask_login import current_user, login_required
 
 from myblog.flaskexten import login_manager
 from myblog.model.database.db import Owner
 
+auth_bp = Blueprint("auth", __name__)
 
-def generate_token(owner: Owner):
-    expiration = current_app.config["TOKEN_EXPRIATION"]
-    s = Serializer(current_app.config["SECRET_KEY"], expires_in=expiration)
-    token = s.dumps({"name": owner.name}).decode("ascii")
-    return token, expiration
+login_manager.login_view = "auth.login"
 
 
-def get_user_from_token(token: str):
-    s = Serializer(current_app.config["SECRET_KEY"])
-    try:
-        data = s.loads(token)
+def encrypt_token(secret_key: bytes, data: str) -> str:
+    fernet = Fernet(secret_key)
+    token = fernet.encrypt(data.encode("utf-8"))
 
-    except (BadSignature, SignatureExpired):
-        return None  # Return None on token validation failure
-    user = Owner.query.get(data["name"])
-    return user  # Return the user object on successful validation
+    return token.decode("utf-8")
+
+
+def decrypt_token(secret_key: bytes, token: str) -> str:
+    fernet = Fernet(secret_key)
+    decrypted_data = fernet.decrypt(token.encode("utf-8"))
+
+    return decrypted_data.decode("utf-8")
 
 
 @login_manager.request_loader
 def load_user_from_request(request: Request):
-    # First, try to login using the token from the URL arg
-    token = request.args.get("token")
+    token: str = request.args.get("token")
     if token:
-        user = get_user_from_token(token)
-        if user:
-            return user
+        try:
+            decrypted_data: str = decrypt_token(current_app.config["SECRET_KEY"], token)
+            data: dict = json.loads(decrypted_data)
+            owner = Owner.query.get(data["name"])
+            return owner if owner else None
+        except:
+            return None
 
-    # Next, try to login using Basic Auth
-    token = request.headers.get("Authorization")
-    if token:
-        token = token.replace("Basic ", "", 1)
-        user = get_user_from_token(token)
-        if user:
-            return user
-
-    # Finally, return None if both methods did not log in the user
     return None
+
+
+@auth_bp.route("/login")
+def login():
+    return "login"
+
+
+@auth_bp.route("/")
+@login_required
+def index():
+    return f"当前的用户名称为 {current_user.name}"

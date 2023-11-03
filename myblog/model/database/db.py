@@ -7,13 +7,14 @@ Author: Gao Tianchi
 Contact: 6159984@gmail.com
 Version: 0.3
 Creation date: 2023-11-02
-Latest modified date: 2023-11-02
+Latest modified date: 2023-11-03
 Copyright (C) 2023 Gao Tianchi
 """
 
 import json
 from datetime import date
 
+from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from myblog.help import get_post_id, serialize_datetime
@@ -25,15 +26,15 @@ class Site(SiteTable):
     ...
 
 
-class Owner(OwnerTable):
+class Owner(OwnerTable, UserMixin):
     def __init__(
         self,
         name: str,
-        password_hash: None,
-        email: str,
-        about: str,
-        brith: date,
-        country: str,
+        password_hash: str = None,
+        email: str = None,
+        about: str = None,
+        brith: date = None,
+        country: str = None,
     ) -> None:
         self.name = name
         self.password_hash = password_hash

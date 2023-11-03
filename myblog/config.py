@@ -10,11 +10,12 @@ Copyright (C) 2023 Gao Tianchi
 """
 
 import os
-import secrets
+
+from cryptography.fernet import Fernet
 
 
 class BaseConfig:
-    SECRET_KEY: str = secrets.token_urlsafe(23)
+    SECRET_KEY: bytes = Fernet.generate_key()
     TOKEN_EXPRIATION: int = 3600
     PATH_BASE: str = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     PATH_LOG: str = os.path.join(PATH_BASE, "log")
