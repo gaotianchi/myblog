@@ -18,7 +18,11 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from myblog.help import get_post_id, serialize_datetime
 
-from .table import OwnerTable, PostTable
+from .table import OwnerTable, PostTable, SiteTable
+
+
+class Site(SiteTable):
+    ...
 
 
 class Owner(OwnerTable):
