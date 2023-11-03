@@ -9,6 +9,8 @@ Latest modified date: 2023-11-02
 Copyright (C) 2023 Gao Tianchi
 """
 
+from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
+login_manager = LoginManager()

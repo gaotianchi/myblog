@@ -16,8 +16,8 @@ import os
 from flask import Flask
 
 from myblog.config import get_config
-from myblog.flaskexten import db
-from myblog.model.database.db import Post
+from myblog.flaskexten import db, login_manager
+from myblog.model.database.db import Owner, Post, Site
 
 config = get_config()
 error_logfile = os.path.join(config.PATH_LOG, "error.log")
@@ -45,9 +45,10 @@ def create_app():
     app.config.from_object(config)
 
     db.init_app(app)
+    login_manager.init_app(app)
 
     @app.shell_context_processor
     def make_shell_context():
-        return dict(db=db, post=Post)
+        return dict(db=db, post=Post, owner=Owner, site=Site)
 
     return app
