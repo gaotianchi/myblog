@@ -39,7 +39,7 @@ def add_post():
         db.session.rollback()
         logger.error(f"Fail to create {now_post}!")
 
-        return "Fail"
+        return f"Fail to create {now_post}!"
 
 
 @owner_bp.route("/update-post/<post_id>", methods=["PATCH"])
@@ -59,4 +59,22 @@ def update_post(post_id: str):
         db.session.rollback()
         logger.error(f"Fail to update {post}")
 
-        return "Fail"
+        return f"Fail to update {post}"
+
+
+@owner_bp.route("/delete-post/<post_id>", methods=["DELETE"])
+@login_required
+def delete_post(post_id: str):
+    post = Post.query.get_or_404(post_id)
+
+    try:
+        db.session.delete(post)
+        db.session.commit()
+        logger.info(f"Article {post} was deleted successfully.")
+
+        return f"Article {post} was deleted successfully."
+    except:
+        db.session.rollback()
+        logger.error(f"Fail to delete {post}")
+
+        return f"Fail to delete {post}"
