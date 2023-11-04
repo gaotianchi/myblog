@@ -41,7 +41,7 @@ json_data: str = json.dumps(
 
 
 try:
-    response = requests.delete(url)
+    response = requests.patch(url)
     print(response.status_code)
 except:
     print(response.status_code)
