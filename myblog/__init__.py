@@ -58,7 +58,9 @@ def create_app():
             config.PATH_OWNER_GIT_REPO, *["hooks", "post-receive"]
         )
 
-        target_file = render_template("script/post-receive", path_env=path_env)
+        target_file = render_template(
+            "script/post-receive", path_env=path_env, config=config
+        )
 
         if os.path.exists(config.PATH_OWNER_GIT_REPO):
             shutil.rmtree(config.PATH_OWNER_GIT_REPO)
@@ -74,6 +76,7 @@ def create_app():
             f.write(target_file)
 
         subprocess.check_output(["chmod", "a+x", target_path])
+        subprocess.check_output(["dos2unix", target_path])
 
         click.echo("Create user workspace successfully.")
 
