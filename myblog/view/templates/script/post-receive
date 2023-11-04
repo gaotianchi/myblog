@@ -82,13 +82,17 @@ for line in sys.stdin:
     oldrev, newrev, refname = line.strip().split()
     try:
         changed_files: list[dict] = get_changed_files(oldrev, newrev)
+        logging.info(dict(changed_files=changed_files))
     except:
         continue
     for fileitems in changed_files:
+        logging.info(dict(fileitems=fileitems))
         filename: str = fileitems["path"]
         if is_post(filename):
             posttitle: str = os.path.basename(filename).replace(".md")
             post_id: str = get_post_id(posttitle)
+            logging.info(dict(posttitle=posttitle))
+            logging.info(dict(post_id=post_id))
 
             match fileitems["status"]:
                 case "A":
@@ -97,3 +101,5 @@ for line in sys.stdin:
                     logging.info("patch request")
                 case "D":
                     logging.info("delete request")
+        else:
+            logging.warning(f"{fileitems} is not a post.")
