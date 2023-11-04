@@ -11,10 +11,13 @@ path_project_root: str = os.path.dirname(
 
 sys.path.append(path_project_root)
 
+
 from cryptography.fernet import Fernet
 
 from myblog.config import get_config
 from myblog.help import get_post_id
+
+config = {{config}}
 
 path_log: str = os.path.join(config.PATH_LOG, "post-receive.log")
 
