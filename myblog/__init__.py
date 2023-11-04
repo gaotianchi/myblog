@@ -15,7 +15,7 @@ import logging
 from flask import Flask
 
 from myblog.config import get_config
-from myblog.controller.auth import auth_bp
+from myblog.controller import auth_bp, owner_bp
 from myblog.flaskexten import db, login_manager
 from myblog.model.database.db import Owner, Post, Site
 
@@ -40,6 +40,7 @@ def create_app():
     login_manager.init_app(app)
 
     app.register_blueprint(auth_bp)
+    app.register_blueprint(owner_bp)
 
     @app.shell_context_processor
     def make_shell_context():
