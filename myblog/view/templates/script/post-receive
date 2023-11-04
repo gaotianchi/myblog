@@ -55,14 +55,9 @@ def encrypt_token(secret_key: bytes, data: str) -> str:
 
 
 def get_changed_files(oldrev, newrev) -> list:
-    try:
-        diff_output = subprocess.check_output(
-            ["git", "diff", "--name-status", oldrev, newrev]
-        )
-    except:
-        logging.error(
-            f"An exception occurred during the process of obtaining the changed file. The parameters include Old branch hash value: {oldrev}, Current branch hash: {newrev}."
-        )
+    diff_output = subprocess.check_output(
+        ["git", "diff", "--name-status", oldrev, newrev]
+    )
 
     diff_output = diff_output.decode("utf-8").strip().split("\n")
 
@@ -85,7 +80,10 @@ def is_post(filename: str) -> bool:
 
 for line in sys.stdin:
     oldrev, newrev, refname = line.strip().split()
-    changed_files: list[dict] = get_changed_files(oldrev, newrev)
+    try:
+        changed_files: list[dict] = get_changed_files(oldrev, newrev)
+    except:
+        continue
     for fileitems in changed_files:
         filename: str = fileitems["path"]
         if is_post(filename):
