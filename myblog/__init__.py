@@ -59,7 +59,7 @@ def create_app():
         )
 
         target_file = render_template(
-            "script/post-receive", path_env=path_env, config=config()
+            "script/post-receive", path_env=path_env, config=config
         )
 
         if os.path.exists(config.PATH_OWNER_GIT_REPO):
