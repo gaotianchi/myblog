@@ -59,8 +59,10 @@ def create_app():
         )
 
         target_file = render_template(
-            "script/post-receive", path_env=path_env, config=config()
+            "script/post-receive", path_env=path_env, config=config.__dict__
         )
+
+        click.echo(f"config: {config.__dict__}")
 
         if os.path.exists(config.PATH_OWNER_GIT_REPO):
             shutil.rmtree(config.PATH_OWNER_GIT_REPO)
