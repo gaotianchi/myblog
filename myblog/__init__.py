@@ -50,7 +50,7 @@ def create_app():
     def make_shell_context():
         return dict(db=db, post=Post, owner=Owner, site=Site)
 
-    @app.cli.command("test for create user workspace")
+    @app.cli.command("create_user", help="test for create user workspace")
     def create_user():
         path_env = os.path.join(config.PATH_BASE, *[".venv", "bin", "python"])
 
