@@ -5,14 +5,16 @@ import os
 import subprocess
 import sys
 
-path_project_root: str = os.path.dirname(os.path.dirname(os.path.dirname("{{path_env}}")))
+path_project_root: str = os.path.dirname(
+    os.path.dirname(os.path.dirname("{{path_env}}"))
+)
 
 sys.path.append(path_project_root)
 
 from cryptography.fernet import Fernet
 
-from myblog.help import get_post_id
 from myblog.config import get_config
+from myblog.help import get_post_id
 
 config = get_config()
 
@@ -37,6 +39,7 @@ subprocess.check_output(
     ]
 )
 
+
 def encrypt_token(secret_key: bytes, data: str) -> str:
     fernet = Fernet(secret_key)
     token = fernet.encrypt(data.encode("utf-8"))
@@ -50,9 +53,9 @@ def get_changed_files(oldrev, newrev) -> list:
             ["git", "diff", "--name-status", oldrev, newrev]
         )
     except:
-        logging.error(f"An exception occurred during the process of obtaining the changed file. The parameters include
-                       Old branch hash value: {oldrev},
-                       Current branch hash: {newrev}.")
+        logging.error(
+            f"An exception occurred during the process of obtaining the changed file. The parameters include Old branch hash value: {oldrev}, Current branch hash: {newrev}."
+        )
 
     diff_output = diff_output.decode("utf-8").strip().split("\n")
 
@@ -67,7 +70,6 @@ def get_changed_files(oldrev, newrev) -> list:
 
 
 def is_post(filename: str) -> bool:
-    
     post_dirname: str = os.path.basename(config.PATH_OWNER_POST)
     file_dirname: str = os.path.dirname(os.path.dirname(filename))
 
@@ -82,7 +84,7 @@ for line in sys.stdin:
         if is_post(filename):
             posttitle: str = os.path.basename(filename).replace(".md")
             post_id: str = get_post_id(posttitle)
-            
+
             match fileitems["status"]:
                 case "A":
                     logging.info("post request")
