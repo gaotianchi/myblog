@@ -58,11 +58,15 @@ def create_app():
             config.PATH_OWNER_GIT_REPO, *["hooks", "post-receive"]
         )
 
-        target_file = render_template(
-            "script/post-receive", path_env=path_env, config=config.__dict__
+        data = dict(
+            path_env=path_env,
+            path_log=config.PATH_LOG,
+            path_worktree=config.PATH_OWNER_WORK_REPO,
+            path_gitdir=config.PATH_OWNER_GIT_REPO,
+            path_post=config.PATH_OWNER_POST,
         )
 
-        click.echo(f"config: {config.__dict__}")
+        target_file = render_template("script/post-receive", data=data)
 
         if os.path.exists(config.PATH_OWNER_GIT_REPO):
             shutil.rmtree(config.PATH_OWNER_GIT_REPO)
