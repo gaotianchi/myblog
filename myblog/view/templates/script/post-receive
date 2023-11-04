@@ -91,7 +91,7 @@ for line in sys.stdin:
         logging.info(dict(filename=filename, status=status))
         if is_post(filename):
             logging.info(f"{filename} is a post.")
-            posttitle: str = os.path.basename(filename).replace(".md")
+            posttitle: str = os.path.basename(filename).replace(".md", "")
             post_id: str = get_post_id(posttitle)
             logging.info(dict(posttitle=posttitle))
             logging.info(dict(post_id=post_id))
