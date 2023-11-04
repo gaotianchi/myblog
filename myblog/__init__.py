@@ -68,7 +68,7 @@ def create_app():
         os.makedirs(config.PATH_OWNER_GIT_REPO)
         os.makedirs(config.PATH_OWNER_WORK_REPO)
 
-        Repo(config.PATH_OWNER_GIT_REPO)
+        Repo.init(config.PATH_OWNER_GIT_REPO)
 
         with open(target_path, "w", encoding="utf-8") as f:
             f.write(target_file)
