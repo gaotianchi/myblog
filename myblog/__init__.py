@@ -10,8 +10,13 @@ Copyright (C) 2023 Gao Tianchi
 """
 
 import logging
+import os
+import shutil
+import subprocess
 
-from flask import Flask
+import click
+from flask import Flask, render_template
+from git import Repo
 
 from myblog.config import get_config
 from myblog.controller import auth_bp, owner_bp
@@ -44,5 +49,32 @@ def create_app():
     @app.shell_context_processor
     def make_shell_context():
         return dict(db=db, post=Post, owner=Owner, site=Site)
+
+    @app.cli.command("test for create user workspace")
+    def create_user():
+        path_env = os.path.join(config.PATH_BASE, *[".venv", "bin", "python"])
+
+        target_path = os.path.join(
+            config.PATH_OWNER_GIT_REPO, *["hooks", "post-receive"]
+        )
+
+        target_file = render_template("script/post-receive", path_env=path_env)
+
+        if os.path.exists(config.PATH_OWNER_GIT_REPO):
+            shutil.rmtree(config.PATH_OWNER_GIT_REPO)
+        if os.path.exists(config.PATH_OWNER_WORK_REPO):
+            shutil.rmtree(config.PATH_OWNER_WORK_REPO)
+
+        os.makedirs(config.PATH_OWNER_GIT_REPO)
+        os.makedirs(config.PATH_OWNER_WORK_REPO)
+
+        Repo(config.PATH_OWNER_GIT_REPO)
+
+        with open(target_path, "w", encoding="utf-8") as f:
+            f.write(target_file)
+
+        subprocess.check_output(["chmod", "a+x", target_path])
+
+        click.echo("Create user workspace successfully.")
 
     return app

@@ -1,12 +1,13 @@
 #!{{path_env}}
 
-from datetime import datetime
 import logging
 import os
 import subprocess
 import sys
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname("{{path_env}}"))))
+path_project_root: str = os.path.dirname(os.path.dirname(os.path.dirname("{{path_env}}")))
+
+sys.path.append(path_project_root)
 
 from cryptography.fernet import Fernet
 
@@ -84,8 +85,8 @@ for line in sys.stdin:
             
             match fileitems["status"]:
                 case "A":
-                    ...
+                    logging.info("post request")
                 case "M":
-                    ...
+                    logging.info("patch request")
                 case "D":
-                    ...
+                    logging.info("delete request")
