@@ -11,9 +11,9 @@ Latest modified date: 2023-11-02
 Copyright (C) 2023 Gao Tianchi
 """
 
-from datetime import date
+from datetime import date, datetime
 
-from sqlalchemy import Date, ForeignKey, String, Text
+from sqlalchemy import Date, DateTime, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from myblog.flaskexten import db
@@ -22,13 +22,13 @@ from myblog.flaskexten import db
 class PostTable(db.Model):
     __tablename__ = "post"
     id: Mapped[str] = mapped_column(String(20), primary_key=True)
-    title: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+    title: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     body: Mapped[str] = mapped_column(Text, nullable=False)
     toc: Mapped[str] = mapped_column(Text, nullable=True)
-    release: Mapped[date] = mapped_column(Date, default=date.today())
-    updated: Mapped[date] = mapped_column(Date, default=date.today())
+    release: Mapped[datetime] = mapped_column(DateTime, default=datetime.now())
+    updated: Mapped[datetime] = mapped_column(DateTime, default=datetime.now())
     summary: Mapped[str] = mapped_column(Text, nullable=False)
-    category: Mapped[str] = mapped_column(String(30), nullable=False)
+    category: Mapped[str] = mapped_column(String(128), nullable=False)
     author = mapped_column(String(128), ForeignKey("owner.name"))
 
 

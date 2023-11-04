@@ -7,12 +7,12 @@ Author: Gao Tianchi
 Contact: 6159984@gmail.com
 Version: 0.3
 Creation date: 2023-11-02
-Latest modified date: 2023-11-03
+Latest modified date: 2023-11-04
 Copyright (C) 2023 Gao Tianchi
 """
 
 import json
-from datetime import date
+from datetime import date, datetime
 
 from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -56,11 +56,11 @@ class Post(PostTable):
         title: str,
         body: str,
         author: str,
-        release: date,
-        updated: date,
         summary: str,
         category: str,
         toc: str = None,
+        release=datetime.now(),
+        updated=datetime.now(),
     ) -> None:
         self.id = get_post_id(title)
         self.title = title
@@ -91,8 +91,7 @@ class Post(PostTable):
         self.body = data.get("body", self.body)
         self.toc = data.get("toc", self.toc)
         self.author = data.get("author", self.author)
-        self.release = date.fromisoformat(data.get("release", self.release.isoformat()))
-        self.updated = date.fromisoformat(data.get("updated", self.updated.isoformat()))
+        self.updated = datetime.now()
         self.summary = data.get("summary", self.summary)
         self.category = data.get("category", self.category)
 
@@ -103,10 +102,8 @@ class Post(PostTable):
         post = cls(
             title=data["title"],
             body=data["body"],
-            toc=data["toc"],
+            toc=data.get("toc"),
             author=data["author"],
-            release=date.fromisoformat(data["release"]),
-            updated=date.fromisoformat(data["updated"]),
             summary=data["summary"],
             category=data["category"],
         )
