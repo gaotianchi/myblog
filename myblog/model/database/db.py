@@ -133,7 +133,7 @@ class Post(PostTable):
         db.session.add(post)
         db.session.commit()
 
-        return Post.query.filter_by(title=data["title"])
+        return Post.query.filter_by(title=data["title"]).first()
 
     def update(self, data: dict) -> None:
         self.title = data.get("title", self.title)
@@ -143,8 +143,26 @@ class Post(PostTable):
         self.updated = datetime.now()
         self.toc = data.get("toc", self.toc)
 
+        category = data.get("category")
+        category = category if category else Category.default_name
+
+        item = Category.query.filter_by(name=category).first()
+        if not item:
+            item = Category.create(category)
+
+        self.category_name = category
+
         db.session.add(self)
         db.session.commit()
+
+    def delete(self) -> None:
+        category = Category.query.filter_by(name=self.category_name).first()
+        db.session.delete(self)
+        db.session.commit()
+
+        posts = Post.query.filter_by(category_name=category.name).all()
+        if not posts:
+            category.delete()
 
     def __repr__(self) -> str:
         return f"<Post {self.title}>"
