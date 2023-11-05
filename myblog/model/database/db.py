@@ -81,7 +81,7 @@ class Category(CategoryTable):
         for post in posts:
             post.category_name = self.default_name
             db.session.add(post)
-            db.session.commit()
+        db.session.commit()
 
         db.session.delete(self)
         db.session.commit()
@@ -119,6 +119,32 @@ class Post(PostTable):
             item = Category.create(category)
 
         self.category_name = category
+
+    @classmethod
+    def create(cls, data: dict) -> "Post":
+        post = cls(
+            title=data["title"],
+            body=data["body"],
+            category=data.get("category"),
+            toc=data.get("toc"),
+            summary=data.get("summary"),
+        )
+
+        db.session.add(post)
+        db.session.commit()
+
+        return Post.query.filter_by(title=data["title"])
+
+    def update(self, data: dict) -> None:
+        self.title = data.get("title", self.title)
+        self.id = get_post_id(self.title)
+        self.body = data.get("body", self.body)
+        self.summary = data.get("summary", self.summary)
+        self.updated = datetime.now()
+        self.toc = data.get("toc", self.toc)
+
+        db.session.add(self)
+        db.session.commit()
 
     def __repr__(self) -> str:
         return f"<Post {self.title}>"
