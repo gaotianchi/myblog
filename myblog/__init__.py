@@ -19,7 +19,7 @@ from flask import Flask, render_template
 from git import Repo
 
 from myblog.config import get_config
-from myblog.controller import auth_bp, owner_bp
+from myblog.controller import owner_bp
 from myblog.flaskexten import db, login_manager
 from myblog.model.database.db import Category, Owner, Post, Site
 

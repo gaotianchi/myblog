@@ -12,10 +12,8 @@ Copyright (C) 2023 Gao Tianchi
 
 import json
 import logging
-import secrets
-from datetime import date, datetime
+from datetime import datetime
 
-from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from myblog.flaskexten import db

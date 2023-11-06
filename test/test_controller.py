@@ -2,7 +2,7 @@ import unittest
 
 from myblog import create_app
 from myblog.flaskexten import db
-from myblog.model.database.db import Category, Owner, Post
+from myblog.model.database.db import Owner
 
 
 class TestPostDbHandler(unittest.TestCase):
