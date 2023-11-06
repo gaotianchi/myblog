@@ -1,11 +1,11 @@
 import unittest
 
-from myblog.model.mdrender.render import PostRender
+from myblog.model.mdrender.render import Render
 
 
-class TestPostRender(unittest.TestCase):
+class TestRender(unittest.TestCase):
     def setUp(self) -> None:
-        self.render = PostRender()
+        self.render = Render()
 
     def test_text_with_toc(self):
         md_text_with_toc = """

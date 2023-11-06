@@ -12,7 +12,7 @@ Copyright (C) 2023 Gao Tianchi
 from markdown import Markdown
 
 
-class PostRender:
+class Render:
     ...
 
     def __init__(self) -> None:
