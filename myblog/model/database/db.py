@@ -121,7 +121,7 @@ class Post(PostTable):
         self.category_name = category
 
     @classmethod
-    def create(cls, data: dict) -> "Post":
+    def create(cls, data: dict) -> None:
         post = cls(
             title=data["title"],
             body=data["body"],
@@ -163,6 +163,21 @@ class Post(PostTable):
         posts = Post.query.filter_by(category_name=category.name).all()
         if not posts:
             category.delete()
+
+    def to_json(self) -> str:
+        data = dict(
+            id=self.id,
+            title=self.title,
+            body=self.body,
+            toc=self.toc,
+            summary=self.summary,
+            author=self.author_name,
+            category=self.category_name,
+            release=self.release,
+            updated=self.updated,
+        )
+
+        return json.dumps(data, default=serialize_datetime)
 
     def __repr__(self) -> str:
         return f"<Post {self.title}>"
