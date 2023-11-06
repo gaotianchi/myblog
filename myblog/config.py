@@ -33,15 +33,16 @@ class DevelopmentConfig(BaseConfig):
 
 
 class TestingConfig(BaseConfig):
-    ...
+    SQLALCHEMY_DATABASE_URI: str = os.getenv("TESTING_SQLALCHEMY_DATABASE_URI")
 
 
 class ProductionConfig(BaseConfig):
     ...
 
 
-def get_config():
-    match os.getenv("ENVIRONMENT"):
+def get_config(environment: str = None):
+    environment = environment if environment else os.getenv("ENVIRONMENT")
+    match environment:
         case "development":
             return DevelopmentConfig
         case "testing":

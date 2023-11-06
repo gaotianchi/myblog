@@ -21,9 +21,7 @@ from git import Repo
 from myblog.config import get_config
 from myblog.controller import auth_bp, owner_bp
 from myblog.flaskexten import db, login_manager
-from myblog.model.database.db import Owner, Post, Site
-
-config = get_config()
+from myblog.model.database.db import Category, Owner, Post, Site
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -31,7 +29,8 @@ logging.basicConfig(
 )
 
 
-def create_app():
+def create_app(environment: str = None):
+    config = get_config(environment)
     app = Flask(
         __package__,
         static_folder=config.PATH_STATIC,
@@ -43,12 +42,11 @@ def create_app():
     db.init_app(app)
     login_manager.init_app(app)
 
-    app.register_blueprint(auth_bp)
     app.register_blueprint(owner_bp)
 
     @app.shell_context_processor
     def make_shell_context():
-        return dict(db=db, post=Post, owner=Owner, site=Site)
+        return dict(db=db, post=Post, owner=Owner, site=Site, category=Category)
 
     @app.cli.command("create_user", help="test for create user workspace")
     def create_user():
@@ -85,5 +83,12 @@ def create_app():
         subprocess.check_output(["dos2unix", target_path])
 
         click.echo("Create user workspace successfully.")
+
+        db.drop_all()
+
+        db.create_all()
+
+        author = Owner()
+        author.set_password("hello")
 
     return app
