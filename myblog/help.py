@@ -14,6 +14,7 @@ import re
 from datetime import date, datetime
 
 import yaml
+from cryptography.fernet import Fernet
 
 
 def serialize_datetime(obj):
@@ -45,3 +46,10 @@ def get_post_items(md_text: str) -> dict:
             return data
 
     return data
+
+
+def encrypt_token(secret_key: bytes, data: str) -> str:
+    fernet = Fernet(secret_key)
+    token = fernet.encrypt(data.encode("utf-8"))
+
+    return token.decode("utf-8")
