@@ -30,7 +30,7 @@ class Site(SiteTable):
     ...
 
 
-class Owner(OwnerTable, UserMixin):
+class Owner(OwnerTable):
     def __init__(self, name: str = None) -> None:
         if not name:
             name = "Gao Tianchi"
