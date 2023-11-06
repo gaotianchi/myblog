@@ -10,7 +10,10 @@ Copyright (C) 2023 Gao Tianchi
 
 import base64
 import hashlib
+import re
 from datetime import date, datetime
+
+import yaml
 
 
 def serialize_datetime(obj):
@@ -26,3 +29,19 @@ def get_post_id(post_title: str) -> str:
     title_id = base64.urlsafe_b64encode(hash_digest)[:20].decode()
 
     return title_id
+
+
+def get_post_items(md_text: str) -> dict:
+    pattern = r"---\n(.*?)\n---(.*)"
+    match = re.search(pattern, md_text, re.DOTALL)
+    data = {"metadata": {}, "body": ""}
+    if match:
+        yaml_text = match.group(1)
+        body_text = match.group(2)
+        try:
+            data["metadata"]: dict = yaml.safe_load(yaml_text)
+            data["body"]: str = body_text
+        except:
+            return data
+
+    return data
