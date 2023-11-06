@@ -1,5 +1,16 @@
 #!{{data.path_env}}
 
+"""
+Abstract: This module defines the POST-RECEIVE hook to send related requests 
+when the user adds, updates, or deletes an article.
+
+Author: Gao Tianchi
+Contact: 6159984@gmail.com
+Version: 0.3
+Creation date: 2023-11-05
+Copyright (C) 2023 Gao Tianchi
+"""
+
 import base64
 import hashlib
 import logging
@@ -7,34 +18,7 @@ import os
 import subprocess
 import sys
 
-path_project_root: str = os.path.dirname(
-    os.path.dirname(os.path.dirname("{{data.path_env}}"))
-)
-
-sys.path.append(path_project_root)
-
-
 from cryptography.fernet import Fernet
-
-
-def get_post_id(post_title: str) -> str:
-    hash_object = hashlib.md5(post_title.encode())
-    hash_digest = hash_object.digest()
-
-    title_id = base64.urlsafe_b64encode(hash_digest)[:20].decode()
-
-    return title_id
-
-
-path_log: str = os.path.join("{{data.path_log}}", "post-receive.log")
-
-
-logging.basicConfig(
-    filename=path_log,
-    filemode="a",
-    level=logging.DEBUG,
-    format="%(asctime)s-%(levelname)s-%(funcName)s-%(message)s",
-)
 
 subprocess.check_output(
     [
@@ -45,6 +29,23 @@ subprocess.check_output(
         "-f",
     ]
 )
+
+
+logging.basicConfig(
+    filename=os.path.join("{{data.path_log}}", "post-receive.log"),
+    filemode="a",
+    level=logging.DEBUG,
+    format="%(asctime)s-%(levelname)s-%(funcName)s-%(message)s",
+)
+
+
+def get_post_id(post_title: str) -> str:
+    hash_object = hashlib.md5(post_title.encode())
+    hash_digest = hash_object.digest()
+
+    title_id = base64.urlsafe_b64encode(hash_digest)[:20].decode()
+
+    return title_id
 
 
 def encrypt_token(secret_key: bytes, data: str) -> str:
@@ -72,10 +73,11 @@ def get_changed_files(oldrev, newrev) -> list:
 
 
 def is_post(filename: str) -> bool:
+    # This function defines whether the file is an article.
+    # "post/path/to/a/file.md"
     post_dirname: str = os.path.basename("{{data.path_post}}")
-    file_dirname: str = os.path.dirname(os.path.dirname(filename))
 
-    return post_dirname == file_dirname
+    return filename.startswith(post_dirname) and filename.endswith(".md")
 
 
 for line in sys.stdin:
