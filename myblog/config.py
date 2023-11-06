@@ -34,6 +34,8 @@ class DevelopmentConfig(BaseConfig):
 
 class TestingConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI: str = os.getenv("TESTING_SQLALCHEMY_DATABASE_URI")
+    PATH_OWNER_WORK_REPO: str = os.getenv("TESTING_PATH_OWNER_WORK_REPO")
+    PATH_OWNER_POST: str = os.path.join(PATH_OWNER_WORK_REPO, "post")
 
 
 class ProductionConfig(BaseConfig):
