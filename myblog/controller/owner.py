@@ -43,5 +43,12 @@ def load_user():
         except:
             logger.info(f"Fail to Login!")
             abort(401)
+    else:
+        abort(401)
 
     return None
+
+
+@owner_bp.route("/add/post", methods=["POST"])
+def add_post():
+    return "hello"
