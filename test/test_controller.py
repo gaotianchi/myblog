@@ -1,3 +1,5 @@
+import json
+import os
 import unittest
 
 from myblog import create_app
@@ -26,5 +28,15 @@ class TestPostDbHandler(unittest.TestCase):
         db.drop_all()
         self.app_context.pop()
 
-    def test_add_post(self):
-        ...
+    def test_add_post_without_token(self):
+        new_post_path: str = os.path.join(
+            self.app.config["PATH_OWNER_WORK_REPO"],
+            *["post", "add_post.md"],
+        )
+
+        response = self.client.post(
+            "/add/post",
+            json=dict(path=new_post_path),
+        )
+
+        self.assertIn("<title>401 Unauthorized</title>", response.text)
