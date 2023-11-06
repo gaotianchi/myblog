@@ -4,6 +4,7 @@ import unittest
 
 from myblog import create_app
 from myblog.flaskexten import db
+from myblog.help import encrypt_token
 from myblog.model.database.db import Owner
 
 
@@ -15,6 +16,7 @@ class TestPostDbHandler(unittest.TestCase):
         self.app_context.push()
 
         db.session.rollback()
+        db.drop_all()
 
         db.create_all()
 
@@ -23,9 +25,12 @@ class TestPostDbHandler(unittest.TestCase):
 
         self.client = self.app.test_client()
 
+        with open(self.app.config["PATH_KEY"], "r", encoding="utf-8") as f:
+            key = f.read().encode("utf-8")
+
+        self.token = encrypt_token(key, json.dumps(dict(name=author.name)))
+
     def tearDown(self) -> None:
-        db.session.rollback()
-        db.drop_all()
         self.app_context.pop()
 
     def test_add_post_without_token(self):
@@ -40,3 +45,16 @@ class TestPostDbHandler(unittest.TestCase):
         )
 
         self.assertIn("<title>401 Unauthorized</title>", response.text)
+
+    def test_add_post_with_valid_token(self):
+        new_post_path: str = os.path.join(
+            self.app.config["PATH_OWNER_WORK_REPO"],
+            *["post", "add_post.md"],
+        )
+
+        response = self.client.post(
+            f"/add/post?token={self.token}",
+            json=dict(path=new_post_path),
+        )
+
+        self.assertEqual(response.status_code, 200)
