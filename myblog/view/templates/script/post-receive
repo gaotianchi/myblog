@@ -80,7 +80,11 @@ def is_post(filename: str) -> bool:
     # "post/path/to/a/file.md"
     post_dirname: str = os.path.basename("{{data.path_post}}")
 
-    return filename.startswith(post_dirname) and filename.endswith(".md")
+    condition_1 = filename.endswith(".md")
+    parent_path = os.path.dirname("{{data.path_post}}")
+    condition_2 = bool(post_dirname in parent_path.split("/"))
+
+    return condition_1 and condition_2
 
 
 for line in sys.stdin:
