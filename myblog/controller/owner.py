@@ -99,3 +99,18 @@ def update_post():
     post.update(data)
 
     return jsonify(post.to_json())
+
+
+@owner_bp.route("/delete/post", methods=["DELETE"])
+def delete_post():
+    changed_post_path: str = json.loads(request.json)["path"]
+    title = Path(changed_post_path).stem
+
+    post = Post.query.filter_by(title=title).first()
+    if not post:
+        logger.warning(f"{post} has been deleted.")
+        return f"{post} has been deleted."
+
+    post.delete()
+
+    return f"{post} has been deleted."

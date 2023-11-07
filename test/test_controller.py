@@ -2,6 +2,8 @@ import json
 import os
 import unittest
 
+from requests import delete
+
 from myblog import create_app
 from myblog.flaskexten import db
 from myblog.help import encrypt_token
@@ -89,3 +91,33 @@ class TestPostDbHandler(unittest.TestCase):
         )
 
         self.assertEqual(response_2.status_code, 200)
+
+    def test_delete_post(self):
+        # Precondition: The view function add_function passes the test.
+        new_post_path: str = os.path.join(
+            self.app.config["PATH_OWNER_WORK_REPO"],
+            *["post", "post_to_delete.md"],
+        )
+
+        with open(new_post_path, "w") as f:
+            f.write("hello world")
+
+        json_data: str = json.dumps(dict(path=new_post_path))
+
+        self.client.post(
+            f"/add/post?token={self.token}",
+            json=json_data,
+        )
+
+        new_post = Post.query.filter_by(title="post_to_delete").first()
+
+        self.assertIsNotNone(new_post)
+
+        self.client.delete(
+            f"/delete/post?token={self.token}",
+            json=json_data,
+        )
+
+        post = Post.query.filter_by(title="post_to_delete").first()
+
+        self.assertIsNone(post)
