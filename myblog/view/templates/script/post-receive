@@ -81,8 +81,8 @@ def is_post(filename: str) -> bool:
     post_dirname: str = os.path.basename("{{data.path_post}}")
 
     condition_1 = filename.endswith(".md")
-    parent_path = os.path.dirname("{{data.path_post}}")
-    condition_2 = bool(post_dirname in parent_path.split("/"))
+
+    condition_2 = bool(post_dirname in filename.split("/"))
 
     return condition_1 and condition_2
 
