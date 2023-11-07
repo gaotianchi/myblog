@@ -10,11 +10,14 @@ Copyright (C) 2023 Gao Tianchi
 
 import base64
 import hashlib
+import logging
 import re
 from datetime import date, datetime
 
 import yaml
 from cryptography.fernet import Fernet
+
+logger = logging.getLogger("helper")
 
 
 def serialize_datetime(obj):
@@ -33,17 +36,19 @@ def get_post_id(post_title: str) -> str:
 
 
 def get_post_items(md_text: str) -> dict:
-    pattern = r"---\n(.*?)\n---(.*)"
-    match = re.search(pattern, md_text, re.DOTALL)
     data = {"metadata": {}, "body": ""}
+    pattern = r"---\n(.*?)\n---"
+    match = re.search(pattern, md_text, re.DOTALL)
     if match:
         yaml_text = match.group(1)
-        body_text = match.group(2)
         try:
-            data["metadata"]: dict = yaml.safe_load(yaml_text)
-            data["body"]: str = body_text
+            metadata: dict = yaml.safe_load(yaml_text)
+            data["metadata"] = metadata
         except:
-            return data
+            logger.warning(f"Fail to get post metadata.")
+
+    body_text = re.sub(pattern, "", md_text, re.DOTALL)
+    data["body"] = body_text
 
     return data
 
