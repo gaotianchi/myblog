@@ -68,7 +68,7 @@ def add_post():
     title = data["title"]
     body = data["body"].strip().replace(" ", "")
     if not body:
-        logger.warning(f"{post} has no body!")
+        logger.warning(f"Post body is required!")
         return None
 
     post = Post.query.filter_by(title=title).first()
