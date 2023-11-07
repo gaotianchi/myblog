@@ -39,7 +39,10 @@ def load_user():
             decrypted_data: str = decrypt_token(current_app.config["SECRET_KEY"], token)
             data: dict = json.loads(decrypted_data)
             owner = Owner.query.get(data["name"])
-            g.owner = owner
+            if owner:
+                g.owner = owner
+            else:
+                raise Exception("Fail to Login!")
 
             logger.info(f"Login successfully.")
         except:

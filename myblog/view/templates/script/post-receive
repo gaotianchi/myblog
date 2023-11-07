@@ -106,10 +106,7 @@ for line in sys.stdin:
             with open("{{data.path_key}}", "r", encoding="utf-8") as f:
                 secret_key = f.read().encode("utf-8")
 
-            name = "{{data.author_name}}"
-            author_name = name if name else "Gao Tianchi"
-
-            data: str = json.dumps(dict(name=author_name))
+            data: str = json.dumps(dict(name="Gao Tianchi"))
 
             token = encrypt_token(secret_key, data)
 
