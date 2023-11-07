@@ -97,9 +97,9 @@ def update_post():
 
     data = postrender.data
     title = data["title"]
-    body = data["body"].strip().replace(" ", "")
+    body = data["body"]
     if not body:
-        logger.warning(f"{post} has no body!")
+        logger.warning(f"Post body is required!")
         return None
 
     post = Post.query.filter_by(title=title).first()
