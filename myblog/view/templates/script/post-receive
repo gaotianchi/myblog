@@ -97,7 +97,7 @@ for line in sys.stdin:
         status: str = fileitems["status"]
 
         if is_post(str(filename)):
-            posttitle: str = Path(filename).stem
+            posttitle: str = str(Path(filename).stem)
             post_id: str = get_post_id(posttitle)
 
             with open("{{path_key}}", "r", encoding="utf-8") as f:
