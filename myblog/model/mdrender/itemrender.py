@@ -43,7 +43,7 @@ class PostRender:
         self.__data["body"] = self.render(self.md_body)
         self.__data["toc"] = self.render.toc
         self.__data["summary"] = self.render(self.md_summary)
-        postdirname: str = self.kwargs.get("postdir", "post")
+        postdirname: str = self.kwargs.get("postdirname", "post")
         self.__data["category"] = (
             None if self.path.parent.stem == postdirname else self.path.parent.stem
         )

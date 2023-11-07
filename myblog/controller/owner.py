@@ -10,11 +10,13 @@ Copyright (C) 2023 Gao Tianchi
 
 import json
 import logging
+from pathlib import Path
 
 from cryptography.fernet import Fernet
-from flask import Blueprint, abort, current_app, g, request
+from flask import Blueprint, abort, current_app, g, jsonify, request
 
-from myblog.model.database.db import Owner
+from myblog.model.database.db import Owner, Post
+from myblog.model.mdrender.itemrender import PostRender
 
 owner_bp = Blueprint("owner", __name__)
 
@@ -51,4 +53,24 @@ def load_user():
 
 @owner_bp.route("/add/post", methods=["POST"])
 def add_post():
-    return "hello"
+    changed_post_path: str = json.loads(request.json)["path"]
+    postdirname: str = Path(current_app.config["PATH_OWNER_POST"]).stem
+    summary_length: int = current_app.config["POST_SUMMARY_LENGTH"]
+
+    postrender = PostRender()
+    postrender.set(
+        changed_post_path,
+        postdirname=postdirname,
+        summary_length=summary_length,
+    )
+
+    data = postrender.data
+    title = data["title"]
+    post = Post.query.filter_by(title=title).first()
+    if post:
+        logger.warning(f"{post} has been created!")
+        return None
+
+    new_post = Post.create(data)
+
+    return jsonify(new_post.to_json())

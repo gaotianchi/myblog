@@ -5,7 +5,7 @@ import unittest
 from myblog import create_app
 from myblog.flaskexten import db
 from myblog.help import encrypt_token
-from myblog.model.database.db import Owner
+from myblog.model.database.db import Owner, Post
 
 
 class TestPostDbHandler(unittest.TestCase):
@@ -39,9 +39,11 @@ class TestPostDbHandler(unittest.TestCase):
             *["post", "add_post.md"],
         )
 
+        json_data: str = json.dumps(dict(path=new_post_path))
+
         response = self.client.post(
             "/add/post",
-            json=dict(path=new_post_path),
+            json=json_data,
         )
 
         self.assertIn("<title>401 Unauthorized</title>", response.text)
@@ -49,12 +51,20 @@ class TestPostDbHandler(unittest.TestCase):
     def test_add_post_with_valid_token(self):
         new_post_path: str = os.path.join(
             self.app.config["PATH_OWNER_WORK_REPO"],
-            *["post", "add_post.md"],
+            *["post", "post_with_metadata_and_toc.md"],
         )
+
+        json_data: str = json.dumps(dict(path=new_post_path))
 
         response = self.client.post(
             f"/add/post?token={self.token}",
-            json=dict(path=new_post_path),
+            json=json_data,
         )
 
         self.assertEqual(response.status_code, 200)
+
+        post = Post.query.filter_by(title="post_with_metadata_and_toc").first()
+        self.assertIsNotNone(post)
+        category_name: str = post.category_name
+
+        self.assertEqual(category_name, "uncategorized")
