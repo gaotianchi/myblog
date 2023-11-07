@@ -70,12 +70,12 @@ def add_post():
     logger.info(data)
     if not body:
         logger.warning(f"Post body is required!")
-        return None
+        return f"Post body is required!"
 
     post = Post.query.filter_by(title=title).first()
     if post:
         logger.warning(f"{post} has been created!")
-        return None
+        return f"{post} has been created!"
 
     new_post = Post.create(data)
 
@@ -100,12 +100,12 @@ def update_post():
     body = data["body"]
     if not body:
         logger.warning(f"Post body is required!")
-        return None
+        return f"Post body is required!"
 
     post = Post.query.filter_by(title=title).first()
     if not post:
         logger.warning(f"{post} has not been created!")
-        return None
+        return f"{post} has not been created!"
 
     post.update(data)
 
