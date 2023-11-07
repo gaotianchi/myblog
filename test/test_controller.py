@@ -1,11 +1,14 @@
 import json
 import os
 import unittest
+from pathlib import Path
 
 from myblog import create_app
 from myblog.flaskexten import db
 from myblog.help import encrypt_token
 from myblog.model.database.db import Owner, Post
+
+ownerspace = Path(__file__).parent.joinpath("ownerspace")
 
 
 class TestPostDbHandler(unittest.TestCase):
@@ -34,10 +37,7 @@ class TestPostDbHandler(unittest.TestCase):
         self.app_context.pop()
 
     def test_add_post_without_token(self):
-        new_post_path: str = os.path.join(
-            self.app.config["PATH_OWNER_WORK_REPO"],
-            *["post", "add_post.md"],
-        )
+        new_post_path = ownerspace.joinpath(*["post", "add_post.md"])
 
         json_data: str = json.dumps(dict(path=new_post_path))
 
@@ -49,10 +49,7 @@ class TestPostDbHandler(unittest.TestCase):
         self.assertIn("<title>401 Unauthorized</title>", response.text)
 
     def test_add_post_with_valid_token(self):
-        new_post_path: str = os.path.join(
-            self.app.config["PATH_OWNER_WORK_REPO"],
-            *["post", "post_with_metadata_and_toc.md"],
-        )
+        new_post_path = ownerspace.joinpath(*["post", "post_with_metadata_and_toc.md"])
 
         json_data: str = json.dumps(dict(path=new_post_path))
 
@@ -71,10 +68,8 @@ class TestPostDbHandler(unittest.TestCase):
 
     def test_update_post(self):
         # Precondition: The view function add_function passes the test.
-        new_post_path: str = os.path.join(
-            self.app.config["PATH_OWNER_WORK_REPO"],
-            *["post", "post_with_metadata_and_toc.md"],
-        )
+
+        new_post_path = ownerspace.joinpath(*["post", "post_with_metadata_and_toc.md"])
 
         json_data: str = json.dumps(dict(path=new_post_path))
 
@@ -92,10 +87,8 @@ class TestPostDbHandler(unittest.TestCase):
 
     def test_delete_post(self):
         # Precondition: The view function add_function passes the test.
-        new_post_path: str = os.path.join(
-            self.app.config["PATH_OWNER_WORK_REPO"],
-            *["post", "post_to_delete.md"],
-        )
+
+        new_post_path = ownerspace.joinpath(*["post", "post_to_delete.md"])
 
         with open(new_post_path, "w") as f:
             f.write("hello world")
