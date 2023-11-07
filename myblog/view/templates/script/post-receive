@@ -96,7 +96,7 @@ for line in sys.stdin:
         filename: str = fileitems["path"]
         status: str = fileitems["status"]
 
-        if is_post(filename):
+        if is_post(str(filename)):
             posttitle: str = Path(filename).stem
             post_id: str = get_post_id(posttitle)
 
