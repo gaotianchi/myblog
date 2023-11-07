@@ -66,7 +66,8 @@ def add_post():
 
     data = postrender.data
     title = data["title"]
-    body = data["body"].strip().replace(" ", "")
+    body = data["body"]
+    logger.info(data)
     if not body:
         logger.warning(f"Post body is required!")
         return None
