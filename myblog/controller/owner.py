@@ -35,22 +35,20 @@ def decrypt_token(secret_key: bytes, token: str) -> str:
 def load_user():
     token: str = request.args.get("token")
     if token:
-        try:
-            decrypted_data: str = decrypt_token(current_app.config["SECRET_KEY"], token)
-            data: dict = json.loads(decrypted_data)
-            logger.info(data)
-            owner = Owner.query.get(data["name"])
-            logger.info(owner)
-            if owner:
-                g.owner = owner
-            else:
-                raise Exception("Fail to Login!")
+        decrypted_data: str = decrypt_token(current_app.config["SECRET_KEY"], token)
+        data: dict = json.loads(decrypted_data)
+        logger.info(data)
+        owner = Owner.query.get(data.get("name"))
+        logger.info(owner)
+        if owner:
+            g.owner = owner
+        else:
+            raise Exception("Fail to Login! Did not find any owner.")
 
-            logger.info(f"Login successfully.")
-        except:
-            logger.info(f"Fail to Login!")
-            abort(401)
+        logger.info(f"Login successfully.")
+
     else:
+        logger.error(f"Token is required!")
         abort(401)
 
     return None
