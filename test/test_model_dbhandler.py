@@ -13,15 +13,13 @@ class TestPostDbHandler(unittest.TestCase):
         self.app_context.push()
 
         db.session.rollback()
-
+        db.drop_all()
         db.create_all()
 
         author = Owner()
         author.set_password("hello world")
 
     def tearDown(self) -> None:
-        db.session.rollback()
-        db.drop_all()
         self.app_context.pop()
 
     def test_create_post_without_category(self):
