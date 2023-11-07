@@ -48,8 +48,27 @@ def create_app(environment: str = None):
     def make_shell_context():
         return dict(db=db, post=Post, owner=Owner, site=Site, category=Category)
 
-    @app.cli.command("create_user", help="test for create user workspace")
-    def create_user():
+    @app.cli.command("owner", help="test for create user workspace")
+    @click.option("--username", prompt=True, help="The username used to login.")
+    @click.option(
+        "--password",
+        prompt=True,
+        hide_input=True,
+        confirmation_prompt=True,
+        help="The password used to login.",
+    )
+    def create_user(username: str, password: str):
+        db.drop_all()
+
+        db.create_all()
+
+        name = username if username else None
+        password = password if password else "hello world"
+
+        author = Owner(name)
+
+        author.set_password(password)
+
         path_env = os.path.join(config.PATH_BASE, *[".venv", "bin", "python"])
 
         target_path = os.path.join(
@@ -57,7 +76,9 @@ def create_app(environment: str = None):
         )
 
         data = dict(
+            author_name=name,
             path_env=path_env,
+            path_key=config.PATH_KEY,
             path_log=config.PATH_LOG,
             path_worktree=config.PATH_OWNER_WORK_REPO,
             path_gitdir=config.PATH_OWNER_GIT_REPO,
@@ -83,12 +104,5 @@ def create_app(environment: str = None):
         subprocess.check_output(["dos2unix", target_path])
 
         click.echo("Create user workspace successfully.")
-
-        db.drop_all()
-
-        db.create_all()
-
-        author = Owner()
-        author.set_password("hello")
 
     return app
