@@ -1,5 +1,7 @@
 import unittest
+from pathlib import Path
 
+from myblog.model.mdrender.itemrender import PostRender
 from myblog.model.mdrender.render import Render
 
 
@@ -39,3 +41,19 @@ Lorem, ipsum dolor.
         toc = self.render.toc
 
         self.assertIsNone(toc)
+
+
+class TestPostRender(unittest.TestCase):
+    def setUp(self) -> None:
+        self.render = PostRender()
+
+    def test_postrender(self):
+        post_path: str = Path(__file__).parent.joinpath(
+            "ownerspace", "post", "post_with_metadata_and_toc.md"
+        )
+
+        self.render.set(post_path)
+        data = self.render.data
+
+        self.assertIsNone(data.get("category"))
+        self.assertEqual(data.get("title"), "post_with_metadata_and_toc")

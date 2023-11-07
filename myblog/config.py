@@ -21,6 +21,8 @@ class BaseConfig:
     PATH_TEMPLATE: str = os.path.join(PATH_BASE, *["myblog", "view", "templates"])
     PATH_KEY: str = os.path.join(PATH_BASE, "KEY")
 
+    POST_SUMMARY_LENGTH: int = 200
+
     with open(PATH_KEY, "w", encoding="utf-8") as f:
         f.write(SECRET_KEY.decode("utf-8"))
 

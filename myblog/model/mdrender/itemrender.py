@@ -8,6 +8,8 @@ Creation date: 2023-11-05
 Copyright (C) 2023 Gao Tianchi
 """
 
+from pathlib import Path
+
 from myblog.help import get_post_items
 
 from .render import Render
@@ -18,26 +20,35 @@ class PostRender:
         self.render = Render()
         self.__data = {
             "body": "",
-            "toc": "",
+            "toc": None,
+            "summary": None,
+            "title": "",
+            "category": "",
         }
 
-    def set(self, path: str) -> None:
+    def set(self, path: str, **kwargs) -> None:
+        self.path = Path(path)
+        self.kwargs = kwargs
+
         with open(path, "r", encoding="utf-8") as f:
             content = f.read()
 
-        items: dict = get_post_items(content)
+        self.metadata: dict = get_post_items(content)["metadata"]
+        self.md_body: str = get_post_items(content)["body"]
+        summary_length: int = self.kwargs.get("summary_length", 200)
+        self.md_summary: str = self.md_body[:summary_length]
 
-        self.body: dict = items["body"]
-
-    def __render_post(self) -> None:
-        body = self.render(self.body)
-        toc = self.render.toc
-
-        self.__data["body"] = body
-        self.__data["toc"] = toc
+    def __prcess_items(self) -> None:
+        self.__data["title"] = self.path.stem
+        self.__data["body"] = self.render(self.md_body)
+        self.__data["toc"] = self.render.toc
+        self.__data["summary"] = self.render(self.md_summary)
+        postdirname: str = self.kwargs.get("postdir", "post")
+        self.__data["category"] = (
+            None if self.path.parent.stem == postdirname else self.path.parent.stem
+        )
 
     @property
     def data(self) -> dict:
-        self.__render_post()
-
+        self.__prcess_items()
         return self.__data
