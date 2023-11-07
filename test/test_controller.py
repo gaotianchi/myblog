@@ -68,3 +68,24 @@ class TestPostDbHandler(unittest.TestCase):
         category_name: str = post.category_name
 
         self.assertEqual(category_name, "uncategorized")
+
+    def test_update_post(self):
+        # Precondition: The view function add_function passes the test.
+        new_post_path: str = os.path.join(
+            self.app.config["PATH_OWNER_WORK_REPO"],
+            *["post", "post_with_metadata_and_toc.md"],
+        )
+
+        json_data: str = json.dumps(dict(path=new_post_path))
+
+        self.client.post(
+            f"/add/post?token={self.token}",
+            json=json_data,
+        )
+
+        response_2 = self.client.patch(
+            f"/update/post?token={self.token}",
+            json=json_data,
+        )
+
+        self.assertEqual(response_2.status_code, 200)
