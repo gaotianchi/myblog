@@ -39,7 +39,7 @@ class TestPostDbHandler(unittest.TestCase):
     def test_add_post_without_token(self):
         new_post_path = ownerspace.joinpath(*["post", "add_post.md"])
 
-        json_data: str = json.dumps(dict(path=new_post_path))
+        json_data: str = json.dumps(dict(path=str(new_post_path)))
 
         response = self.client.post(
             "/add/post",
@@ -51,7 +51,7 @@ class TestPostDbHandler(unittest.TestCase):
     def test_add_post_with_valid_token(self):
         new_post_path = ownerspace.joinpath(*["post", "post_with_metadata_and_toc.md"])
 
-        json_data: str = json.dumps(dict(path=new_post_path))
+        json_data: str = json.dumps(dict(path=str(new_post_path)))
 
         response = self.client.post(
             f"/add/post?token={self.token}",
@@ -71,7 +71,7 @@ class TestPostDbHandler(unittest.TestCase):
 
         new_post_path = ownerspace.joinpath(*["post", "post_with_metadata_and_toc.md"])
 
-        json_data: str = json.dumps(dict(path=new_post_path))
+        json_data: str = json.dumps(dict(path=str(new_post_path)))
 
         self.client.post(
             f"/add/post?token={self.token}",
@@ -93,7 +93,7 @@ class TestPostDbHandler(unittest.TestCase):
         with open(new_post_path, "w") as f:
             f.write("hello world")
 
-        json_data: str = json.dumps(dict(path=new_post_path))
+        json_data: str = json.dumps(dict(path=str(new_post_path)))
 
         self.client.post(
             f"/add/post?token={self.token}",
