@@ -13,11 +13,14 @@ Copyright (C) 2023 Gao Tianchi
 
 import base64
 import hashlib
+import json
 import logging
 import os
 import subprocess
 import sys
+from pathlib import Path
 
+import requests
 from cryptography.fernet import Fernet
 
 subprocess.check_output(
@@ -67,7 +70,8 @@ def get_changed_files(oldrev, newrev) -> list:
         parts = line.split("\t")
         if len(parts) == 2:
             status, path = parts
-            changed_files.append({"status": status, "path": path})
+            full_path: str = Path("{{path_worktree}}").joinpath(*path.split("/"))
+            changed_files.append({"status": status, "path": full_path})
 
     return changed_files
 
@@ -90,20 +94,45 @@ for line in sys.stdin:
     for fileitems in changed_files:
         filename: str = fileitems["path"]
         status: str = fileitems["status"]
-        logging.info(dict(filename=filename, status=status))
+
         if is_post(filename):
-            logging.info(f"{filename} is a post.")
-            posttitle: str = os.path.basename(filename).replace(".md", "")
+            posttitle: str = Path(filename).stem
             post_id: str = get_post_id(posttitle)
-            logging.info(dict(posttitle=posttitle))
-            logging.info(dict(post_id=post_id))
+
+            with open("{{path_key}}", "r", encoding="utf-8") as f:
+                secret_key = f.read().encode("utf-8")
+
+            name = "{{author_name}}"
+            author_name = name if name else "Gao Tianchi"
+
+            data: str = json.dumps(dict(name=author_name))
+
+            token = encrypt_token(secret_key, data)
 
             match fileitems["status"]:
                 case "A":
-                    logging.info("post request")
+                    url = f"http://localhost:5000/add/post?token={token}"
+                    try:
+                        response = requests.post(
+                            url, json=json.dumps(dict(path=filename))
+                        )
+                    except:
+                        logging.error(f"{response} Fail to add post.")
                 case "M":
-                    logging.info("patch request")
+                    url = f"http://localhost:5000/update/post?token={token}"
+                    try:
+                        response = requests.patch(
+                            url, json=json.dumps(dict(path=filename))
+                        )
+                    except:
+                        logging.error(f"{response} Fail to update post.")
                 case "D":
-                    logging.info("delete request")
+                    url = f"http://localhost:5000/delete/post?token={token}"
+                    try:
+                        response = requests.delete(
+                            url, json=json.dumps(dict(path=filename))
+                        )
+                    except:
+                        logging.error(f"{response} Fail to delete post.")
         else:
             logging.warning(f"{fileitems} is not a post.")
