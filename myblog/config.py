@@ -11,6 +11,9 @@ Copyright (C) 2023 Gao Tianchi
 import os
 
 from cryptography.fernet import Fernet
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class BaseConfig:
