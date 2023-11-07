@@ -38,7 +38,9 @@ def load_user():
         try:
             decrypted_data: str = decrypt_token(current_app.config["SECRET_KEY"], token)
             data: dict = json.loads(decrypted_data)
+            logger.info(data)
             owner = Owner.query.get(data["name"])
+            logger.info(owner)
             if owner:
                 g.owner = owner
             else:
