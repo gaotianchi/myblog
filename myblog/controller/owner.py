@@ -66,6 +66,11 @@ def add_post():
 
     data = postrender.data
     title = data["title"]
+    body = data["body"].strip().replace(" ", "")
+    if not body:
+        logger.warning(f"{post} has no body!")
+        return None
+
     post = Post.query.filter_by(title=title).first()
     if post:
         logger.warning(f"{post} has been created!")
@@ -91,6 +96,11 @@ def update_post():
 
     data = postrender.data
     title = data["title"]
+    body = data["body"].strip().replace(" ", "")
+    if not body:
+        logger.warning(f"{post} has no body!")
+        return None
+
     post = Post.query.filter_by(title=title).first()
     if not post:
         logger.warning(f"{post} has not been created!")
