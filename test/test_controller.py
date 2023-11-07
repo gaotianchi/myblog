@@ -2,8 +2,6 @@ import json
 import os
 import unittest
 
-from requests import delete
-
 from myblog import create_app
 from myblog.flaskexten import db
 from myblog.help import encrypt_token

@@ -13,7 +13,7 @@ import logging
 from pathlib import Path
 
 from cryptography.fernet import Fernet
-from flask import Blueprint, abort, current_app, g, jsonify, redirect, request, url_for
+from flask import Blueprint, abort, current_app, g, jsonify, request
 
 from myblog.model.database.db import Owner, Post
 from myblog.model.mdrender.itemrender import PostRender
