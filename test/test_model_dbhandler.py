@@ -6,6 +6,46 @@ from myblog.flaskexten import db
 from myblog.model.database.db import Category, Owner, Post
 
 
+class TestOwnerDbHandler(unittest.TestCase):
+    def setUp(self) -> None:
+        self.app = create_app(environment="testing")
+        self.app_context = self.app.app_context()
+        self.app_context.push()
+
+        db.session.rollback()
+        db.drop_all()
+        db.create_all()
+
+    def tearDown(self) -> None:
+        self.app_context.pop()
+
+    def test_create_owner_without_name(self):
+        new_author = Owner()
+        new_author.set_password("hello")
+
+        new_author = Owner.query.filter_by(name="Gao Tianchi").first()
+
+        self.assertIsNotNone(new_author)
+
+        self.assertTrue(new_author.validate_password("hello"))
+
+        db.session.rollback()
+        db.drop_all()
+        db.create_all()
+
+    def test_create_owner_with_custom_name(self):
+        new_author = Owner("gaotianchi")
+        new_author.set_password("hello")
+
+        new_author = Owner.query.filter_by(name="gaotianchi").first()
+        self.assertIsNotNone(new_author)
+
+        self.assertTrue(new_author.validate_password("hello"))
+        db.session.rollback()
+        db.drop_all()
+        db.create_all()
+
+
 class TestPostDbHandler(unittest.TestCase):
     def setUp(self) -> None:
         self.app = create_app(environment="testing")
