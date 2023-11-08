@@ -17,7 +17,7 @@ from datetime import date, datetime
 import yaml
 from cryptography.fernet import Fernet
 
-logger = logging.getLogger("helper")
+logger = logging.getLogger()
 
 
 def serialize_datetime(obj):

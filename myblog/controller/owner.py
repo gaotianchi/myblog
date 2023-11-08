@@ -21,7 +21,7 @@ from myblog.model.mdrender.itemrender import PostRender
 owner_bp = Blueprint("owner", __name__)
 
 
-logger = logging.getLogger("controller")
+logger = logging.getLogger()
 
 
 def decrypt_token(secret_key: bytes, token: str) -> str:
