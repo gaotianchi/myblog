@@ -15,6 +15,38 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+PATH_BASE: str = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+
+
+LOGGING_CONFIG = {
+    "version": 1,
+    "formatters": {
+        "standard": {"format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s"},
+    },
+    "handlers": {
+        "default": {
+            "level": "INFO",
+            "formatter": "standard",
+            "class": "logging.StreamHandler",
+            "stream": "ext://sys.stdout",
+        },
+        "file": {
+            "level": "INFO",
+            "formatter": "standard",
+            "class": "logging.FileHandler",
+            "filename": os.path.join(PATH_BASE, "app.log"),
+            "mode": "a",
+        },
+    },
+    "loggers": {
+        "": {  # root logger
+            "handlers": ["default", "file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
+}
+
 
 class BaseConfig:
     SECRET_KEY: bytes = Fernet.generate_key()
