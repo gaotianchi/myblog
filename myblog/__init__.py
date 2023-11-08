@@ -9,7 +9,7 @@ Creation date: 2023-11-02
 Copyright (C) 2023 Gao Tianchi
 """
 
-import logging
+import logging.config
 import os
 import shutil
 import subprocess
@@ -18,15 +18,12 @@ import click
 from flask import Flask, render_template
 from git import Repo
 
-from myblog.config import get_config
+from myblog.config import LOGGING_CONFIG, get_config
 from myblog.controller import owner_bp
 from myblog.flaskexten import db, login_manager
 from myblog.model.database.db import Category, Owner, Post, Site
 
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(module)s - %(funcName)s- %(message)s",
-)
+logging.config.dictConfig(LOGGING_CONFIG)
 
 
 def create_app(environment: str = None):
