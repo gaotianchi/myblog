@@ -21,7 +21,7 @@ from myblog.help import get_post_id, serialize_datetime
 
 from .table import CategoryTable, OwnerTable, PostTable, SiteTable
 
-logger = logging.getLogger("Model.db")
+logger = logging.getLogger()
 
 
 class Site(SiteTable):

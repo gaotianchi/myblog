@@ -46,6 +46,53 @@ class TestOwnerDbHandler(unittest.TestCase):
         db.create_all()
 
 
+class TestCategoryDbHandler(unittest.TestCase):
+    def setUp(self) -> None:
+        self.app = create_app(environment="testing")
+        self.app_context = self.app.app_context()
+        self.app_context.push()
+
+        db.session.rollback()
+        db.drop_all()
+        db.create_all()
+
+    def tearDown(self) -> None:
+        self.app_context.pop()
+
+    def test_create_without_name(self):
+        new_category = Category.create()
+
+        category_name = new_category.name
+        default_name = Category.default_name
+
+        self.assertIsNotNone(new_category)
+        self.assertEqual(category_name, default_name)
+
+    def test_create_with_a_name(self):
+        name = "hello"
+        new_category = Category.create(name)
+
+        self.assertIsNotNone(new_category)
+        category_name = new_category.name
+
+        self.assertEqual(category_name, name)
+
+    def test_delete_with_default_name(self):
+        # Precondition: Method CREATE passed test.
+        default_name = Category.default_name
+        category = Category.create()
+
+        self.assertIsNotNone(category)
+
+        category.delete()
+
+        name = category.name
+
+        self.assertIsNotNone(category)
+
+        self.assertEqual(default_name, name)
+
+
 class TestPostDbHandler(unittest.TestCase):
     def setUp(self) -> None:
         self.app = create_app(environment="testing")
