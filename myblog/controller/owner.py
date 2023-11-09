@@ -15,7 +15,7 @@ from pathlib import Path
 from cryptography.fernet import Fernet
 from flask import Blueprint, abort, current_app, g, jsonify, request
 
-from myblog.model.database.db import Owner, Post
+from myblog.model.database.db import Post
 from myblog.model.mdrender.itemrender import PostRender
 
 owner_bp = Blueprint("owner", __name__)
