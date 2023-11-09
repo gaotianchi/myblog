@@ -15,8 +15,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-PATH_BASE: str = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-
 
 LOGGING_CONFIG = {
     "version": 1,
@@ -34,7 +32,7 @@ LOGGING_CONFIG = {
             "level": "INFO",
             "formatter": "standard",
             "class": "logging.FileHandler",
-            "filename": os.path.join(PATH_BASE, "app.log"),
+            "filename": "log/app.log",
             "mode": "a",
         },
     },
