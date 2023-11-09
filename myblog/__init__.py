@@ -19,7 +19,7 @@ from flask import Flask, render_template
 from git import Repo
 
 from myblog.config import LOGGING_CONFIG, get_config
-from myblog.controller import owner_bp
+from myblog.controller import owner_bp, visitor_bp
 from myblog.flaskexten import db, login_manager
 from myblog.model.database.db import Category, Owner, Post, Site
 
@@ -40,6 +40,7 @@ def create_app(environment: str = None):
     login_manager.init_app(app)
 
     app.register_blueprint(owner_bp)
+    app.register_blueprint(visitor_bp)
 
     @app.shell_context_processor
     def make_shell_context():
