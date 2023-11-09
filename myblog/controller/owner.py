@@ -34,22 +34,22 @@ def decrypt_token(secret_key: bytes, token: str) -> str:
 @owner_bp.before_request
 def load_user():
     token: str = request.args.get("token")
-    if token:
-        decrypted_data: str = decrypt_token(current_app.config["SECRET_KEY"], token)
-        data: dict = json.loads(decrypted_data)
-        logger.info(data)
-        owner = Owner.query.get(data.get("name"))
-        logger.info(owner)
-        if owner:
-            g.owner = owner
-        else:
-            raise Exception("Fail to Login! Did not find any owner.")
+    # if token:
+    #     decrypted_data: str = decrypt_token(current_app.config["SECRET_KEY"], token)
+    #     data: dict = json.loads(decrypted_data)
+    #     logger.info(data)
+    #     owner = Owner.query.get(data.get("name"))
+    #     logger.info(owner)
+    #     if owner:
+    #         g.owner = owner
+    #     else:
+    #         raise Exception("Fail to Login! Did not find any owner.")
 
-        logger.info(f"Login successfully.")
+    #     logger.info(f"Login successfully.")
 
-    else:
-        logger.error(f"Token is required!")
-        abort(401)
+    # else:
+    #     logger.error(f"Token is required!")
+    #     abort(401)
 
     return None
 
