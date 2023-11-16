@@ -1,5 +1,0 @@
----
-category: hello
----
-
-hello world
