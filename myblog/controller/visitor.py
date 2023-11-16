@@ -10,7 +10,7 @@ Copyright (C) 2023 Gao Tianchi
 
 import logging
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, render_template, request
 
 from myblog.model.database.db import Post
 
@@ -26,4 +26,4 @@ def read_post():
     post = Post.query.get(post_id)
     data = post.to_json()
 
-    return jsonify(data)
+    return render_template("page/post.html", data=data)
