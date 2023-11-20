@@ -10,6 +10,7 @@ from pathlib import Path
 from flask import Blueprint, abort, current_app, jsonify, redirect, request, url_for
 
 from myblog.definition import Owner, Post
+from myblog.model.render import get_render
 from myblog.model.validator import validate_token
 
 owner = Blueprint("owner", __name__)
@@ -52,7 +53,10 @@ def add_post():
         logger.warning(f"File {filepath} is not a post.")
         return abort(400)
 
-    return jsonify(dict(title=post.TITLE, author=post.AUTHOR))
+    render = get_render("post")
+    post = render(post)
+
+    return jsonify(post)
 
 
 @owner.route("/modify/post", methods=["PATCH"])
