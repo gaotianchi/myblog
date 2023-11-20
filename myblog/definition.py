@@ -41,8 +41,16 @@ class Post:
 
     def __init__(self, path: Path) -> None:
         self.path = path
+        if path.is_file():
+            self.content = path.read_text(encoding="utf-8").strip()
+        else:
+            self.content = ""
 
     def is_post(self) -> bool:
+        if not self.path.is_file():
+            logger.debug(f"{self.path} is not a file.")
+            return False
+
         if not self.path.suffix == self.FILE_SUFFIX:
             logger.debug(
                 f"The format of file {self.path.name} is not {self.FILE_SUFFIX}."
@@ -53,26 +61,13 @@ class Post:
             logger.debug(f"File {self.path.name} is not relative to post root dir.")
             return False
 
-        content: str = self.path.read_text(encoding="utf-8").strip()
-        pattern = re.compile(r"---.*?---", re.DOTALL)
-        body: str = re.sub(pattern, "", content).strip()
-
-        if not body:
-            logger.debug(
-                f"The article text cannot be empty, file {self.path} is not a post."
-            )
-            return False
-        else:
-            self.__body = body
-
         logger.debug(f"File {self.path} is a post.")
 
         return True
 
     def get_metadata(self) -> dict:
-        content: str = self.path.read_text(encoding="utf-8").strip()
         pattern = re.compile(r"---\n(.*?)\n---", re.DOTALL)
-        match = pattern.match(content)
+        match = pattern.match(self.content)
 
         if not match:
             logger.debug(f"There is no metadata in post {self.path}.")
@@ -104,7 +99,10 @@ class Post:
 
     @property
     def BODY(self) -> str:
-        return self.__body
+        pattern = re.compile(r"---.*?---", re.DOTALL)
+        body: str = re.sub(pattern, "", self.content).strip()
+
+        return body
 
     @property
     def AUTHOR(self) -> str:
@@ -120,32 +118,11 @@ class Post:
 
         cagegory_in_metadata: str | None = metadata.get(self.CATEGORY_KEY_NAME)
 
-        def valid_length(category_name: str) -> bool:
-            result = len(category_name) <= self.CATEGORY_MAX_LENGTH
-            if not result:
-                logger.warning(
-                    f"The length of category name {category_name} is more then max length {self.CATEGORY_MAX_LENGTH}!"
-                )
-            return result
-
-        if cagegory_in_metadata and valid_length(cagegory_in_metadata):
+        if cagegory_in_metadata:
             return cagegory_in_metadata
-        else:
-            logger.warning(
-                f"Category name {cagegory_in_metadata} in the metadata is invalid!"
-            )
 
-        if (
-            valid_length(self.path.parent.name)
-            and self.path.parent.name is not self.PATH_ROOT
-        ):
-            return self.path.parent.name
-        else:
-            logger.warning(
-                f"Category name {self.path.parent.name} with dirname is invalid!"
-            )
-
-        logger.debug(f"Finally using default category name as category name.")
+        if not self.path.parent is self.PATH_ROOT:
+            return self.path.parent.stem
 
         return self.CATEGORY_DEFAULT_NAME
 
