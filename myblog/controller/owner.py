@@ -7,30 +7,14 @@ import logging
 import re
 from pathlib import Path
 
-from cryptography.fernet import Fernet
 from flask import Blueprint, abort, current_app, jsonify, redirect, request, url_for
 
 from myblog.definition import Owner, Post
+from myblog.model.validator import validate_token
 
 owner = Blueprint("owner", __name__)
 
 logger = logging.getLogger("controller.owner")
-
-
-def validate_token(token: bytes, key: bytes) -> bool:
-    f = Fernet(key)
-    try:
-        decrypted_data: bytes = f.decrypt(token)
-    except Exception as e:
-        logger.error(f"Fail to get decrypted data with error message {e}")
-        return False
-
-    if decrypted_data == b"gaotianchi":
-        logger.info("Token is valid.")
-        return True
-    else:
-        logger.error("Token is invalid!")
-        return False
 
 
 @owner.before_request
