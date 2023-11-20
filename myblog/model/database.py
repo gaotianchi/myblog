@@ -3,6 +3,7 @@ Created: 2023-11-20
 Author: Gao Tianchi
 """
 
+import json
 import logging
 from datetime import datetime
 
@@ -21,6 +22,7 @@ class Post(db.Model):
         String(PostFile.TITLE_MAX_LENGTH), unique=True, nullable=False
     )
     body: Mapped[str] = mapped_column(Text, nullable=False)
+    toc: Mapped[str] = mapped_column(Text, nullable=True)
     author: Mapped[str] = mapped_column(
         String(PostFile.AUTHOR_MAX_LENGTH), nullable=False
     )
@@ -31,14 +33,18 @@ class Post(db.Model):
     category = relationship("Category", back_populates="posts")
 
     @classmethod
-    def create(cls, title: str, body: str, category_id: int, author=None) -> "Post":
+    def create(
+        cls, title: str, body: str, category_id: int, author=None, toc=None
+    ) -> "Post":
         old_item = cls.query.filter_by(title=title).first()
         if old_item:
             logger.warning(f"{old_item} already exists, please change the post name.")
             return old_item
 
-        author = author if author else PostFile.author
-        new_item = Post(title=title, body=body, author=author, category_id=category_id)
+        author = author if author else PostFile.AUTHOR_DEFAULT_NAME
+        new_item = Post(
+            title=title, body=body, author=author, category_id=category_id, toc=toc
+        )
         db.session.add(new_item)
         db.session.commit()
 
@@ -46,7 +52,9 @@ class Post(db.Model):
         logger.info(f"Created new post {new_item}.")
         return new_item
 
-    def modify(self, title: str, body: str, category_id: int, author=None) -> "Post":
+    def modify(
+        self, title: str, body: str, category_id: int, author=None, toc=None
+    ) -> "Post":
         old_item = Post.query.filter_by(title=title).first()
         if old_item:
             logger.warning(f"{old_item} already exists, please change the post name.")
@@ -54,6 +62,7 @@ class Post(db.Model):
 
         self.title = title
         self.body = body
+        self.toc = toc
         self.author = author if author else PostFile.author
         self.category_id = category_id
 
@@ -72,7 +81,18 @@ class Post(db.Model):
         db.session.commit()
 
     def to_json(self) -> str:
-        ...
+        data = dict(
+            id=self.id,
+            title=self.title,
+            body=self.body,
+            author=self.author,
+            toc=self.toc,
+            modified=self.modified.isoformat(),
+            created=self.created.isoformat(),
+            category=self.category.title,
+        )
+
+        return json.dumps(data)
 
     def __repr__(self) -> str:
         return f"<Post {self.title}>"
@@ -90,9 +110,7 @@ class Category(db.Model):
     def create(cls, title: str) -> "Category":
         old_item = cls.query.filter_by(title=title).first()
         if old_item:
-            logger.warning(
-                f"{old_item} already exists, please change the category name."
-            )
+            logger.warning(f"{old_item} already exists, old category will be returned.")
             return old_item
 
         new_item = Category(title=title)

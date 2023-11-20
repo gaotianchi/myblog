@@ -10,6 +10,8 @@ from pathlib import Path
 from flask import Blueprint, abort, current_app, jsonify, make_response, request
 
 from myblog.definition import Owner, Post
+from myblog.model.database import Category as categorydb
+from myblog.model.database import Post as postdb
 from myblog.model.render import get_render
 from myblog.model.validator import get_validator
 
@@ -66,7 +68,10 @@ def add_post():
         message = validator.get_message()
         return abort(make_response(message, 400))
 
-    return jsonify(dict(title=post.title, body=post.body[0:50], toc=post.toc))
+    category = categorydb.create(post.category)
+    new_post = postdb.create(post.title, post.body, category.id, post.author, post.toc)
+
+    return jsonify(new_post.to_json())
 
 
 @owner.route("/modify/post", methods=["PATCH"])
