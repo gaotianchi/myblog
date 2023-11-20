@@ -6,13 +6,13 @@ Author: Gao Tianchi
 
 import logging
 
-from .config import get_config
+from config import get_config
 
 config = get_config()
 
 # Set formatters
 default_formatter = logging.Formatter(
-    "%(asctime)s-[%(levelname)s]-[%(module)s]-[%(lineno)d]-%(message)s"
+    "%(asctime)s-[%(levelname)s]-[%(module)s]-[%(lineno)d]-[%(name)s]-%(message)s"
 )
 
 # Set handlers
@@ -26,13 +26,24 @@ console_handler.setFormatter(default_formatter)
 
 
 # Set loggers
-root = logging.getLogger()
-root.setLevel(logging.DEBUG)
-root.addHandler(file_handler)
-root.addHandler(console_handler)
+def set_logger(
+    name, level=logging.DEBUG, handlers=[file_handler, console_handler]
+) -> logging.Logger:
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+    for handler in handlers:
+        logger.addHandler(handler)
+
+    return logger
+
+
+root = set_logger("root")
+controller = set_logger("controller")
 
 
 def get_logger(name: str = None) -> logging.Logger:
     match name:
+        case "controller":
+            return controller
         case _:
             return root

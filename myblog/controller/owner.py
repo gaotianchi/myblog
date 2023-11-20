@@ -10,7 +10,7 @@ from flask import Blueprint, abort, current_app, jsonify, redirect, request, url
 
 from myblog.log import get_logger
 
-logger = get_logger()
+logger = get_logger("controller")
 
 owner = Blueprint("owner", __name__)
 
