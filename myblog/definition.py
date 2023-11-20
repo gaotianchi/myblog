@@ -30,7 +30,9 @@ class Owner:
 class Post:
     PATH_ROOT: Path = Owner.PATH_WORKTREE.joinpath("post")
     FILE_SUFFIX: str = ".md"
-    CATEGORY_MAX_LENGTH: int = 53
+    CATEGORY_MAX_LENGTH: int = 255
+    TITLE_MAX_LENGTH: int = 255
+    AUTHOR_MAX_LENGTH: int = 255
     CATEGORY_DEFAULT_NAME: str = "Uncategorized"
     AUTHOR_DEFAULT_NAME: str = Owner.NAME
 

@@ -17,9 +17,13 @@ logger = logging.getLogger("model.database")
 
 class Post(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    title: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
+    title: Mapped[str] = mapped_column(
+        String(PostFile.TITLE_MAX_LENGTH), unique=True, nullable=False
+    )
     body: Mapped[str] = mapped_column(Text, nullable=False)
-    author: Mapped[str] = mapped_column(String(255), nullable=False)
+    author: Mapped[str] = mapped_column(
+        String(PostFile.AUTHOR_MAX_LENGTH), nullable=False
+    )
     created: Mapped[datetime] = mapped_column(DateTime, default=datetime.today())
     modified: Mapped[datetime] = mapped_column(DateTime, default=datetime.today())
     category_id: Mapped[int] = mapped_column(Integer, ForeignKey("category.id"))
@@ -76,7 +80,9 @@ class Post(db.Model):
 
 class Category(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    title: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
+    title: Mapped[str] = mapped_column(
+        String(PostFile.CATEGORY_MAX_LENGTH), unique=True, nullable=False
+    )
 
     posts = db.relationship("Post", back_populates="category")
 
