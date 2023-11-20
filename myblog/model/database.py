@@ -28,6 +28,11 @@ class Post(db.Model):
 
     @classmethod
     def create(cls, title: str, body: str, category_id: int, author=None) -> "Post":
+        old_item = cls.query.filter_by(title=title).first()
+        if old_item:
+            logger.warning(f"{old_item} already exists, please change the post name.")
+            return old_item
+
         author = author if author else PostFile.AUTHOR
         new_item = Post(title=title, body=body, author=author, category_id=category_id)
         db.session.add(new_item)
@@ -38,6 +43,11 @@ class Post(db.Model):
         return new_item
 
     def modify(self, title: str, body: str, category_id: int, author=None) -> "Post":
+        old_item = Post.query.filter_by(title=title).first()
+        if old_item:
+            logger.warning(f"{old_item} already exists, please change the post name.")
+            return old_item
+
         self.title = title
         self.body = body
         self.author = author if author else PostFile.AUTHOR
@@ -72,6 +82,13 @@ class Category(db.Model):
 
     @classmethod
     def create(cls, title: str) -> "Category":
+        old_item = cls.query.filter_by(title=title).first()
+        if old_item:
+            logger.warning(
+                f"{old_item} already exists, please change the category name."
+            )
+            return old_item
+
         new_item = Category(title=title)
 
         db.session.add(new_item)
@@ -82,12 +99,19 @@ class Category(db.Model):
         return new_item
 
     def modify(self, title: str) -> "Category":
+        old_item = Category.query.filter_by(title=title).first()
+        if old_item:
+            logger.warning(
+                f"{old_item} already exists, please change the category name."
+            )
+            return old_item
+
         if self.title == PostFile.CATEGORY_DEFAULT_NAME:
             logger.warning(f"Can not modify title of default category.")
             return self
 
         if title == PostFile.CATEGORY_DEFAULT_NAME:
-            logger.warning(f"Can modify {self} to default category.")
+            logger.warning(f"Can not modify {self} to default category.")
             return self
 
         self.title = title
