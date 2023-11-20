@@ -72,7 +72,6 @@ class Post:
         match = pattern.match(self.content)
 
         if not match:
-            logger.debug(f"There is no metadata in post {self.path}.")
             return {}
 
         yaml_content: str = match.group(1)
@@ -109,10 +108,11 @@ class Post:
     @property
     def author(self) -> str:
         metadata: dict = self.get_metadata()
-        if not metadata:
-            return self.AUTHOR_DEFAULT_NAME
+
         if metadata.get(self.AUTHOR_KEY_NAME):
             return metadata.get(self.AUTHOR_KEY_NAME)
+
+        return self.AUTHOR_DEFAULT_NAME
 
     @property
     def category(self) -> str:
@@ -121,11 +121,16 @@ class Post:
         cagegory_in_metadata: str | None = metadata.get(self.CATEGORY_KEY_NAME)
 
         if cagegory_in_metadata:
+            logger.debug(
+                f"Using {cagegory_in_metadata} as category which is defined in the metadata."
+            )
             return cagegory_in_metadata
 
-        if not self.path.parent is self.PATH_ROOT:
+        if self.path.parent.parent.is_relative_to(self.PATH_ROOT):
+            logger.debug(f"Using dirname {self.path.parent.stem} as category name")
             return self.path.parent.stem
 
+        logger.debug(f"Using default category name {self.CATEGORY_DEFAULT_NAME}")
         return self.CATEGORY_DEFAULT_NAME
 
     def __repr__(self) -> str:
