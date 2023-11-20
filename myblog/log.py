@@ -6,7 +6,7 @@ Author: Gao Tianchi
 
 import logging
 
-from config import get_config
+from myblog.config import get_config
 
 config = get_config()
 
@@ -26,24 +26,12 @@ console_handler.setFormatter(default_formatter)
 
 
 # Set loggers
-def set_logger(
-    name, level=logging.DEBUG, handlers=[file_handler, console_handler]
-) -> logging.Logger:
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-    for handler in handlers:
-        logger.addHandler(handler)
+root = logging.getLogger("root")
+root.setLevel(logging.DEBUG)
+root.addHandler(file_handler)
+root.addHandler(console_handler)
 
-    return logger
-
-
-root = set_logger("root")
-controller = set_logger("controller")
-
-
-def get_logger(name: str = None) -> logging.Logger:
-    match name:
-        case "controller":
-            return controller
-        case _:
-            return root
+controller = logging.getLogger("root")
+controller.setLevel(logging.DEBUG)
+controller.addHandler(file_handler)
+controller.addHandler(console_handler)

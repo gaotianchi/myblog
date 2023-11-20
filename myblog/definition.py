@@ -8,12 +8,11 @@ import urllib.parse
 from pathlib import Path
 
 import yaml
-from config import get_config
 
-from log import get_logger
+from myblog.config import get_config
+from myblog.log import root as logger
 
 config = get_config()
-logger = get_logger()
 
 
 def unsanitize_filename(encoded_filename):
@@ -67,29 +66,29 @@ class Post:
 
         return True
 
-    def get_metadata(self) -> dict | None:
+    def get_metadata(self) -> dict:
         content: str = self.path.read_text(encoding="utf-8").strip()
         pattern = re.compile(r"---\n(.*?)\n---", re.DOTALL)
         match = pattern.match(content)
 
         if not match:
             logger.debug(f"There is no metadata in post {self.path}.")
-            return None
+            return {}
 
         yaml_content: str = match.group(1)
         if not yaml_content:
             logger.warning(f"Post {self.path} has empty yaml filed.")
-            return None
+            return {}
 
         try:
             metadata: dict = yaml.load(yaml_content, Loader=yaml.SafeLoader)
         except yaml.error.MarkedYAMLError as e:
             logger.error(f"Fail to load yaml content with error code {e.problem}.")
-            return None
+            return {}
         else:
             if not metadata:
                 logger.warning(f"Post {self.path} has empty yaml filed.")
-                return None
+                return {}
 
             return metadata
 
@@ -107,10 +106,10 @@ class Post:
     @property
     def AUTHOR(self) -> str:
         metadata: dict = self.get_metadata()
+        if not metadata:
+            return self.AUTHOR_DEFAULT_NAME
         if metadata.get(self.AUTHOR_KEY_NAME):
             return metadata.get(self.AUTHOR_KEY_NAME)
-
-        return self.AUTHOR_DEFAULT_NAME
 
     @property
     def CATEGORY(self) -> str:
