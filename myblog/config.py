@@ -17,6 +17,8 @@ class Base:
     PATH_ROOT: Path = Path(__file__).parent.parent
     PATH_LOG: Path = PATH_ROOT.joinpath("log")
 
+    SECRET_KEY: bytes = b"C_3IbOmd4L15tDuIY78EUYoZBl_wzF2HmDlkz8Yu0BA="
+
 
 class Dev(Base):
     ...
