@@ -27,7 +27,8 @@ class Post(db.Model):
     category = relationship("Category", back_populates="posts")
 
     @classmethod
-    def create(cls, title: str, body: str, author: str, category_id: int) -> "Post":
+    def create(cls, title: str, body: str, category_id: int, author=None) -> "Post":
+        author = author if author else PostFile.AUTHOR
         new_item = Post(title=title, body=body, author=author, category_id=category_id)
         db.session.add(new_item)
         db.session.commit()
@@ -36,10 +37,10 @@ class Post(db.Model):
         logger.info(f"Created new post {new_item}.")
         return new_item
 
-    def modify(self, title: str, body: str, author: str, category_id: int) -> "Post":
+    def modify(self, title: str, body: str, category_id: int, author=None) -> "Post":
         self.title = title
         self.body = body
-        self.author = author
+        self.author = author if author else PostFile.AUTHOR
         self.category_id = category_id
 
         self.modified = datetime.today()
@@ -81,6 +82,14 @@ class Category(db.Model):
         return new_item
 
     def modify(self, title: str) -> "Category":
+        if self.title == PostFile.CATEGORY_DEFAULT_NAME:
+            logger.warning(f"Can not modify title of default category.")
+            return self
+
+        if title == PostFile.CATEGORY_DEFAULT_NAME:
+            logger.warning(f"Can modify {self} to default category.")
+            return self
+
         self.title = title
 
         db.session.add(self)
