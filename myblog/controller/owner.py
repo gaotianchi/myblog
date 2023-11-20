@@ -3,6 +3,7 @@ Created: 2023-11-19
 Author: Gao Tianchi
 """
 
+import logging
 import re
 from pathlib import Path
 
@@ -10,9 +11,10 @@ from cryptography.fernet import Fernet
 from flask import Blueprint, abort, current_app, jsonify, redirect, request, url_for
 
 from myblog.definition import Owner, Post
-from myblog.log import controller as logger
 
 owner = Blueprint("owner", __name__)
+
+logger = logging.getLogger("controller.owner")
 
 
 def validate_token(token: bytes, key: bytes) -> bool:
