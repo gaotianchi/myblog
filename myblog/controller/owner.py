@@ -11,7 +11,7 @@ from flask import Blueprint, abort, current_app, jsonify, redirect, request, url
 
 from myblog.definition import Owner, Post
 from myblog.model.render import get_render
-from myblog.model.validator import validate_token
+from myblog.model.validator import get_validator
 
 owner = Blueprint("owner", __name__)
 
@@ -30,7 +30,10 @@ def validate_owner() -> None:
         logger.error("Token is not fond in the field 'authorization'.")
         return abort(401)
 
-    if not validate_token(token.encode("utf-8"), current_app.config["SECRET_KEY"]):
+    validator = get_validator("token")
+    validator.set(token.encode("utf-8"), current_app.config["SECRET_KEY"])
+
+    if not validator.validate():
         logger.error("Invalid token!")
         return abort(401)
 
