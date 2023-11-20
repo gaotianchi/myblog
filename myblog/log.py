@@ -31,7 +31,7 @@ root.setLevel(logging.DEBUG)
 root.addHandler(file_handler)
 root.addHandler(console_handler)
 
-controller = logging.getLogger("root")
+controller = logging.getLogger("controller")
 controller.setLevel(logging.DEBUG)
 controller.addHandler(file_handler)
 controller.addHandler(console_handler)
