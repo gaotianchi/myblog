@@ -43,6 +43,8 @@ class Post:
         self.path = path
         if path.is_file():
             self.content = path.read_text(encoding="utf-8").strip()
+            self.body = self.md_body
+            self.toc = None
         else:
             self.content = ""
 
@@ -94,18 +96,18 @@ class Post:
         self.path.unlink()
 
     @property
-    def TITLE(self) -> str:
+    def title(self) -> str:
         return unsanitize_filename(self.path.stem)
 
     @property
-    def BODY(self) -> str:
+    def md_body(self) -> str:
         pattern = re.compile(r"---.*?---", re.DOTALL)
         body: str = re.sub(pattern, "", self.content).strip()
 
         return body
 
     @property
-    def AUTHOR(self) -> str:
+    def author(self) -> str:
         metadata: dict = self.get_metadata()
         if not metadata:
             return self.AUTHOR_DEFAULT_NAME
@@ -113,7 +115,7 @@ class Post:
             return metadata.get(self.AUTHOR_KEY_NAME)
 
     @property
-    def CATEGORY(self) -> str:
+    def category(self) -> str:
         metadata: dict = self.get_metadata()
 
         cagegory_in_metadata: str | None = metadata.get(self.CATEGORY_KEY_NAME)

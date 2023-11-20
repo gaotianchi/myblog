@@ -56,7 +56,7 @@ def add_post():
     render = get_render("post")
     post = render(post)
 
-    return jsonify(post)
+    return jsonify(dict(title=post.title, body=post.body[0:50], toc=post.toc))
 
 
 @owner.route("/modify/post", methods=["PATCH"])
@@ -70,7 +70,7 @@ def modify_post():
         logger.warning(f"File {filepath} is not a post.")
         return abort(400)
 
-    return jsonify(dict(title=post.TITLE, author=post.AUTHOR))
+    return jsonify(dict(title=post.title, author=post.author))
 
 
 @owner.route("/delete/post", methods=["DELETE"])

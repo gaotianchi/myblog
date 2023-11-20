@@ -45,14 +45,11 @@ class Render:
 class Post:
     render = Render()
 
-    def __call__(self, post: PostFile) -> dict:
-        return dict(
-            title=post.TITLE,
-            body=self.render(post.BODY),
-            toc=self.render.toc,
-            author=post.AUTHOR,
-            category=post.CATEGORY,
-        )
+    def __call__(self, post: PostFile) -> PostFile:
+        post.body = self.render(post.md_body)
+        post.toc = self.render.toc
+
+        return post
 
 
 def get_render(name: str):

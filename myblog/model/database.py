@@ -37,7 +37,7 @@ class Post(db.Model):
             logger.warning(f"{old_item} already exists, please change the post name.")
             return old_item
 
-        author = author if author else PostFile.AUTHOR
+        author = author if author else PostFile.author
         new_item = Post(title=title, body=body, author=author, category_id=category_id)
         db.session.add(new_item)
         db.session.commit()
@@ -54,7 +54,7 @@ class Post(db.Model):
 
         self.title = title
         self.body = body
-        self.author = author if author else PostFile.AUTHOR
+        self.author = author if author else PostFile.author
         self.category_id = category_id
 
         self.modified = datetime.today()
