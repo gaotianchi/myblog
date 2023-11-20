@@ -9,6 +9,7 @@ from datetime import datetime
 from sqlalchemy import DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from myblog.definition import Post as PostFile
 from myblog.flaskexten import db
 
 logger = logging.getLogger("model.database")
@@ -35,24 +36,23 @@ class Post(db.Model):
         logger.info(f"Created new post {new_item}.")
         return new_item
 
-    @classmethod
-    def modify(cls, title: str, body: str, author: str, category_id: int) -> "Post":
-        new_item = Post(
-            title=title,
-            body=body,
-            author=author,
-            category_id=category_id,
-            modified=datetime.today(),
-        )
-        db.session.add(new_item)
+    def modify(self, title: str, body: str, author: str, category_id: int) -> "Post":
+        self.title = title
+        self.body = body
+        self.author = author
+        self.category_id = category_id
+
+        self.modified = datetime.today()
+
+        db.session.add(self)
         db.session.commit()
 
-        new_item = Post.query.get(new_item.id)
-        logger.info(f"Modfied new post {new_item}.")
+        new_item = Post.query.get(self.id)
+        logger.info(f"Modfied post {self}.")
         return new_item
 
     def delete(self) -> None:
-        logger.info(f"Deleted new post {self}.")
+        logger.info(f"Deleted post {self}.")
         db.session.delete(self)
         db.session.commit()
 
@@ -68,3 +68,47 @@ class Category(db.Model):
     title: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
 
     posts = db.relationship("Post", back_populates="category")
+
+    @classmethod
+    def create(cls, title: str) -> "Category":
+        new_item = Category(title=title)
+
+        db.session.add(new_item)
+        db.session.commit()
+
+        new_item = Category.query.get(new_item.id)
+        logger.info(f"Created new category {new_item}")
+        return new_item
+
+    def modify(self, title: str) -> "Category":
+        self.title = title
+
+        db.session.add(self)
+        db.session.commit()
+
+        new_item = Post.query.get(self.id)
+        logger.info(f"Modfied category {self}.")
+        return new_item
+
+    def delete(self) -> None:
+        default_category_name: str = PostFile.CATEGORY_DEFAULT_NAME
+        default_category = Category.query.filter_by(title=default_category_name).first()
+
+        if self.title == default_category_name:
+            logger.warning(f"Can not delete default category.{default_category}")
+            return None
+
+        for post in self.posts[:]:
+            post.category = default_category
+            logger.debug(
+                f"Category of {post} changed to default category as it's original category {self} was deleted."
+            )
+            db.session.add(post)
+
+        db.session.commit()
+        logger.info(f"Deleted category {self}.")
+        db.session.delete(self)
+        db.session.commit()
+
+    def __repr__(self) -> str:
+        return f"<Category {self.title}>"
