@@ -7,30 +7,15 @@ import logging
 import re
 from pathlib import Path
 
-from cryptography.fernet import Fernet
 from flask import Blueprint, abort, current_app, jsonify, redirect, request, url_for
 
 from myblog.definition import Owner, Post
+from myblog.model.render import get_render
+from myblog.model.validator import get_validator
 
 owner = Blueprint("owner", __name__)
 
 logger = logging.getLogger("controller.owner")
-
-
-def validate_token(token: bytes, key: bytes) -> bool:
-    f = Fernet(key)
-    try:
-        decrypted_data: bytes = f.decrypt(token)
-    except Exception as e:
-        logger.error(f"Fail to get decrypted data with error message {e}")
-        return False
-
-    if decrypted_data == b"gaotianchi":
-        logger.info("Token is valid.")
-        return True
-    else:
-        logger.error("Token is invalid!")
-        return False
 
 
 @owner.before_request
@@ -45,7 +30,10 @@ def validate_owner() -> None:
         logger.error("Token is not fond in the field 'authorization'.")
         return abort(401)
 
-    if not validate_token(token.encode("utf-8"), current_app.config["SECRET_KEY"]):
+    validator = get_validator("token")
+    validator.set(token.encode("utf-8"), current_app.config["SECRET_KEY"])
+
+    if not validator.validate():
         logger.error("Invalid token!")
         return abort(401)
 
@@ -68,7 +56,10 @@ def add_post():
         logger.warning(f"File {filepath} is not a post.")
         return abort(400)
 
-    return jsonify(dict(title=post.TITLE, author=post.AUTHOR))
+    render = get_render("post")
+    post = render(post)
+
+    return jsonify(dict(title=post.title, body=post.body[0:50], toc=post.toc))
 
 
 @owner.route("/modify/post", methods=["PATCH"])
@@ -82,7 +73,7 @@ def modify_post():
         logger.warning(f"File {filepath} is not a post.")
         return abort(400)
 
-    return jsonify(dict(title=post.TITLE, author=post.AUTHOR))
+    return jsonify(dict(title=post.title, author=post.author))
 
 
 @owner.route("/delete/post", methods=["DELETE"])
