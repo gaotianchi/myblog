@@ -3,6 +3,7 @@ Created: 2023-11-20
 Author: Gao Tianchi
 """
 
+import logging
 import re
 import urllib.parse
 from pathlib import Path
@@ -10,9 +11,9 @@ from pathlib import Path
 import yaml
 
 from myblog.config import get_config
-from myblog.log import root as logger
 
 config = get_config()
+logger = logging.getLogger("root")
 
 
 def unsanitize_filename(encoded_filename):
