@@ -4,6 +4,7 @@ Author: Gao Tianchi
 """
 
 import os
+import sys
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -11,6 +12,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 ENVIRONMENT: str | None = os.getenv("ENVIRONMENT")
+WIN = sys.platform.startswith("win")
+if WIN:
+    prefix = "sqlite:///"
+else:
+    prefix = "sqlite:////"
 
 
 class Base:
@@ -21,7 +27,7 @@ class Base:
 
 
 class Dev(Base):
-    ...
+    SQLALCHEMY_DATABASE_URI: str = prefix + str(Base.PATH_ROOT.joinpath("data-dev.db"))
 
 
 class Prod(Base):

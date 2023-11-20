@@ -7,6 +7,7 @@ from flask import Flask
 
 from .config import get_config
 from .controller import bp_owner
+from .flaskexten import db
 
 
 def create_app(environment: str = None) -> Flask:
@@ -14,6 +15,8 @@ def create_app(environment: str = None) -> Flask:
 
     app = Flask(__package__)
     app.config.from_object(config)
+
+    db.init_app(app)
 
     app.register_blueprint(bp_owner)
 
