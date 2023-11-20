@@ -4,13 +4,13 @@ Author: Gao Tianchi
 """
 
 import re
+from pathlib import Path
 
 from cryptography.fernet import Fernet
 from flask import Blueprint, abort, current_app, jsonify, redirect, request, url_for
 
-from myblog.log import get_logger
-
-logger = get_logger("controller")
+from myblog.definition import Owner, Post
+from myblog.log import controller as logger
 
 owner = Blueprint("owner", __name__)
 
@@ -47,10 +47,46 @@ def validate_owner() -> None:
         logger.error("Invalid token!")
         return abort(401)
 
-    logger.info("Successfully log in, ready to process changed files.")
-    redirect(url_for(".hello"))
+    logger.info("Successfully log in.")
 
 
 @owner.route("/", methods=["POST"])
 def hello():
     return jsonify("Hello, world.")
+
+
+@owner.route("/add/post", methods=["POST"])
+def add_post():
+    _filepath: str = request.data.decode("utf-8")
+    worktree: Path = Owner.PATH_WORKTREE
+    filepath = worktree.joinpath(*_filepath.split("/"))
+    post = Post(filepath)
+
+    if not post.is_post():
+        logger.warning(f"File {filepath} is not a post.")
+        return abort(400)
+
+    return jsonify(dict(title=post.TITLE, author=post.AUTHOR))
+
+
+@owner.route("/modify/post", methods=["PATCH"])
+def modify_post():
+    _filepath: str = request.data.decode("utf-8")
+    worktree: Path = Owner.PATH_WORKTREE
+    filepath = worktree.joinpath(*_filepath.split("/"))
+    post = Post(filepath)
+
+    if not post.is_post():
+        logger.warning(f"File {filepath} is not a post.")
+        return abort(400)
+
+    return jsonify(dict(title=post.TITLE, author=post.AUTHOR))
+
+
+@owner.route("/delete/post", methods=["DELETE"])
+def delete_post():
+    _filepath: str = request.data.decode("utf-8")
+    worktree: Path = Owner.PATH_WORKTREE
+    filepath = worktree.joinpath(*_filepath.split("/"))
+
+    return jsonify(dict(filepath=str(filepath)))
