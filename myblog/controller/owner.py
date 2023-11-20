@@ -7,7 +7,7 @@ import logging
 import re
 from pathlib import Path
 
-from flask import Blueprint, abort, current_app, jsonify, redirect, request, url_for
+from flask import Blueprint, abort, current_app, jsonify, make_response, request
 
 from myblog.definition import Owner, Post
 from myblog.model.render import get_render
@@ -58,6 +58,13 @@ def add_post():
 
     render = get_render("post")
     post = render(post)
+
+    validator = get_validator("post")
+    validator.set(post)
+
+    if not validator.validate():
+        message = validator.get_message()
+        return abort(make_response(message, 400))
 
     return jsonify(dict(title=post.title, body=post.body[0:50], toc=post.toc))
 
