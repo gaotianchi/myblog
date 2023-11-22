@@ -110,4 +110,9 @@ def delete_post():
     worktree: Path = Owner.PATH_WORKTREE
     filepath = worktree.joinpath(*_filepath.split("/"))
 
-    return jsonify(dict(filepath=str(filepath)))
+    post = Post(filepath)
+
+    old_post = postdb.query.filter_by(title=post.title).first_or_404()
+    old_post.delete()
+
+    return jsonify(f"Successfully delete '{post.title}'.")
