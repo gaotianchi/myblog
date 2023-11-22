@@ -4,7 +4,6 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{{ owner.BLOG_TITLE }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
     <link rel="stylesheet"
@@ -13,15 +12,36 @@
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
 
+    <title>{% block title %}{{ owner.BLOG_TITLE }}{% endblock title %}</title>
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico')}}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
+    <style>
+        #global-blog-title {
+            font-size: 1.4em;
+            text-decoration: none;
+        }
+    </style>
 </head>
 
 <body>
+
+    <header class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <span class="navbar-text">
+                <a id="global-blog-title" href="#">{{ owner.BLOG_TITLE }}</a>
+            </span>
+            <a class="navbar-brand" href="#">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" height="30">
+            </a>
+        </div>
+    </header>
     <main class="container">
         {% block main %}
         {% endblock main %}
     </main>
-
+    <footer class="container-fluid text-center bg-body-tertiary">
+        <p class="text-body-secondary">&copy; 2023</p>
+    </footer>
     {% block script %}
     {% endblock %}
 

@@ -17,7 +17,7 @@ logger = logging.getLogger("root")
 
 class Owner:
     NAME: str = "Gao Tianchi"
-    BLOG_TITLE: str = "Gao Tianchi's personal blog"
+    BLOG_TITLE: str = "Gao Tianchi blog"
     PATH_GITDIR: Path = config.PATH_ROOT.parent.joinpath("ws.git")
     PATH_WORKTREE: Path = config.PATH_ROOT.parent.joinpath("ws")
 

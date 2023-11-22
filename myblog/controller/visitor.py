@@ -14,16 +14,16 @@ visitor = Blueprint("visitor", __name__)
 
 
 def title_to_url(title: str) -> str:
-    url_title = title.lower().replace(" ", "_")
+    url_title = title.lower().replace(" ", "-")
 
-    url_title = re.sub(r"[^a-zA-Z0-9_]", "", url_title)
+    url_title = re.sub(r"[^a-zA-Z0-9\-]", "", url_title)
 
     return url_title
 
 
 def get_post_from_url_title(url_title: str):
-    url_title = re.sub(r"[^a-zA-Z0-9_]", "", url_title)
-    search_terms = url_title.split("_")
+    url_title = re.sub(r"[^a-zA-Z0-9\-]", "", url_title)
+    search_terms = url_title.split("-")
     conditions = [postdb.title.ilike(f"%{term}%") for term in search_terms]
     posts = postdb.query.filter(and_(*conditions)).all()
 
