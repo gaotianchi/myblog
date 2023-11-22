@@ -5,7 +5,7 @@ Author: Gao Tianchi
 
 import re
 
-from flask import Blueprint, abort, jsonify
+from flask import Blueprint, abort, jsonify, render_template
 from sqlalchemy import and_
 
 from myblog.model.database import Post as postdb
@@ -46,4 +46,4 @@ def read_post(url_title: str):
     if not post:
         return abort(404)
 
-    return jsonify(post.to_json())
+    return render_template("post-detail.html", post=post)

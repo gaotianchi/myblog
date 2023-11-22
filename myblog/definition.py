@@ -5,8 +5,6 @@ Author: Gao Tianchi
 
 import logging
 import re
-
-# import urllib.parse
 from pathlib import Path
 
 import yaml
@@ -17,13 +15,9 @@ config = get_config()
 logger = logging.getLogger("root")
 
 
-# def unsanitize_filename(encoded_filename):
-#     decoded_filename = urllib.parse.unquote(encoded_filename)
-#     return decoded_filename
-
-
 class Owner:
     NAME: str = "Gao Tianchi"
+    BLOG_TITLE: str = "Gao Tianchi's personal blog"
     PATH_GITDIR: Path = config.PATH_ROOT.parent.joinpath("ws.git")
     PATH_WORKTREE: Path = config.PATH_ROOT.parent.joinpath("ws")
 

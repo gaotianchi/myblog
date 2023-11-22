@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+
+{% block main %}
+<h1>{{ post.title }}</h1>
+{{ post.body|safe }}
+{% endblock main %}

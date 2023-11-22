@@ -22,6 +22,8 @@ else:
 class Base:
     PATH_ROOT: Path = Path(__file__).parent.parent
     PATH_LOG: Path = PATH_ROOT.joinpath("log")
+    PATH_STATIC: Path = Path(__file__).parent.joinpath("view", "static")
+    PATH_TEMPLATES: Path = Path(__file__).parent.joinpath("view", "templates")
 
     SECRET_KEY: bytes = b"C_3IbOmd4L15tDuIY78EUYoZBl_wzF2HmDlkz8Yu0BA="
 
