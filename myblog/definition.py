@@ -5,7 +5,8 @@ Author: Gao Tianchi
 
 import logging
 import re
-import urllib.parse
+
+# import urllib.parse
 from pathlib import Path
 
 import yaml
@@ -16,9 +17,9 @@ config = get_config()
 logger = logging.getLogger("root")
 
 
-def unsanitize_filename(encoded_filename):
-    decoded_filename = urllib.parse.unquote(encoded_filename)
-    return decoded_filename
+# def unsanitize_filename(encoded_filename):
+#     decoded_filename = urllib.parse.unquote(encoded_filename)
+#     return decoded_filename
 
 
 class Owner:
@@ -96,7 +97,7 @@ class Post:
 
     @property
     def title(self) -> str:
-        return unsanitize_filename(self.path.stem)
+        return self.path.stem
 
     @property
     def md_body(self) -> str:
