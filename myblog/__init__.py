@@ -8,16 +8,10 @@ import logging
 from flask import Flask
 
 from .config import get_config
-from .controller import bp_owner
+from .controller import bp_owner, bp_visitor
 from .flaskexten import db
-from .log import console_handler, file_handler
+from .log import root as logger
 from .model.database import Category, Post
-
-# Set loggers
-root = logging.getLogger("root")
-root.setLevel(logging.DEBUG)
-root.addHandler(file_handler)
-root.addHandler(console_handler)
 
 
 def create_app(environment: str = None) -> Flask:
@@ -29,6 +23,7 @@ def create_app(environment: str = None) -> Flask:
     db.init_app(app)
 
     app.register_blueprint(bp_owner)
+    app.register_blueprint(bp_visitor)
 
     @app.shell_context_processor
     def make_shell_context():

@@ -23,3 +23,9 @@ file_handler.setFormatter(default_formatter)
 console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.INFO)
 console_handler.setFormatter(default_formatter)
+
+# Set loggers
+root = logging.getLogger("root")
+root.setLevel(logging.DEBUG)
+root.addHandler(file_handler)
+root.addHandler(console_handler)

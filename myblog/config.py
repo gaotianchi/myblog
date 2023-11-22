@@ -28,6 +28,7 @@ class Base:
 
 class Dev(Base):
     SQLALCHEMY_DATABASE_URI: str = prefix + str(Base.PATH_ROOT.joinpath("data-dev.db"))
+    SQLALCHEMY_TRACK_MODIFICATIONS: bool = True
 
 
 class Prod(Base):
