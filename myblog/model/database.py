@@ -55,11 +55,6 @@ class Post(db.Model):
     def modify(
         self, title: str, body: str, category_id: int, author=None, toc=None
     ) -> "Post":
-        old_item = Post.query.filter_by(title=title).first()
-        if old_item:
-            logger.warning(f"{old_item} already exists, please change the post name.")
-            return old_item
-
         self.title = title
         self.body = body
         self.toc = toc

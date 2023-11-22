@@ -85,7 +85,23 @@ def modify_post():
         logger.warning(f"File {filepath} is not a post.")
         return abort(400)
 
-    return jsonify(dict(title=post.title, author=post.author))
+    render = get_render("post")
+    post = render(post)
+
+    validator = get_validator("post")
+    validator.set(post)
+
+    if not validator.validate():
+        message = validator.get_message()
+        return abort(make_response(message, 400))
+
+    category = categorydb.create(post.category)
+    old_post = postdb.query.filter_by(title=post.title).first_or_404()
+    new_post = old_post.modify(
+        post.title, post.body, category.id, post.author, post.toc
+    )
+
+    return jsonify(new_post.to_json())
 
 
 @owner.route("/delete/post", methods=["DELETE"])
