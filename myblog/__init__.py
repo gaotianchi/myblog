@@ -3,7 +3,7 @@ Created: 2023-11-20
 Author: Gao Tianchi
 """
 
-import logging
+import re
 
 from flask import Flask
 
@@ -38,5 +38,14 @@ def create_app(environment: str = None) -> Flask:
     @app.context_processor
     def make_global_template_variable():
         return dict(owner=Owner())
+
+    @app.context_processor
+    def make_global_template_functions():
+        def title_to_url(title: str) -> str:
+            url_title = title.lower().replace(" ", "-")
+            url_title = re.sub(r"[^a-zA-Z0-9\-]", "", url_title)
+            return url_title
+
+        return {"title_to_url": title_to_url}
 
     return app

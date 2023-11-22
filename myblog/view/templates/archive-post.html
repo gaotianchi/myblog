@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ category.title }}
+{% endblock title %}
+
+
+{% block main %}
+<div class="row">
+    <div class="col-9">
+        {% if posts %}
+        <div class="container" id="post-items-container">
+            {% for post in posts %}
+            <div class="card post-item">
+                <div class="card-body">
+                    <a href="{{ url_for('visitor.read_post', url_title=title_to_url(post.title))}}">
+                        <h4 class="card-title">{{ post.title }}</h4>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>There are no articles in the current category.</p>
+        {% endif %}
+    </div>
+    <div class="col-3">
+        <div class="card" id="category-metadata">
+            <div class="card-header">
+                About category {{ category.title }}
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    There are {{ posts|length }} articles in total under category {{ category.title }}.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main %}
