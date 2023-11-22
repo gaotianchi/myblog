@@ -1,20 +1,156 @@
 #!/usr/bin/env python3
 
+# This git hook is used to send message to flask instance.
+# Created: 2023-11-19
+# Author: Gao Tianchi
+
+
+import json
 import logging
+import os
 import subprocess
+import sys
+import urllib.error
+import urllib.request
+from pathlib import Path
 
-logging.basicConfig(
-    filename="post-receive.log",
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-)
+from cryptography.fernet import Fernet
 
-cmd = "git --work-tree=/home/gaotianchi/repo/prod --git-dir=/home/gaotianchi/repo/remote checkout -f"
+ROOT: Path = Path(__file__).parent.parent.parent
+
+LOG: Path = ROOT.joinpath("ws.git", "hooks", "post-receive.log")
+REMOTE: Path = ROOT.joinpath("ws.git")
+WORKTREE: Path = ROOT.joinpath("ws")
+
+# Configure the logging system.
+logger = logging.getLogger("root")
+logger.setLevel(logging.DEBUG)
+file_handler = logging.FileHandler(LOG)
+file_handler.setLevel(logging.DEBUG)
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)
+formatter = logging.Formatter("%(asctime)s-[%(levelname)s]-%(message)s")
+file_handler.setFormatter(formatter)
+console_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
+logger.addHandler(console_handler)
+
 
 try:
-    subprocess.run(cmd, shell=True, check=True)
-    logging.info(f"Command [{cmd}] executed successfully.")
+    # Sync local and remote.
+    os.chdir(REMOTE)
+    cmd_sync = f"git --work-tree={WORKTREE} --git-dir={REMOTE} checkout -f"
+    subprocess.run(cmd_sync, shell=True, check=True)
+    logger.info(f"Command [{cmd_sync}] executed successfully.")
 except subprocess.CalledProcessError as e:
-    logging.error(
-        f"Command execution failed with error code {e.returncode}: {e.output}"
-    )
+    logger.error(f"Command execution failed with error code {e.returncode}: {e.output}")
+
+
+def get_changed_files(oldrev: str, newrev: str) -> list | None:
+    # Get changed files.
+
+    try:
+        cmd_git_diff: str = f"git diff --name-status {oldrev} {newrev}"
+        diff_output_temp: bytes = subprocess.check_output(cmd_git_diff, shell=True)
+        diff_output = diff_output_temp.decode("utf-8").strip().split("\n")
+        changed_files: list[dict] = []
+        for line in diff_output:
+            parts = line.split("\t")
+
+            if len(parts) == 0:
+                continue
+
+            logger.info(f"Get diff output {parts}")
+            if len(parts) == 3 and parts[0].lower().startswith("r"):
+                mode = "R"
+                path = parts[1:3]
+
+            if len(parts) == 2:
+                mode = parts[0]
+                path = parts[1:]
+
+            change_file = {"mode": mode, "path": path}
+            logger.info(f"Get changed file {change_file}")
+
+            changed_files.append(change_file)
+
+        return changed_files
+
+    except subprocess.CalledProcessError as e:
+        logger.error(
+            f"Fail to get changed files with error code {e.returncode}: {e.output}"
+        )
+        return None
+
+
+def generate_token(key: bytes, data: bytes) -> bytes:
+    # Generate owner's token.
+
+    f = Fernet(key)
+    token: bytes = f.encrypt(data)
+
+    return token
+
+
+def get_request(
+    url: str, data: bytes, token: str, method="POST"
+) -> urllib.request.Request:
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {token}",
+    }
+
+    req = urllib.request.Request(url=url, data=data, method=method, headers=headers)
+
+    return req
+
+
+def main() -> None:
+    baseurl: str = "http://localhost:5000/"
+    key = b"C_3IbOmd4L15tDuIY78EUYoZBl_wzF2HmDlkz8Yu0BA="
+    token_data: bytes = b"gaotianchi"
+    token: bytes = generate_token(key, token_data)
+    all_changed_files: list = []
+
+    for line in sys.stdin:
+        oldrev, newrev, _ = line.strip().split()
+        changed_files = get_changed_files(oldrev, newrev)
+        if changed_files:
+            all_changed_files.extend(changed_files)
+
+    if len(all_changed_files) == 0:
+        return None
+
+    for items in all_changed_files:
+        path: list = items["path"]
+        match items["mode"]:
+            case "A":
+                method = "POST"
+                url = baseurl + "add/post"
+            case "M" | "R":
+                method = "PATCH"
+                url = baseurl + "modify/post"
+            case "D":
+                method = "DELETE"
+                url = baseurl + "delete/post"
+
+        data: str = json.dumps(dict(mode=items["mode"], path=path))
+
+        req = get_request(
+            url, data.encode("utf-8"), token.decode("utf-8"), method=method
+        )
+
+        try:
+            response = urllib.request.urlopen(req)
+            response_data = response.read().decode("utf-8")
+            logger.info(f"Successfully send request. Geting reponse {response_data}.")
+        except urllib.error.HTTPError as e:
+            logger.error(f"HTTPError: {e.code} {e.reason}")
+        except urllib.error.URLError as e:
+            logger.error(f"URLError: {e.reason}")
+        except Exception as e:
+            logger.error(f"Error: {e}")
+
+
+if __name__ == "__main__":
+    main()
