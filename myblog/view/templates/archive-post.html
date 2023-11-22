@@ -25,16 +25,26 @@
         {% endif %}
     </div>
     <div class="col-3">
-        <div class="card" id="category-metadata">
+
+        <div class="card" id="archive-metadata">
             <div class="card-header">
+                {% if category %}
                 About category {{ category.title }}
+                {% else %}
+                All articles
+                {% endif %}
             </div>
             <div class="card-body">
                 <p class="card-text">
+                    {% if category %}
                     There are {{ posts|length }} articles in total under category {{ category.title }}.
+                    {% else %}
+                    There are {{ posts|length }} articles in total.
+                    {% endif %}
                 </p>
             </div>
         </div>
+
     </div>
 </div>
 {% endblock main %}

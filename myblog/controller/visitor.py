@@ -43,7 +43,7 @@ def read_post(url_title: str):
 
 @visitor.route("/archive/post", methods=["GET"])
 def archive_post():
-    category_name: str = request.args.get("category", Post.CATEGORY_DEFAULT_NAME)
+    category_name: str = request.args.get("category")
     sort_by: str = request.args.get("sort_by", "newest")
 
     match sort_by:
@@ -52,8 +52,11 @@ def archive_post():
         case _:
             sort_method = postdb.modified.desc()
 
-    category = categorydb.query.filter_by(title=category_name).first_or_404()
+    category = None
+    posts = postdb.query.order_by(sort_method).all()
 
-    posts = postdb.query.with_parent(category).order_by(sort_method).all()
+    if category_name:
+        category = categorydb.query.filter_by(title=category_name).first_or_404()
+        posts = postdb.query.with_parent(category).order_by(sort_method).all()
 
     return render_template("archive-post.html", posts=posts, category=category)
