@@ -5,7 +5,6 @@ Author: Gao Tianchi
 
 import logging
 import re
-from collections import defaultdict
 from datetime import datetime, timedelta
 
 from flask import Blueprint, abort, render_template, request

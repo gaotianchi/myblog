@@ -105,6 +105,13 @@ def modify_post():
 
     category = categorydb.create(post.category)
     old_post = postdb.query.filter_by(title=old_title_file.title).first_or_404()
+
+    old_categroy = old_post.category
+    posts_with_same_category: list = old_categroy.posts
+    if (old_title_file.title != post.category) and len(posts_with_same_category) == 1:
+        logger.info(f"Deleted empty category {old_categroy}.")
+        old_categroy.delete()
+
     new_post = old_post.modify(
         post.title, post.body, category.id, post.author, post.toc
     )
@@ -123,6 +130,11 @@ def delete_post():
     post = Post(filepath)
 
     old_post = postdb.query.filter_by(title=post.title).first_or_404()
+    old_categroy = old_post.category
+    posts_with_same_category: list = old_categroy.posts
+    if len(posts_with_same_category) == 1:
+        logger.info(f"Deleted empty category {old_categroy}.")
+        old_categroy.delete()
     old_post.delete()
 
     return jsonify(f"Successfully delete '{post.title}'.")
