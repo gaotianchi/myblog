@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}
-{{ category.title }}
+Archive articles
 {% endblock title %}
 
 
@@ -21,28 +21,71 @@
             {% endfor %}
         </div>
         {% else %}
-        <p>There are no articles in the current category.</p>
+        <p>There are no articles.</p>
         {% endif %}
     </div>
     <div class="col-3">
 
         <div class="card" id="archive-metadata">
             <div class="card-header">
-                {% if category %}
-                About category {{ category.title }}
-                {% else %}
-                All articles
-                {% endif %}
+                Category
             </div>
-            <div class="card-body">
-                <p class="card-text">
-                    {% if category %}
-                    There are {{ posts|length }} articles in total under category {{ category.title }}.
-                    {% else %}
-                    There are {{ posts|length }} articles in total.
-                    {% endif %}
-                </p>
+            <ul class="list-group list-group-flush">
+                <a href="{{ url_for('visitor.archive_post') }}">
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">All articles</div>
+                        </div>
+                        <span class="badge bg-primary rounded-pill">{{ postdb.query.all()|length }}</span>
+                    </li>
+                </a>
+                {% for category in categorydb.query.all() %}
+                <a href="{{ url_for('visitor.archive_post', category=title_to_url(category.title)) }}">
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">{{ category.title }}</div>
+                        </div>
+                        <span class="badge bg-primary rounded-pill">{{ category.posts|length }}</span>
+                    </li>
+                </a>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                Archived by date
             </div>
+            <ul class="list-group list-group-flush">
+                {% set posts_archived_by_date = archive_post_by_date(postdb.query.all()) %}
+                {% for year, month_items in posts_archived_by_date.items() %}
+                <li class="list-group-item">
+                    <button class="btn" type="button" data-bs-toggle="collapse" data-bs-target="#year{{ year }}">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">{{ year }}</div>
+                        </div>
+                    </button>
+                    <div class="collapse" id="year{{ year }}">
+                        <ul class="list-group">
+                            {% for month, posts in month_items.items() %}
+
+                            {% set form_date = datetime.datetime(year, month, 1) %}
+                            {% set to_date = datetime.datetime(year, month, 1) + relativedelta(months=1) %}
+
+                            <a
+                                href="{{ url_for('visitor.archive_post', from=form_date.strftime('%Y-%m-%d'), to=to_date.strftime('%Y-%m-%d'))}}">
+                                <li class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div class="ms-2 me-auto">
+                                        <div class="fw-bold">{{ month }}</div>
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill">{{ posts|length }}</span>
+                                </li>
+                            </a>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
         </div>
 
     </div>

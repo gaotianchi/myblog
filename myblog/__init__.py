@@ -3,8 +3,11 @@ Created: 2023-11-20
 Author: Gao Tianchi
 """
 
+import datetime
 import re
+from collections import defaultdict
 
+from dateutil.relativedelta import relativedelta
 from flask import Flask
 
 from myblog.definition import Owner
@@ -37,15 +40,34 @@ def create_app(environment: str = None) -> Flask:
 
     @app.context_processor
     def make_global_template_variable():
-        return dict(owner=Owner())
+        return dict(owner=Owner(), postdb=Post, categorydb=Category)
 
     @app.context_processor
     def make_global_template_functions():
         def title_to_url(title: str) -> str:
-            url_title = title.lower().replace(" ", "-")
+            url_title = title.replace(" ", "-")
             url_title = re.sub(r"[^a-zA-Z0-9\-]", "", url_title)
             return url_title
 
-        return {"title_to_url": title_to_url}
+        def archive_post_by_date(posts: list[Post]) -> dict:
+            archive = defaultdict(dict)
+            month_posts = defaultdict(list)
+
+            for post in posts:
+                year = post.created.year
+                month = post.created.month
+
+                if post not in month_posts[month]:
+                    month_posts[month].append(post)
+                    archive.update({year: month_posts})
+
+            return archive
+
+        return dict(
+            title_to_url=title_to_url,
+            archive_post_by_date=archive_post_by_date,
+            datetime=datetime,
+            relativedelta=relativedelta,
+        )
 
     return app
