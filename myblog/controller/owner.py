@@ -68,7 +68,9 @@ def add_post():
         return abort(make_response(message, 400))
 
     category = categorydb.create(post.category)
-    new_post = postdb.create(post.title, post.body, category.id, post.author, post.toc)
+    new_post = postdb.create(
+        post.title, post.body, category.id, post.author, post.toc, post.summary
+    )
 
     return jsonify(new_post.to_json())
 
@@ -113,7 +115,7 @@ def modify_post():
         old_categroy.delete()
 
     new_post = old_post.modify(
-        post.title, post.body, category.id, post.author, post.toc
+        post.title, post.body, category.id, post.author, post.toc, post.summary
     )
 
     return jsonify(new_post.to_json())

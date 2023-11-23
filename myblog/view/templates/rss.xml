@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+    <channel>
+        <title>{{ owner.BLOG_TITLE }}</title>
+        <link>{{ owner.LINK }}</link>
+        <description>{{ owner.DESCRIPTION }}</description>
+        <language>{{ owner.LANGUAGE }}</language>
+        <webMaster>{{ owner.EMAIL }}</webMaster>
+        {% if posts %}
+        {% for post in posts %}
+        <item>
+            <title>{{ post.title }}</title>
+            <link>{{ url_for("visitor.read_post", url_title=title_to_url(post.title), _external=True) }}</link>
+            <description>{{ post.summary }}</description>
+            <pubDate>{{ post.created.isoformat() }}</pubDate>
+        </item>
+        {% endfor %}
+        {% endif %}
+    </channel>
+</rss>

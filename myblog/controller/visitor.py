@@ -7,10 +7,10 @@ import logging
 import re
 from datetime import datetime, timedelta
 
-from flask import Blueprint, abort, render_template, request
+from flask import Blueprint, abort, make_response, render_template, request
 from sqlalchemy import and_
 
-from myblog.definition import Post
+from myblog.definition import Owner, Post
 from myblog.model.database import Category as categorydb
 from myblog.model.database import Post as postdb
 
@@ -92,3 +92,14 @@ def archive_post():
     posts = posts_query.all()
 
     return render_template("archive-post.html", posts=posts)
+
+
+@visitor.route("/rss", methods=["GET"])
+def rss():
+    posts = postdb.query.order_by(postdb.created.desc()).all()
+
+    content = render_template("rss.xml", posts=posts)
+    response = make_response(content)
+    response.headers["Content-Type"] = "application/rss+xml"
+
+    return response

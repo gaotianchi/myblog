@@ -23,6 +23,7 @@ class Post(db.Model):
     )
     body: Mapped[str] = mapped_column(Text, nullable=False)
     toc: Mapped[str] = mapped_column(Text, nullable=True)
+    summary: Mapped[str] = mapped_column(Text, nullable=True)
     author: Mapped[str] = mapped_column(
         String(PostFile.AUTHOR_MAX_LENGTH), nullable=False
     )
@@ -34,7 +35,13 @@ class Post(db.Model):
 
     @classmethod
     def create(
-        cls, title: str, body: str, category_id: int, author=None, toc=None
+        cls,
+        title: str,
+        body: str,
+        category_id: int,
+        author=None,
+        toc=None,
+        summary=None,
     ) -> "Post":
         old_item = cls.query.filter_by(title=title).first()
         if old_item:
@@ -42,8 +49,14 @@ class Post(db.Model):
             return old_item
 
         author = author if author else PostFile.AUTHOR_DEFAULT_NAME
+
         new_item = Post(
-            title=title, body=body, author=author, category_id=category_id, toc=toc
+            title=title,
+            body=body,
+            author=author,
+            category_id=category_id,
+            toc=toc,
+            summary=summary,
         )
         db.session.add(new_item)
         db.session.commit()
@@ -53,12 +66,19 @@ class Post(db.Model):
         return new_item
 
     def modify(
-        self, title: str, body: str, category_id: int, author=None, toc=None
+        self,
+        title: str,
+        body: str,
+        category_id: int,
+        author=None,
+        toc=None,
+        summary=None,
     ) -> "Post":
         self.title = title
         self.body = body
         self.toc = toc
         self.author = author if author else PostFile.author
+        self.summary = summary
         self.category_id = category_id
 
         self.modified = datetime.today()
@@ -82,6 +102,7 @@ class Post(db.Model):
             body=self.body,
             author=self.author,
             toc=self.toc,
+            summary=self.summary,
             modified=self.modified.isoformat(),
             created=self.created.isoformat(),
             category=self.category.title,

@@ -18,6 +18,10 @@ logger = logging.getLogger("root")
 class Owner:
     NAME: str = "Gao Tianchi"
     BLOG_TITLE: str = "Gao Tianchi blog"
+    DESCRIPTION: str = "Gao Tianchi's personal blog records study and life."
+    LINK: str = "http://gaotianchi.com"
+    LANGUAGE: str = "en-us"
+    EMAIL: str = "6159984@gmail.com"
     PATH_GITDIR: Path = config.PATH_ROOT.parent.joinpath("ws.git")
     PATH_WORKTREE: Path = config.PATH_ROOT.parent.joinpath("ws")
 
@@ -33,6 +37,7 @@ class Post:
 
     AUTHOR_KEY_NAME: str = "author"
     CATEGORY_KEY_NAME: str = "category"
+    SUMMARY_KEY_NAME: str = "summary"
 
     def __init__(self, path: Path) -> None:
         self.path = path
@@ -127,6 +132,23 @@ class Post:
 
         logger.debug(f"Using default category name {self.CATEGORY_DEFAULT_NAME}")
         return self.CATEGORY_DEFAULT_NAME
+
+    @property
+    def summary(self) -> str:
+        metadata: dict = self.get_metadata()
+
+        summary_in_metadata: str | None = metadata.get(self.SUMMARY_KEY_NAME)
+        if summary_in_metadata:
+            logger.debug(
+                f"Using {summary_in_metadata[0:30]} as summary which difined in the metadata."
+            )
+            return summary_in_metadata
+
+        md_without_title: str = re.sub(r"#+ .*?\n", "", self.md_body, re.DOTALL)
+        md_without_title: str = re.sub(r"\n+", "\n", md_without_title, re.DOTALL)
+        default_summary: str = md_without_title.split("\n")[0]
+
+        return default_summary
 
     def __repr__(self) -> str:
         return f"<Post {self.path.stem}>"
