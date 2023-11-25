@@ -5,12 +5,15 @@ Author: Gao Tianchi
 
 
 from datetime import datetime
+from pathlib import Path
 from random import randint
 
 from faker import Faker
 
+from .definition import Post as pt
 from .flaskexten import db
 from .model.database import Category, Comment, Post
+from .model.render import get_render
 
 fake = Faker()
 
@@ -25,13 +28,21 @@ def fake_posts(count: int = 50):
     for _ in range(count):
         title: str = fake.sentence(nb_words=6, variable_nb_words=True)[:-1]
         paragraphs: str = [
-            "<p>" + fake.paragraph(nb_sentences=10) + "</p>" for _ in range(15)
+            "## " + fake.sentence()[:-1] + "\n\n" + fake.paragraph(nb_sentences=10)
+            for _ in range(15)
         ]
         category = Category.query.get(randint(1, Category.query.count()))
         start_date = datetime(2021, 1, 1, 1, 1, 1)
+        p = pt(Path("/test"))
+        p.body = None
+        p.content = "\n\n".join(paragraphs)
+        render = get_render("post")
+        p = render(p)
+
         post = Post(
             title=title,
-            body="".join(paragraphs),
+            body=p.body,
+            toc=p.toc,
             author=fake.name(),
             category=category,
             summary=fake.paragraph(nb_sentences=7),
