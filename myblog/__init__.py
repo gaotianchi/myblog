@@ -7,6 +7,7 @@ import datetime
 import re
 from collections import defaultdict
 
+import click
 from dateutil.relativedelta import relativedelta
 from flask import Flask
 
@@ -16,7 +17,7 @@ from .config import get_config
 from .controller import bp_owner, bp_visitor
 from .flaskexten import db
 from .log import root as logger
-from .model.database import Category, Post
+from .model.database import Category, Comment, Post
 
 
 def create_app(environment: str = None) -> Flask:
@@ -36,7 +37,7 @@ def create_app(environment: str = None) -> Flask:
 
     @app.shell_context_processor
     def make_shell_context():
-        return dict(db=db, post=Post, category=Category)
+        return dict(db=db, post=Post, category=Category, comment=Comment)
 
     @app.context_processor
     def make_global_template_variable():
@@ -51,15 +52,14 @@ def create_app(environment: str = None) -> Flask:
 
         def archive_post_by_date(posts: list[Post]) -> dict:
             archive = defaultdict(dict)
-            month_posts = defaultdict(list)
 
             for post in posts:
                 year = post.created.year
                 month = post.created.month
 
-                if post not in month_posts[month]:
-                    month_posts[month].append(post)
-                    archive.update({year: month_posts})
+                month_posts = archive[year].get(month, [])
+                month_posts.append(post)
+                archive[year][month] = month_posts
 
             return archive
 
@@ -68,6 +68,28 @@ def create_app(environment: str = None) -> Flask:
             archive_post_by_date=archive_post_by_date,
             datetime=datetime,
             relativedelta=relativedelta,
+            sorted=sorted,
         )
+
+    @app.cli.command("forge", help="Generate fake data.")
+    @click.option("--category", default=5, help="Generate fake comments.")
+    @click.option("--post", default=50, help="Generate fake comments.")
+    @click.option("--comment", default=100, help="Generate fake comments.")
+    def forge(category: int, post: int, comment: int):
+        from myblog.fakes import fake_categories, fake_comments, fake_posts
+
+        db.drop_all()
+        db.create_all()
+
+        fake_categories(category)
+        click.echo(f"Generated {category} categories.")
+
+        fake_posts(post)
+        click.echo(f"Generated {post} posts.")
+
+        fake_comments(comment)
+        click.echo(f"Generated {comment} comments")
+
+        click.echo("Done.")
 
     return app
