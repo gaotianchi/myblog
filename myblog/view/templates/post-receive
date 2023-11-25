@@ -18,7 +18,7 @@ from cryptography.fernet import Fernet
 
 REMOTE: Path = "{{gitdir}}"
 WORKTREE: Path = "{{worktree}}"
-LOG: Path = {{gitdir.joinpath("hooks/post-receive.log")}}
+LOG: Path = "{{gitdir.joinpath("hooks/post-receive.log")}}"
 
 # Configure the logging system.
 logger = logging.getLogger("root")
