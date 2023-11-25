@@ -13,7 +13,7 @@ Archive articles
             {% for post in posts %}
             <div class="card post-item">
                 <div class="card-body">
-                    <a href="{{ url_for('visitor.read_post', url_title=title_to_url(post.title))}}">
+                    <a href="{{ url_for('visitor.read_post', post_id=post.id)}}">
                         <h4 class="card-title">{{ post.title }}</h4>
                     </a>
                 </div>
@@ -56,7 +56,8 @@ Archive articles
                 Archived by date
             </div>
             <ul class="list-group list-group-flush">
-                {% set posts_archived_by_date = archive_post_by_date(postdb.query.all()) %}
+                {% set posts_archived_by_date =
+                archive_post_by_date(postdb.query.order_by(postdb.created.asc()).all())%}
                 {% for year, month_items in posts_archived_by_date.items() %}
                 <li class="list-group-item">
                     <button class="btn" type="button" data-bs-toggle="collapse" data-bs-target="#year{{ year }}">
@@ -66,7 +67,8 @@ Archive articles
                     </button>
                     <div class="collapse" id="year{{ year }}">
                         <ul class="list-group">
-                            {% for month, posts in month_items.items() %}
+                            {% for month in sorted(month_items.keys()) %}
+                            {% set posts =month_items[month] %}
 
                             {% set form_date = datetime.datetime(year, month, 1) %}
                             {% set to_date = datetime.datetime(year, month, 1) + relativedelta(months=1) %}

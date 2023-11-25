@@ -10,7 +10,9 @@
         {% for post in posts %}
         <item>
             <title>{{ post.title }}</title>
-            <link>{{ url_for("visitor.read_post", url_title=title_to_url(post.title), _external=True) }}</link>
+            <category>{{ post.category.title }}</category>
+            <author>{{ post.author }}</author>
+            <link>{{ url_for("visitor.read_post", post_id=post.id, _external=True) }}</link>
             <description>{{ post.summary }}</description>
             <pubDate>{{ post.created.isoformat() }}</pubDate>
         </item>

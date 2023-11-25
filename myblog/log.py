@@ -16,7 +16,7 @@ default_formatter = logging.Formatter(
 )
 
 # Set handlers
-file_handler = logging.FileHandler(config.PATH_LOG.joinpath("app.log"))
+file_handler = logging.FileHandler(config.PATH_LOG.joinpath("app.log"), mode="w")
 file_handler.setLevel(logging.DEBUG)
 file_handler.setFormatter(default_formatter)
 
