@@ -65,6 +65,7 @@ def read_post(post_id: int):
     return render_template("post-detail.html", post=post, comments=comments)
 
 
+@visitor.route("/")
 @visitor.route("/archive/post", methods=["GET"])
 def archive_post():
     posts_query = postdb.query

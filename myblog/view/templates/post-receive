@@ -16,11 +16,9 @@ from pathlib import Path
 
 from cryptography.fernet import Fernet
 
-ROOT: Path = Path(__file__).parent.parent.parent
-
-LOG: Path = ROOT.joinpath("ws.git", "hooks", "post-receive.log")
-REMOTE: Path = ROOT.joinpath("ws.git")
-WORKTREE: Path = ROOT.joinpath("ws")
+REMOTE: Path = {{gitdir}}
+WORKTREE: Path = {{worktree}}
+LOG: Path = REMOTE.joinpath("hooks/post-receive.log")
 
 # Configure the logging system.
 logger = logging.getLogger("root")
