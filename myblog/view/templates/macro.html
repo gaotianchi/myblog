@@ -1,0 +1,40 @@
+{% macro render_comments(comments) %}
+{% for comment in comments %}
+<li class="list-group-item list-group-item-action flex-column align-items-start">
+    <div class="d-flex w-100 justify-content-between">
+        <div class="mb-1">
+            <a href="#comment-{{ comment.id }}">
+                <span id="comment-{{ comment.id }}">#{{ comment.id }}</span>
+            </a>
+            {% if comment.from_owner %}
+            <small> owner</small>
+            {% else %}
+            <small> visitor</small>
+            {% endif %}
+        </div>
+        <p>
+            <a class="btn" type="button" data-bs-toggle="collapse" data-bs-target="#reply-{{comment.id}}"
+                aria-expanded="false" aria-controls="comment-{{comment.id}}">
+                reply
+            </a>
+        </p>
+    </div>
+    <p class="mb-1">{{ comment.content|safe }}</p>
+    <small class="text-muted">{{ comment.timestamp }}</small>
+    <div class="collapse" id="reply-{{comment.id}}">
+        <form action="{{ url_for('visitor.read_post', post_id=comment.post.id, reply_to=comment.id) }}" method="post">
+            <div class="mb-3">
+                <label for="comment-area" class="form-label"></label>
+                <textarea class="form-control" name="comment-area" id="comment-area" rows="3"></textarea>
+            </div>
+            <div class="mb-3 d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary">Reply</button>
+            </div>
+        </form>
+    </div>
+    {% if comment.reply_to %}
+    <small> reply to <a href="#comment-{{ comment.reply_to.id }}">#{{ comment.reply_to.id }}</a></small>
+    {% endif %}
+</li>
+{% endfor %}
+{% endmacro %}
