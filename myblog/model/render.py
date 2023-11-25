@@ -3,17 +3,21 @@ Created: 2023-11-21
 Author: Gao Tianchi
 """
 
+
 from markdown import Markdown
 
 from myblog.definition import Post as PostFile
 
 
-class Render:
+class Post:
     def __init__(self) -> None:
         self.toc = None
 
-    def __call__(self, md_text: str) -> str:
-        return self.__convert(md_text)
+    def __call__(self, post: PostFile) -> PostFile:
+        post.body = self.__convert(post.md_body)
+        post.toc = self.toc
+
+        return post
 
     def __convert(self, md_text: str) -> str:
         md = Markdown(
@@ -42,17 +46,22 @@ class Render:
         return html_text
 
 
-class Post:
-    render = Render()
+class Comment:
+    def __call__(self, comment_content: str) -> str:
+        html_content = self.__convert(comment_content)
 
-    def __call__(self, post: PostFile) -> PostFile:
-        post.body = self.render(post.md_body)
-        post.toc = self.render.toc
+        return html_content
 
-        return post
+    def __convert(self, md_text: str) -> str:
+        md = Markdown()
+
+        html_text = md.convert(md_text)
+        return html_text
 
 
 def get_render(name: str):
     match name:
         case "post":
             return Post()
+        case "comment":
+            return Comment()

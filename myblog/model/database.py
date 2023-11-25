@@ -7,7 +7,7 @@ import json
 import logging
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from myblog.definition import Post as PostFile
@@ -32,6 +32,7 @@ class Post(db.Model):
     category_id: Mapped[int] = mapped_column(Integer, ForeignKey("category.id"))
 
     category = relationship("Category", back_populates="posts")
+    comments = relationship("Comment", back_populates="post")
 
     @classmethod
     def create(
@@ -185,3 +186,55 @@ class Category(db.Model):
 
     def __repr__(self) -> str:
         return f"<Category {self.title}>"
+
+
+class Comment(db.Model):
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    from_owner: Mapped[bool] = mapped_column(Boolean, default=False)
+    timestamp: Mapped[datetime] = mapped_column(DateTime, default=datetime.today())
+
+    post = relationship("Post", back_populates="comments")
+    post_id: Mapped[int] = mapped_column(Integer, ForeignKey("post.id"))
+
+    reply_to = relationship("Comment", back_populates="reply_me", remote_side=[id])
+    reply_to_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("comment.id"), nullable=True
+    )
+
+    reply_me = relationship(
+        "Comment", back_populates="reply_to", cascade="all, delete-orphan"
+    )
+
+    @classmethod
+    def create(cls, content, post_id, reply_to_id=None, from_owner=False) -> "Comment":
+        new_item = Comment(
+            content=content,
+            post_id=post_id,
+            reply_to_id=reply_to_id,
+            from_owner=from_owner,
+        )
+        db.session.add(new_item)
+        db.session.commit()
+
+        new_item = Comment.query.get(new_item.id)
+        logger.info(f"Created new comment {new_item}")
+        return new_item
+
+    def modify(self, content) -> "Comment":
+        self.content = content
+
+        db.session.add(self)
+        db.session.commit()
+
+        new_item = Comment.query.get(self.id)
+        logger.info(f"Modified comment {self}")
+        return new_item
+
+    def delete(self) -> None:
+        logger.info(f"Deleted comment {self}")
+        db.session.delete(self)
+        db.session.commit()
+
+    def __repr__(self) -> str:
+        return f"<Comment {self.id}>"

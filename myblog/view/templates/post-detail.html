@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% import 'macro.html' as macro %}
 
 {% block title %}
 {{ post.title }}
@@ -22,7 +23,7 @@
                     modified on {{ post.modified }}. The author classified it as
                     <a href="{{ url_for('visitor.archive_post', category=post.category.title)}}">
                         {{ post.category.title }}
-                    </a>.
+                    </a>
                 </p>
             </div>
         </div>
@@ -38,4 +39,44 @@
         </div>
         {% endif %}
     </div>
-    {% endblock main %}
+</div>
+<div class="row">
+    <div class="container" id="comment-form">
+        <form action="{{ url_for('visitor.read_post', post_id=post.id)}}" method="post"
+            onsubmit="return validateForm()">
+            <div class="mb-3">
+                <label for="comment-area" class="form-label">Comment Area</label>
+                <textarea class="form-control" name="comment-area" id="comment-area" placeholder="Support markdown"
+                    rows="3"></textarea>
+            </div>
+            <div class="mb-3 d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </form>
+    </div>
+    <div class="container" id="comments">
+        {% if comments %}
+        <div class="list-group">
+            {{ macro.render_comments(comments) }}
+        </div>
+        {% else %}
+        <p>No comments.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock main %}
+
+{% block script %}
+<script>
+    function validateForm() {
+        var commentArea = document.getElementById("comment-area");
+
+        if (commentArea.value.trim() === "") {
+            alert("Please enter a comment.");
+            return false;
+        }
+
+        return true;
+    }
+</script>
+{% endblock script %}

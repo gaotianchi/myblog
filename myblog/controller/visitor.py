@@ -7,12 +7,22 @@ import logging
 import re
 from datetime import datetime, timedelta
 
-from flask import Blueprint, abort, make_response, render_template, request
+from flask import (
+    Blueprint,
+    abort,
+    make_response,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 from sqlalchemy import and_
 
 from myblog.definition import Owner, Post
 from myblog.model.database import Category as categorydb
+from myblog.model.database import Comment
 from myblog.model.database import Post as postdb
+from myblog.model.render import get_render
 
 visitor = Blueprint("visitor", __name__)
 
@@ -36,13 +46,23 @@ def get_post_from_url_title(url_title: str):
     return posts[0]
 
 
-@visitor.route("/read/post/<url_title>", methods=["GET"])
-def read_post(url_title: str):
-    post = get_post_from_url_title(url_title)
-    if not post:
-        return abort(404)
+@visitor.route("/read/post/<post_id>", methods=["GET", "POST"])
+def read_post(post_id: int):
+    post = postdb.query.get_or_404(post_id)
 
-    return render_template("post-detail.html", post=post)
+    if request.form:
+        comment_content = request.form.get("comment-area")
+        render = get_render("comment")
+        comment_content = render(comment_content)
+        reply_to_id = request.args.get("reply_to", type=int)
+        new_comment = Comment.create(comment_content, post.id, reply_to_id)
+        return redirect(
+            url_for("visitor.read_post", post_id=post_id) + f"#comment-{new_comment.id}"
+        )
+
+    comments = Comment.query.with_parent(post).order_by(Comment.timestamp.desc()).all()
+
+    return render_template("post-detail.html", post=post, comments=comments)
 
 
 @visitor.route("/archive/post", methods=["GET"])
