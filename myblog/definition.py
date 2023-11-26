@@ -41,14 +41,17 @@ class Post:
 
     def __init__(self, path: Path) -> None:
         self.path = path
-        self.content = path.read_text(encoding="utf-8").strip()
-        self.body = self.md_body
+        if self.path.is_file():
+            self.content = path.read_text(encoding="utf-8").strip()
+            self.body = self.md_body
+        else:
+            self.content = ""
         self.toc = None
 
     def is_post(self) -> bool:
-        # if not self.path.is_file():
-        #     logger.debug(f"{self.path} is not a file.")
-        #     return False
+        if not self.path.is_file():
+            logger.debug(f"{self.path} is not a file.")
+            return False
 
         if not self.path.suffix == self.FILE_SUFFIX:
             logger.debug(
