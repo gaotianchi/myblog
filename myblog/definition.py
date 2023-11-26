@@ -41,12 +41,9 @@ class Post:
 
     def __init__(self, path: Path) -> None:
         self.path = path
-        if path.is_file():
-            self.content = path.read_text(encoding="utf-8").strip()
-            self.body = self.md_body
-            self.toc = None
-        else:
-            self.content = ""
+        self.content = path.read_text(encoding="utf-8").strip()
+        self.body = self.md_body
+        self.toc = None
 
     def is_post(self) -> bool:
         if not self.path.is_file():
