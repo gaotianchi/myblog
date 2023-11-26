@@ -46,9 +46,9 @@ class Post:
         self.toc = None
 
     def is_post(self) -> bool:
-        if not self.path.is_file():
-            logger.debug(f"{self.path} is not a file.")
-            return False
+        # if not self.path.is_file():
+        #     logger.debug(f"{self.path} is not a file.")
+        #     return False
 
         if not self.path.suffix == self.FILE_SUFFIX:
             logger.debug(
