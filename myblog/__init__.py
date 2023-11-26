@@ -101,15 +101,17 @@ def create_app(environment: str = None) -> Flask:
         owner = Owner()
 
         GITDIR = owner.PATH_GITDIR
-        WORKTREE = owner.PATH_GITDIR
+        WORKTREE = owner.PATH_WORKTREE
         POST_RECEIVE = GITDIR.joinpath("hooks", "post-receive")
 
         if Path.exists(GITDIR):
             shutil.rmtree(GITDIR)
-            os.mkdir(GITDIR)
+
         if Path.exists(WORKTREE):
             shutil.rmtree(WORKTREE)
-            os.mkdir(WORKTREE)
+
+        os.mkdir(GITDIR)
+        os.mkdir(WORKTREE)
 
         # Create remote git repo.
         try:
