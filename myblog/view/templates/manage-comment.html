@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}
+Manage comments
+{% endblock title %}
+
+{% block main %}
+<div class="row">
+    <div class="table-responsive-lg">
+        <table class="table table-lg">
+            <thead>
+                <tr>
+                    <th scope="col" class="col-1">ID</th>
+                    <th scope="col" class="col-9">Content</th>
+                    <th scope="col" class="col-2">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for comment in comments %}
+                <tr class="">
+                    <td scope="row">{{comment.id}}</td>
+                    <td>{{comment.content|safe}}</td>
+                    <td>
+                        <form action="{{url_for('owner.delete_comment', comment_id=comment.id)}}" method="post">
+                            <button type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+{% endblock main %}

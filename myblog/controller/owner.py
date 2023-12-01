@@ -22,6 +22,7 @@ from flask import (
 
 from myblog.definition import DefineOwner, DefinePost
 from myblog.model.database import Category as categorydb
+from myblog.model.database import Comment
 from myblog.model.database import Post as postdb
 from myblog.model.render import get_render
 from myblog.model.validator import get_validator
@@ -190,3 +191,20 @@ def login():
 @owner.route("/manage", methods=["GET"])
 def manage():
     return render_template("manage.html")
+
+
+@owner.route("/manage/comment", methods=["GET", "POST"])
+def manage_comment():
+    page = request.args.get("page", type=int, default=1)
+    comments = Comment.query.order_by(Comment.timestamp.desc()).paginate(
+        page=page, per_page=current_app.config["COMMENT_PER_PAGE"]
+    )
+    return render_template("manage-comment.html", comments=comments)
+
+
+@owner.route("/delete/comment/<comment_id>", methods=["POST"])
+def delete_comment(comment_id: int):
+    comment = Comment.query.get_or_404(comment_id)
+    comment.delete()
+
+    return redirect(url_for("owner.manage_comment"))

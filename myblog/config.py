@@ -27,6 +27,8 @@ class Base:
 
     SECRET_KEY: bytes = b"C_3IbOmd4L15tDuIY78EUYoZBl_wzF2HmDlkz8Yu0BA="
 
+    COMMENT_PER_PAGE: int = 10
+
 
 class Dev(Base):
     SQLALCHEMY_DATABASE_URI: str = prefix + str(Base.PATH_ROOT.joinpath("data-dev.db"))
