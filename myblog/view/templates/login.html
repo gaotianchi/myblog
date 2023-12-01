@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}
+Login
+{% endblock title %}
+
+{% block style %}
+<style>
+    .card {
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    .form-label {
+        text-align: left;
+    }
+</style>
+{% endblock style %}
+
+{% block main %}
+<div class="container d-flex justify-content-center align-items-center pt-5">
+    <div class="card w-75 mb-3">
+        <div class="card-header">
+            Login
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('owner.login') }}" method="post">
+                <div class="mb-3">
+                    <label for="api_key" class="form-label">Api Key</label>
+                    <input type="text" name="api_key" id="api_key" class="form-control"
+                        placeholder="Please enter API key" aria-describedby="helpId">
+                </div>
+                <div class="mb-3 d-flex justify-content-end">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock main %}

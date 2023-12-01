@@ -8,7 +8,16 @@ import logging
 import re
 from pathlib import Path
 
-from flask import Blueprint, abort, current_app, jsonify, make_response, request
+from flask import (
+    Blueprint,
+    abort,
+    current_app,
+    jsonify,
+    make_response,
+    render_template,
+    request,
+    session,
+)
 
 from myblog.definition import DefineOwner, DefinePost
 from myblog.model.database import Category as categorydb
@@ -23,6 +32,10 @@ logger = logging.getLogger("controller.owner")
 
 @owner.before_request
 def validate_owner() -> None:
+    if request.endpoint == "owner.login":
+        logger.info("Ready to log in.")
+        return None
+
     authorization: str | None = request.headers.get("Authorization")
     if not authorization:
         logger.error("Field 'authorization' is not found in the request headers.")
@@ -140,3 +153,24 @@ def delete_post():
     old_post.delete()
 
     return jsonify(f"Successfully delete '{post.title}'.")
+
+
+@owner.route("/login", methods=["GET", "POST"])
+def login():
+    if request.form:
+        api_key: str = request.form.get("api_key")
+        if not api_key:
+            logger.error("No api key was found.")
+            return abort(401)
+
+        validator = get_validator("token")
+        validator.set(api_key.encode("utf-8"), current_app.config["SECRET_KEY"])
+        if not validator.validate():
+            logger.error("Api key is invalid.")
+            return abort(401)
+
+        session["token"] = api_key
+
+        return session["token"]
+
+    return render_template("login.html")

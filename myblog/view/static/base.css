@@ -4,6 +4,16 @@ body {
   margin: 0;
 }
 
+#global-blog-title {
+    font-size: 1.4em;
+    text-decoration: none;
+}
+
+@media (max-width: 767.98px) {
+    .row {
+        flex-direction: column-reverse;
+    }
+}
 
 main {
     min-height: calc(100vh - 116px);

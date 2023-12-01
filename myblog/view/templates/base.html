@@ -15,18 +15,7 @@
     <title>{% block title %}{{ owner.BLOG_TITLE }}{% endblock title %}</title>
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico')}}" type="image/x-icon">
     <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
-    <style>
-        #global-blog-title {
-            font-size: 1.4em;
-            text-decoration: none;
-        }
-
-        @media (max-width: 767.98px) {
-            .row {
-                flex-direction: column-reverse;
-            }
-        }
-    </style>
+    {% block style %}{% endblock style %}
 </head>
 
 <body>
