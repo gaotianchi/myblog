@@ -12,7 +12,7 @@
             <title>{{ post.title }}</title>
             <category>{{ post.category.title }}</category>
             <author>{{ post.author }}</author>
-            <link>{{ url_for("visitor.read_post", post_id=post.id, _external=True) }}</link>
+            <link>{{ url_for("visitor.read_post", post_id=post.id, post_title=ttu(post.title), _external=True) }}</link>
             <description>{{ post.summary }}</description>
             <pubDate>{{ post.created.isoformat() }}</pubDate>
         </item>

@@ -23,32 +23,18 @@ from myblog.model.database import Category as categorydb
 from myblog.model.database import Comment
 from myblog.model.database import Post as postdb
 from myblog.model.render import get_render
+from myblog.utlis import title_to_url
 
 visitor = Blueprint("visitor", __name__)
 
 logger = logging.getLogger("controller.visitor")
 
 
-def get_post_from_url_title(url_title: str):
-    url_title = re.sub(r"[^a-zA-Z0-9\-]", "", url_title)
-    search_terms = url_title.split("-")
-    conditions = [postdb.title.like(f"%{term}%") for term in search_terms]
-    posts = postdb.query.filter(and_(*conditions)).all()
-
-    if len(posts) > 1 or len(posts) == 0:
-        return None
-
-    post_title_words = re.sub(r"[^a-zA-Z0-9]", "", posts[0].title)
-    url_words = re.sub(r"[^a-zA-Z0-9]", "", url_title)
-    if not url_words == post_title_words:
-        return None
-
-    return posts[0]
-
-
-@visitor.route("/read/post/<post_id>", methods=["GET", "POST"])
-def read_post(post_id: int):
+@visitor.route("/read/post/<post_id>/<post_title>", methods=["GET", "POST"])
+def read_post(post_id: int, post_title: str):
     post = postdb.query.get_or_404(post_id)
+    if not title_to_url(post.title) == post_title:
+        abort(404)
 
     if request.form:
         comment_content = request.form.get("comment-area")
@@ -57,7 +43,12 @@ def read_post(post_id: int):
         reply_to_id = request.args.get("reply_to", type=int)
         new_comment = Comment.create(comment_content, post.id, reply_to_id)
         return redirect(
-            url_for("visitor.read_post", post_id=post_id) + f"#comment-{new_comment.id}"
+            url_for(
+                "visitor.read_post",
+                post_id=post_id,
+                post_title=title_to_url(post.title),
+            )
+            + f"#comment-{new_comment.id}"
         )
 
     comments = Comment.query.with_parent(post).order_by(Comment.timestamp.desc()).all()

@@ -13,7 +13,7 @@ Archive articles
             {% for post in posts %}
             <div class="card post-item">
                 <div class="card-body">
-                    <a href="{{ url_for('visitor.read_post', post_id=post.id)}}">
+                    <a href="{{ url_for('visitor.read_post', post_id=post.id, post_title=ttu(post.title))}}">
                         <h4 class="card-title">{{ post.title }}</h4>
                     </a>
                 </div>
@@ -40,7 +40,7 @@ Archive articles
                     </li>
                 </a>
                 {% for category in categorydb.query.all() %}
-                <a href="{{ url_for('visitor.archive_post', category=title_to_url(category.title)) }}">
+                <a href="{{ url_for('visitor.archive_post', category=ttu(category.title)) }}">
                     <li class="list-group-item d-flex justify-content-between align-items-start">
                         <div class="ms-2 me-auto">
                             <div class="fw-bold">{{ category.title }}</div>

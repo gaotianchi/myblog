@@ -5,20 +5,19 @@ Author: Gao Tianchi
 
 import datetime
 import os
-import re
 import shutil
 import subprocess
-from collections import defaultdict
 from pathlib import Path
 
 import click
 from dateutil.relativedelta import relativedelta
 from flask import Flask, render_template
 
-from myblog.definition import DefineOwner
+from myblog.utlis import archive_post_by_date, title_to_url
 
 from .config import get_config
 from .controller import bp_owner, bp_visitor
+from .definition import DefineOwner
 from .flaskexten import db
 from .log import root as logger
 from .model.database import Category, Comment, Post
@@ -49,31 +48,16 @@ def create_app(environment: str = None) -> Flask:
 
     @app.context_processor
     def make_global_template_functions():
-        def title_to_url(title: str) -> str:
-            url_title = title.replace(" ", "-")
-            url_title = re.sub(r"[^a-zA-Z0-9\-]", "", url_title)
-            return url_title
-
-        def archive_post_by_date(posts: list[Post]) -> dict:
-            archive = defaultdict(dict)
-
-            for post in posts:
-                year = post.created.year
-                month = post.created.month
-
-                month_posts = archive[year].get(month, [])
-                month_posts.append(post)
-                archive[year][month] = month_posts
-
-            return archive
-
         return dict(
-            title_to_url=title_to_url,
             archive_post_by_date=archive_post_by_date,
             datetime=datetime,
             relativedelta=relativedelta,
             sorted=sorted,
         )
+
+    @app.template_global()
+    def ttu(title: str):
+        return title_to_url(title)
 
     @app.cli.command("forge", help="Generate fake data.")
     @click.option("--category", default=5, help="Generate fake comments.")

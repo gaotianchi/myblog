@@ -22,7 +22,9 @@
     <p class="mb-1">{{ comment.content|safe }}</p>
     <small class="text-muted">{{ comment.timestamp }}</small>
     <div class="collapse" id="reply-{{comment.id}}">
-        <form action="{{ url_for('visitor.read_post', post_id=comment.post.id, reply_to=comment.id) }}" method="post">
+        <form
+            action="{{ url_for('visitor.read_post', post_id=comment.post.id, post_title=ttu(comment.post.title), reply_to=comment.id) }}"
+            method="post">
             <div class="mb-3">
                 <label for="comment-area" class="form-label"></label>
                 <textarea class="form-control" name="comment-area" id="comment-area" rows="3"></textarea>

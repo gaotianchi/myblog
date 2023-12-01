@@ -42,7 +42,7 @@
 </div>
 <div class="row">
     <div class="container" id="comment-form">
-        <form action="{{ url_for('visitor.read_post', post_id=post.id)}}" method="post"
+        <form action="{{ url_for('visitor.read_post', post_id=post.id, post_title=ttu(post.title))}}" method="post"
             onsubmit="return validateForm()">
             <div class="mb-3">
                 <label for="comment-area" class="form-label">Comment Area</label>
