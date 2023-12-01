@@ -3,7 +3,6 @@ Created: 2023-11-19
 Author: Gao Tianchi
 """
 
-import json
 import logging
 import re
 from pathlib import Path
@@ -14,9 +13,11 @@ from flask import (
     current_app,
     jsonify,
     make_response,
+    redirect,
     render_template,
     request,
     session,
+    url_for,
 )
 
 from myblog.definition import DefineOwner, DefinePost
@@ -35,6 +36,16 @@ def validate_owner() -> None:
     if request.endpoint == "owner.login":
         logger.info("Ready to log in.")
         return None
+
+    if session["token"]:
+        token = session["token"]
+        validator = get_validator("token")
+        validator.set(token.encode("utf-8"), current_app.config["SECRET_KEY"])
+        if validator.validate():
+            logger.info("Successfully log in with token in session.")
+            return None
+        else:
+            logger.error("Token in the session is invalid.")
 
     authorization: str | None = request.headers.get("Authorization")
     if not authorization:
@@ -171,6 +182,11 @@ def login():
 
         session["token"] = api_key
 
-        return session["token"]
+        return redirect(url_for("owner.manage"))
 
     return render_template("login.html")
+
+
+@owner.route("/manage", methods=["GET"])
+def manage():
+    return render_template("manage.html")
