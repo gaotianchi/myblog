@@ -30,7 +30,23 @@ Manage comments
             </tbody>
         </table>
     </div>
+</div>
+<div class="row">
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            <li class="page-item {% if page==1 %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('owner.manage_comment', page=page-1)}}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
 
+            <li class="page-item {%if page==total_page%}disabled{%endif%}">
+                <a class="page-link" href="{{url_for('owner.manage_comment', page=page+1)}}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
 </div>
 
 {% endblock main %}

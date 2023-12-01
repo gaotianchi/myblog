@@ -196,10 +196,14 @@ def manage():
 @owner.route("/manage/comment", methods=["GET", "POST"])
 def manage_comment():
     page = request.args.get("page", type=int, default=1)
+    per_page = current_app.config["COMMENT_PER_PAGE"]
     comments = Comment.query.order_by(Comment.timestamp.desc()).paginate(
-        page=page, per_page=current_app.config["COMMENT_PER_PAGE"]
+        page=page, per_page=per_page
     )
-    return render_template("manage-comment.html", comments=comments)
+    total_page = Comment.query.count() // per_page + 1
+    return render_template(
+        "manage-comment.html", comments=comments, page=page, total_page=total_page
+    )
 
 
 @owner.route("/delete/comment/<comment_id>", methods=["POST"])
