@@ -18,7 +18,7 @@ from flask import (
 )
 from sqlalchemy import and_
 
-from myblog.definition import Owner, Post
+from myblog.definition import DefineOwner, DefinePost
 from myblog.model.database import Category as categorydb
 from myblog.model.database import Comment
 from myblog.model.database import Post as postdb

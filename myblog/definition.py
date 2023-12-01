@@ -15,7 +15,7 @@ config = get_config()
 logger = logging.getLogger("root")
 
 
-class Owner:
+class DefineOwner:
     NAME: str = "Gao Tianchi"
     BLOG_TITLE: str = "Gao Tianchi blog"
     DESCRIPTION: str = "Gao Tianchi's personal blog records study and life."
@@ -26,14 +26,14 @@ class Owner:
     PATH_WORKTREE: Path = config.PATH_ROOT.parent.joinpath("ws")
 
 
-class Post:
-    PATH_ROOT: Path = Owner.PATH_WORKTREE.joinpath("post")
+class DefinePost:
+    PATH_ROOT: Path = DefineOwner.PATH_WORKTREE.joinpath("post")
     FILE_SUFFIX: str = ".md"
     CATEGORY_MAX_LENGTH: int = 255
     TITLE_MAX_LENGTH: int = 255
     AUTHOR_MAX_LENGTH: int = 255
     CATEGORY_DEFAULT_NAME: str = "Uncategorized"
-    AUTHOR_DEFAULT_NAME: str = Owner.NAME
+    AUTHOR_DEFAULT_NAME: str = DefineOwner.NAME
 
     AUTHOR_KEY_NAME: str = "author"
     CATEGORY_KEY_NAME: str = "category"

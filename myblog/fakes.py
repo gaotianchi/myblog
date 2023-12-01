@@ -10,7 +10,7 @@ from random import randint
 
 from faker import Faker
 
-from .definition import Post as pt
+from .definition import DefinePost
 from .flaskexten import db
 from .model.database import Category, Comment, Post
 from .model.render import get_render
@@ -33,7 +33,7 @@ def fake_posts(count: int = 50):
         ]
         category = Category.query.get(randint(1, Category.query.count()))
         start_date = datetime(2021, 1, 1, 1, 1, 1)
-        p = pt(Path("/test"))
+        p = DefinePost(Path("/test"))
         p.body = None
         p.content = "\n\n".join(paragraphs)
         render = get_render("post")

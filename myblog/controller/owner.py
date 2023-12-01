@@ -10,7 +10,7 @@ from pathlib import Path
 
 from flask import Blueprint, abort, current_app, jsonify, make_response, request
 
-from myblog.definition import Owner, Post
+from myblog.definition import DefineOwner, DefinePost
 from myblog.model.database import Category as categorydb
 from myblog.model.database import Post as postdb
 from myblog.model.render import get_render
@@ -50,8 +50,8 @@ def add_post():
     if not _filepath:
         logger.error(f"File path was not found in the json filed.")
         abort(400)
-    filepath: Path = Owner.PATH_WORKTREE.joinpath(*_filepath[0].split("/"))
-    post = Post(filepath)
+    filepath: Path = DefineOwner.PATH_WORKTREE.joinpath(*_filepath[0].split("/"))
+    post = DefinePost(filepath)
 
     if not post.is_post():
         logger.warning(f"File {filepath} is not a post.")
@@ -83,13 +83,13 @@ def modify_post():
         logger.error(f"File path was not found in the json filed.")
         abort(400)
 
-    filepath: Path = Owner.PATH_WORKTREE.joinpath(*_filepath[0].split("/"))
-    post = Post(filepath)
+    filepath: Path = DefineOwner.PATH_WORKTREE.joinpath(*_filepath[0].split("/"))
+    post = DefinePost(filepath)
     old_title_file = post
 
     if len(_filepath) == 2:
-        new_title_file = Owner.PATH_WORKTREE.joinpath(*_filepath[1].split("/"))
-        post = Post(new_title_file)
+        new_title_file = DefineOwner.PATH_WORKTREE.joinpath(*_filepath[1].split("/"))
+        post = DefinePost(new_title_file)
 
     if not post.is_post():
         logger.warning(f"File {filepath} is not a post.")
@@ -128,8 +128,8 @@ def delete_post():
     if not _filepath:
         logger.error(f"File path was not found in the json filed.")
         abort(400)
-    filepath: Path = Owner.PATH_WORKTREE.joinpath(*_filepath[0].split("/"))
-    post = Post(filepath)
+    filepath: Path = DefineOwner.PATH_WORKTREE.joinpath(*_filepath[0].split("/"))
+    post = DefinePost(filepath)
 
     old_post = postdb.query.filter_by(title=post.title).first_or_404()
     old_categroy = old_post.category

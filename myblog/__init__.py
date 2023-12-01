@@ -15,7 +15,7 @@ import click
 from dateutil.relativedelta import relativedelta
 from flask import Flask, render_template
 
-from myblog.definition import Owner
+from myblog.definition import DefineOwner
 
 from .config import get_config
 from .controller import bp_owner, bp_visitor
@@ -45,7 +45,7 @@ def create_app(environment: str = None) -> Flask:
 
     @app.context_processor
     def make_global_template_variable():
-        return dict(owner=Owner(), postdb=Post, categorydb=Category)
+        return dict(owner=DefineOwner(), postdb=Post, categorydb=Category)
 
     @app.context_processor
     def make_global_template_functions():
@@ -98,7 +98,7 @@ def create_app(environment: str = None) -> Flask:
 
     @app.cli.command("initowner", help="Init user's gitdir and worktree.")
     def initowner():
-        owner = Owner()
+        owner = DefineOwner()
 
         GITDIR = owner.PATH_GITDIR
         WORKTREE = owner.PATH_WORKTREE

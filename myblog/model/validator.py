@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 
 from cryptography.fernet import Fernet
 
-from myblog.definition import Post as PostFile
+from myblog.definition import DefinePost
 
 logger = logging.getLogger("model.validator")
 
@@ -60,7 +60,7 @@ class Post(Validator):
     def __init__(self) -> None:
         self.messages: list[str] = []
 
-    def set(self, post: PostFile) -> None:
+    def set(self, post: DefinePost) -> None:
         self.post = post
 
     def get_message(self):

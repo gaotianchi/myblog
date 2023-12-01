@@ -6,14 +6,14 @@ Author: Gao Tianchi
 
 from markdown import Markdown
 
-from myblog.definition import Post as PostFile
+from myblog.definition import DefinePost
 
 
 class Post:
     def __init__(self) -> None:
         self.toc = None
 
-    def __call__(self, post: PostFile) -> PostFile:
+    def __call__(self, post: DefinePost) -> DefinePost:
         post.body = self.__convert(post.md_body)
         post.toc = self.toc
 
