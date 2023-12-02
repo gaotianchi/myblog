@@ -27,6 +27,10 @@ class OwnerProfile:
 
     def __read_profile(self) -> dict:
         path_profile: Path = self.WORKTREE.joinpath("profile.json")
+
+        if not path_profile.exists():
+            return {}
+
         profile: dict = json.loads(path_profile.read_text(encoding="utf-8"))
 
         if not profile:
