@@ -1,18 +1,7 @@
 html,
 body {
-  height: 100%;
-  margin: 0;
-}
-
-#global-blog-title {
-    font-size: 1.4em;
-    text-decoration: none;
-}
-
-@media (max-width: 990px) {
-    .row {
-        flex-direction: column-reverse;
-    }
+    height: 100%;
+    margin: 0;
 }
 
 main {
@@ -22,7 +11,6 @@ main {
 article p {
     font-size: 1em;
 }
-
 
 footer {
     line-height: 50px;
