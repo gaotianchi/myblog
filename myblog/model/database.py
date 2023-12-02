@@ -10,8 +10,9 @@ from datetime import datetime
 from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from myblog.definition import DefinePost
 from myblog.flaskexten import db
+
+from .fileitem import PostFile
 
 logger = logging.getLogger("model.database")
 
@@ -19,13 +20,13 @@ logger = logging.getLogger("model.database")
 class Post(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     title: Mapped[str] = mapped_column(
-        String(DefinePost.TITLE_MAX_LENGTH), unique=True, nullable=False
+        String(PostFile.TITLE_MAX_LENGTH), unique=True, nullable=False
     )
     body: Mapped[str] = mapped_column(Text, nullable=False)
     toc: Mapped[str] = mapped_column(Text, nullable=True)
     summary: Mapped[str] = mapped_column(Text, nullable=True)
     author: Mapped[str] = mapped_column(
-        String(DefinePost.AUTHOR_MAX_LENGTH), nullable=False
+        String(PostFile.AUTHOR_MAX_LENGTH), nullable=False
     )
     created: Mapped[datetime] = mapped_column(DateTime, default=datetime.today())
     modified: Mapped[datetime] = mapped_column(DateTime, default=datetime.today())
@@ -49,7 +50,7 @@ class Post(db.Model):
             logger.warning(f"{old_item} already exists, please change the post name.")
             return old_item
 
-        author = author if author else DefinePost.AUTHOR_DEFAULT_NAME
+        author = author if author else PostFile.AUTHOR_DEFAULT_NAME
 
         new_item = Post(
             title=title,
@@ -78,7 +79,7 @@ class Post(db.Model):
         self.title = title
         self.body = body
         self.toc = toc
-        self.author = author if author else DefinePost.author
+        self.author = author if author else PostFile.AUTHOR_DEFAULT_NAME
         self.summary = summary
         self.category_id = category_id
 
@@ -118,7 +119,7 @@ class Post(db.Model):
 class Category(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     title: Mapped[str] = mapped_column(
-        String(DefinePost.CATEGORY_MAX_LENGTH), unique=True, nullable=False
+        String(PostFile.CATEGORY_MAX_LENGTH), unique=True, nullable=False
     )
 
     posts = db.relationship("Post", back_populates="category")
@@ -147,11 +148,11 @@ class Category(db.Model):
             )
             return old_item
 
-        if self.title == DefinePost.CATEGORY_DEFAULT_NAME:
+        if self.title == PostFile.CATEGORY_DEFAULT_NAME:
             logger.warning(f"Can not modify title of default category.")
             return self
 
-        if title == DefinePost.CATEGORY_DEFAULT_NAME:
+        if title == PostFile.CATEGORY_DEFAULT_NAME:
             logger.warning(f"Can not modify {self} to default category.")
             return self
 
@@ -165,7 +166,7 @@ class Category(db.Model):
         return new_item
 
     def delete(self) -> None:
-        default_category_name: str = DefinePost.CATEGORY_DEFAULT_NAME
+        default_category_name: str = PostFile.CATEGORY_DEFAULT_NAME
         default_category = Category.query.filter_by(title=default_category_name).first()
 
         if self.title == default_category_name:

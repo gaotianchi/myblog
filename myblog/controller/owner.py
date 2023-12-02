@@ -20,8 +20,8 @@ from flask import (
     url_for,
 )
 
-from myblog.definition import DefineOwner, DefinePost
 from myblog.model.database import Category, Comment, Post
+from myblog.model.fileitem import OwnerProfile, PostFile
 from myblog.model.render import get_render
 from myblog.model.validator import get_validator
 
@@ -36,7 +36,7 @@ def validate_owner() -> None:
         logger.info("Ready to log in.")
         return None
 
-    if session["token"]:
+    if session.get("token"):
         token = session["token"]
         validator = get_validator("token")
         validator.set(token.encode("utf-8"), current_app.config["SECRET_KEY"])
@@ -73,8 +73,8 @@ def add_post():
     if not _filepath:
         logger.error(f"File path was not found in the json filed.")
         abort(400)
-    filepath: Path = DefineOwner.PATH_WORKTREE.joinpath(*_filepath[0].split("/"))
-    post = DefinePost(filepath)
+    filepath: Path = OwnerProfile.WORKTREE.joinpath(*_filepath[0].split("/"))
+    post = PostFile(filepath)
 
     if not post.is_post():
         logger.warning(f"File {filepath} is not a post.")
@@ -92,7 +92,7 @@ def add_post():
 
     category = Category.create(post.category)
     new_post = Post.create(
-        post.title, post.body, category.id, post.author, post.toc, post.summary
+        post.title, post.html, category.id, post.author, post.toc, post.summary
     )
 
     return jsonify(new_post.to_json())
@@ -106,13 +106,13 @@ def modify_post():
         logger.error(f"File path was not found in the json filed.")
         abort(400)
 
-    filepath: Path = DefineOwner.PATH_WORKTREE.joinpath(*_filepath[0].split("/"))
-    post = DefinePost(filepath)
+    filepath: Path = OwnerProfile.WORKTREE.joinpath(*_filepath[0].split("/"))
+    post = PostFile(filepath)
     old_title_file = post
 
     if len(_filepath) == 2:
-        new_title_file = DefineOwner.PATH_WORKTREE.joinpath(*_filepath[1].split("/"))
-        post = DefinePost(new_title_file)
+        new_title_file = OwnerProfile.WORKTREE.joinpath(*_filepath[1].split("/"))
+        post = PostFile(new_title_file)
 
     if not post.is_post():
         logger.warning(f"File {filepath} is not a post.")
@@ -138,7 +138,7 @@ def modify_post():
         old_categroy.delete()
 
     new_post = old_post.modify(
-        post.title, post.body, category.id, post.author, post.toc, post.summary
+        post.title, post.html, category.id, post.author, post.toc, post.summary
     )
 
     return jsonify(new_post.to_json())
@@ -151,8 +151,8 @@ def delete_post():
     if not _filepath:
         logger.error(f"File path was not found in the json filed.")
         abort(400)
-    filepath: Path = DefineOwner.PATH_WORKTREE.joinpath(*_filepath[0].split("/"))
-    post = DefinePost(filepath)
+    filepath: Path = OwnerProfile.WORKTREE.joinpath(*_filepath[0].split("/"))
+    post = PostFile(filepath)
 
     old_post = Post.query.filter_by(title=post.title).first_or_404()
     old_categroy = old_post.category

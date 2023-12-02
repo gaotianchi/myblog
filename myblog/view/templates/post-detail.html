@@ -19,7 +19,7 @@
                 About this post
             </div>
             <div class="card-body">
-                <p class="card-text">This article was created by {{ owner.NAME }} on {{ post.created }} and was last
+                <p class="card-text">This article was created by {{ owner.name }} on {{ post.created }} and was last
                     modified on {{ post.modified }}. The author classified it as
                     <a href="{{ url_for('visitor.archive_post', category=post.category.title)}}">
                         {{ post.category.title }}

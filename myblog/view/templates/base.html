@@ -12,7 +12,7 @@
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
 
-    <title>{% block title %}{{ owner.BLOG_TITLE }}{% endblock title %}</title>
+    <title>{% block title %}{{ owner.blog_title }}{% endblock title %}</title>
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico')}}" type="image/x-icon">
     <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
     {% block style %}{% endblock style %}
@@ -23,7 +23,7 @@
     <header class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container">
             <span class="navbar-text">
-                <a id="global-blog-title" href="/">{{ owner.BLOG_TITLE }}</a>
+                <a id="global-blog-title" href="/">{{ owner.blog_title }}</a>
             </span>
             <a class="navbar-brand" href="/">
                 <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" height="30">

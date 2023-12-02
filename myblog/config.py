@@ -25,7 +25,10 @@ class Base:
     PATH_STATIC: Path = Path(__file__).parent.joinpath("view", "static")
     PATH_TEMPLATES: Path = Path(__file__).parent.joinpath("view", "templates")
 
-    SECRET_KEY: bytes = b"C_3IbOmd4L15tDuIY78EUYoZBl_wzF2HmDlkz8Yu0BA="
+    PATH_GITDIR: Path = Path(os.getenv("GITDIR"))
+    PATH_WORKTREE: Path = Path(os.getenv("WORKTREE"))
+
+    SECRET_KEY: bytes = os.getenv("SECRET_KEY").encode("UTF-8")
 
     COMMENT_PER_PAGE: int = 10
 

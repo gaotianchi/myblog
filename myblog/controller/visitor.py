@@ -18,10 +18,7 @@ from flask import (
 )
 from sqlalchemy import and_
 
-from myblog.definition import DefineOwner, DefinePost
-from myblog.model.database import Category as categorydb
-from myblog.model.database import Comment
-from myblog.model.database import Post as postdb
+from myblog.model.database import Category, Comment, Post
 from myblog.model.render import get_render
 from myblog.utlis import title_to_url
 
@@ -32,7 +29,7 @@ logger = logging.getLogger("controller.visitor")
 
 @visitor.route("/read/post/<post_id>/<post_title>", methods=["GET", "POST"])
 def read_post(post_id: int, post_title: str):
-    post = postdb.query.get_or_404(post_id)
+    post = Post.query.get_or_404(post_id)
     if not title_to_url(post.title) == post_title:
         abort(404)
 
@@ -59,7 +56,7 @@ def read_post(post_id: int, post_title: str):
 @visitor.route("/")
 @visitor.route("/archive/post", methods=["GET"])
 def archive_post():
-    posts_query = postdb.query
+    posts_query = Post.query
 
     category_name: str = request.args.get("category")
     sort_by: str = request.args.get("sort_by", "newest")
@@ -70,15 +67,15 @@ def archive_post():
 
     match sort_by:
         case "oldest":
-            sort_method = postdb.modified.asc()
+            sort_method = Post.modified.asc()
         case _:
-            sort_method = postdb.modified.desc()
+            sort_method = Post.modified.desc()
 
     posts_query = posts_query.order_by(sort_method)
 
     if category_name:
         category_name = re.sub("-", " ", category_name)
-        category = categorydb.query.filter_by(title=category_name).first()
+        category = Category.query.filter_by(title=category_name).first()
         if category:
             posts_query = posts_query.with_parent(category)
         else:
@@ -89,7 +86,7 @@ def archive_post():
         m_1 = re.match(date_pattern, from_date)
         if m_1:
             f_date = datetime.fromisoformat(m_1.group(0))
-            posts_query = posts_query.filter(postdb.created >= f_date)
+            posts_query = posts_query.filter(Post.created >= f_date)
         else:
             abort(400)
 
@@ -97,7 +94,7 @@ def archive_post():
         m_2 = re.match(date_pattern, to_date)
         if m_2:
             t_date = datetime.fromisoformat(m_2.group(0))
-            posts_query = posts_query.filter(postdb.created < t_date)
+            posts_query = posts_query.filter(Post.created < t_date)
         else:
             abort(400)
 
@@ -108,7 +105,7 @@ def archive_post():
 
 @visitor.route("/rss", methods=["GET"])
 def rss():
-    posts = postdb.query.order_by(postdb.created.desc()).all()
+    posts = Post.query.order_by(Post.created.desc()).all()
 
     content = render_template("rss.xml", posts=posts)
     response = make_response(content)

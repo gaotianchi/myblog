@@ -17,10 +17,10 @@ from myblog.utlis import archive_post_by_date, title_to_url
 
 from .config import get_config
 from .controller import bp_owner, bp_visitor
-from .definition import DefineOwner
 from .flaskexten import db
 from .log import root as logger
 from .model.database import Category, Comment, Post
+from .model.fileitem import OwnerProfile
 
 
 def create_app(environment: str = None) -> Flask:
@@ -44,7 +44,7 @@ def create_app(environment: str = None) -> Flask:
 
     @app.context_processor
     def make_global_template_variable():
-        return dict(owner=DefineOwner(), postdb=Post, categorydb=Category)
+        return dict(owner=OwnerProfile(), postdb=Post, categorydb=Category)
 
     @app.context_processor
     def make_global_template_functions():
@@ -82,10 +82,10 @@ def create_app(environment: str = None) -> Flask:
 
     @app.cli.command("initowner", help="Init user's gitdir and worktree.")
     def initowner():
-        owner = DefineOwner()
+        owner = OwnerProfile()
 
-        GITDIR = owner.PATH_GITDIR
-        WORKTREE = owner.PATH_WORKTREE
+        GITDIR = owner.GITDIR
+        WORKTREE = owner.WORKTREE
         POST_RECEIVE = GITDIR.joinpath("hooks", "post-receive")
 
         if Path.exists(GITDIR):
