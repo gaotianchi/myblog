@@ -21,9 +21,7 @@ from flask import (
 )
 
 from myblog.definition import DefineOwner, DefinePost
-from myblog.model.database import Category as categorydb
-from myblog.model.database import Comment
-from myblog.model.database import Post as postdb
+from myblog.model.database import Category, Comment, Post
 from myblog.model.render import get_render
 from myblog.model.validator import get_validator
 
@@ -92,8 +90,8 @@ def add_post():
         message = validator.get_message()
         return abort(make_response(message, 400))
 
-    category = categorydb.create(post.category)
-    new_post = postdb.create(
+    category = Category.create(post.category)
+    new_post = Post.create(
         post.title, post.body, category.id, post.author, post.toc, post.summary
     )
 
@@ -130,8 +128,8 @@ def modify_post():
         message = validator.get_message()
         return abort(make_response(message, 400))
 
-    category = categorydb.create(post.category)
-    old_post = postdb.query.filter_by(title=old_title_file.title).first_or_404()
+    category = Category.create(post.category)
+    old_post = Post.query.filter_by(title=old_title_file.title).first_or_404()
 
     old_categroy = old_post.category
     posts_with_same_category: list = old_categroy.posts
@@ -156,7 +154,7 @@ def delete_post():
     filepath: Path = DefineOwner.PATH_WORKTREE.joinpath(*_filepath[0].split("/"))
     post = DefinePost(filepath)
 
-    old_post = postdb.query.filter_by(title=post.title).first_or_404()
+    old_post = Post.query.filter_by(title=post.title).first_or_404()
     old_categroy = old_post.category
     posts_with_same_category: list = old_categroy.posts
     if len(posts_with_same_category) == 1:
