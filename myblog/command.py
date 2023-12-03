@@ -12,9 +12,8 @@ from pathlib import Path
 import click
 from flask import Flask, render_template
 
-from myblog.model.fileitem import OwnerProfile
-
 from .flaskexten import db
+from .model.fileitem import OwnerProfile
 
 logger = logging.getLogger("root.command")
 

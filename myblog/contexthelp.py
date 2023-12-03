@@ -10,11 +10,10 @@ import datetime
 from dateutil.relativedelta import relativedelta
 from flask import Flask
 
-from myblog.utlis import archive_post_by_date, title_to_url
-
 from .flaskexten import db
 from .model.database import Category, Comment, Post
 from .model.fileitem import OwnerProfile, PostFile
+from .utlis import archive_post_by_date, title_to_url
 
 
 def register_context_processor(app: Flask):
