@@ -27,21 +27,24 @@ def fake_categories(count: int = 5):
 def fake_posts(count: int = 50):
     for _ in range(count):
         title: str = fake.sentence(nb_words=6, variable_nb_words=True)[:-1]
-        paragraphs: str = [
-            "## " + fake.sentence()[:-1] + "\n\n" + fake.paragraph(nb_sentences=10)
-            for _ in range(15)
-        ]
+
+        paragraphs: list = [fake.paragraph(nb_sentences=15)]
+        for i in range(15):
+            paragraph = fake.paragraph(nb_sentences=15)
+            if i % 5 == 0:
+                paragraph = "## " + fake.sentence()[:-1] + "\n\n" + paragraph
+            paragraphs.append(paragraph)
+
         category = Category.query.get(randint(1, Category.query.count()))
         start_date = datetime(2021, 1, 1, 1, 1, 1)
         p = PostFile(Path("/test"))
-        p.body = None
-        p.content = "\n\n".join(paragraphs)
+        p.body = "\n\n".join(paragraphs)
         render = get_render("post")
         p = render(p)
 
         post = Post(
             title=title,
-            body=p.body,
+            body=p.html,
             toc=p.toc,
             author=fake.name(),
             category=category,
