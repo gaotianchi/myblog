@@ -20,6 +20,12 @@ logger = logging.getLogger("root.command")
 
 
 def regisiter_command(app: Flask):
+    @app.cli.command("initdb", help="Initialize the database.")
+    def initdb():
+        db.session.rollback()
+        db.drop_all()
+        db.create_all()
+
     @app.cli.command("forge", help="Generate fake data.")
     @click.option("--category", default=5, help="Generate fake categories.")
     @click.option("--post", default=50, help="Generate fake posts.")
