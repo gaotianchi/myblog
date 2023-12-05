@@ -3,17 +3,14 @@ Created: 2023-11-20
 Author: Gao Tianchi
 """
 
-import json
 import logging
 from datetime import datetime
 
-import pytz
 from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from myblog.flaskexten import db
-
-from .fileitem import PostFile
+from myblog.utlis import get_local_datetime
 
 logger = logging.getLogger("model.database")
 
@@ -36,8 +33,7 @@ class User(db.Model):
     @classmethod
     def create(cls, name, email, password, intro, timezone, profile=None) -> "User":
         password_hash = generate_password_hash(password)
-        city_timezone = pytz.timezone(timezone)
-        registered_at = datetime.now().astimezone(city_timezone).now()
+        registered_at = get_local_datetime(timezone)
         new_user = User(
             name=name,
             email=email,
@@ -63,8 +59,7 @@ class User(db.Model):
         db.session.commit()
 
     def update_activity(self):
-        city_timezone = pytz.timezone(self.timezone)
-        self.last_login = datetime.now().astimezone(city_timezone).now()
+        self.last_login = get_local_datetime(self.timezone)
         db.session.add(self)
         db.session.commit()
 
@@ -89,12 +84,24 @@ class Post(db.Model):
     created_at: Mapped[datetime] = mapped_column(DateTime)
     updated_at: Mapped[datetime] = mapped_column(DateTime)
     published: Mapped[bool] = mapped_column(Boolean)
-    published_at: Mapped[datetime] = mapped_column(DateTime)
+    published_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     slug: Mapped[str] = mapped_column(String(255))
     meta_title: Mapped[str] = mapped_column(String(255))
     author_id: Mapped[int] = mapped_column(Integer, ForeignKey("author.id"))
+    category_id: Mapped[int] = mapped_column(Integer, ForeignKey("category.id"))
 
     author = relationship("User", back_populates="posts")
+    category = relationship("Category", back_populates="posts")
+
+
+class Category(db.Model):
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    title: Mapped[str] = mapped_column(String(255))
+    content: Mapped[str] = mapped_column(Text)
+    slug: Mapped[str] = mapped_column(String(255))
+    meta_title: Mapped[str] = mapped_column(String(255))
+
+    posts = relationship("Post", back_populates="category")
 
 
 class Comment(db.Model):
