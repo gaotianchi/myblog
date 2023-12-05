@@ -31,6 +31,8 @@ class User(db.Model):
     profile: Mapped[str] = mapped_column(Text, nullable=True)
     timezone: Mapped[str] = mapped_column(String(255), default="Asia/Shanghai")
 
+    posts = relationship("Post", back_populates="author")
+
     @classmethod
     def create(cls, name, email, password, intro, timezone, profile=None) -> "User":
         password_hash = generate_password_hash(password)
@@ -90,6 +92,9 @@ class Post(db.Model):
     published_at: Mapped[datetime] = mapped_column(DateTime)
     slug: Mapped[str] = mapped_column(String(255))
     meta_title: Mapped[str] = mapped_column(String(255))
+    author_id: Mapped[int] = mapped_column(Integer, ForeignKey("author.id"))
+
+    author = relationship("User", back_populates="posts")
 
 
 class Comment(db.Model):
