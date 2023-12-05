@@ -11,11 +11,24 @@ from random import randint
 from faker import Faker
 
 from .flaskexten import db
-from .model.database import Category, Comment, Post
+from .model.database import Category, Comment, Post, User
 from .model.fileitem import PostFile
 from .model.render import get_render
 
 fake = Faker()
+
+
+def fake_user():
+    user_profile = fake.profile()
+    new_user = User.create(
+        name=user_profile["name"],
+        email=user_profile["mail"],
+        password="admin",
+        intro=fake.sentence(nb_words=30),
+        timezone="Asia/Shanghai",
+        profile=fake.paragraph(nb_sentences=10),
+    )
+    return new_user
 
 
 def fake_categories(count: int = 5):

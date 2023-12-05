@@ -7,6 +7,7 @@ import json
 import logging
 from datetime import datetime
 
+import pytz
 from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -15,6 +16,66 @@ from myblog.flaskexten import db
 from .fileitem import PostFile
 
 logger = logging.getLogger("model.database")
+
+from werkzeug.security import check_password_hash, generate_password_hash
+
+
+class User(db.Model):
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    email: Mapped[str] = mapped_column(String(255), nullable=False)
+    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    registered_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    last_login: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    intro: Mapped[str] = mapped_column(String(255), nullable=False)
+    profile: Mapped[str] = mapped_column(Text, nullable=True)
+    timezone: Mapped[str] = mapped_column(String(255), default="Asia/Shanghai")
+
+    @classmethod
+    def create(cls, name, email, password, intro, timezone, profile=None) -> "User":
+        password_hash = generate_password_hash(password)
+        city_timezone = pytz.timezone(timezone)
+        registered_at = datetime.now().astimezone(city_timezone).now()
+        new_user = User(
+            name=name,
+            email=email,
+            password_hash=password_hash,
+            registered_at=registered_at,
+            last_login=registered_at,
+            intro=intro,
+            profile=profile,
+            timezone=timezone,
+        )
+        db.session.add(new_user)
+        db.session.commit()
+        return User.query.get(new_user.id)
+
+    def update_information(self, name, email, intro, profile=None, timezone=None):
+        self.name = name
+        self.email = email
+        self.intro = intro
+        self.profile = profile
+        self.timezone = timezone if timezone else self.timezone
+
+        db.session.add(self)
+        db.session.commit()
+
+    def update_activity(self):
+        city_timezone = pytz.timezone(self.timezone)
+        self.last_login = datetime.now().astimezone(city_timezone).now()
+        db.session.add(self)
+        db.session.commit()
+
+    def update_password(self, new_password: str):
+        self.password_hash = generate_password_hash(new_password)
+        db.session.add(self)
+        db.session.commit()
+
+    def validate_password(self, password: str) -> bool:
+        return check_password_hash(self.password_hash, password)
+
+    def __repr__(self) -> str:
+        return f"<User {self.name}>"
 
 
 class Post(db.Model):
