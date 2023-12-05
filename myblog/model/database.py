@@ -87,7 +87,7 @@ class Post(db.Model):
     published_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     slug: Mapped[str] = mapped_column(String(255))
     meta_title: Mapped[str] = mapped_column(String(255))
-    author_id: Mapped[int] = mapped_column(Integer, ForeignKey("author.id"))
+    author_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.id"))
     category_id: Mapped[int] = mapped_column(Integer, ForeignKey("category.id"))
 
     author = relationship("User", back_populates="posts")
@@ -169,11 +169,45 @@ class Post(db.Model):
 class Category(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     title: Mapped[str] = mapped_column(String(255))
-    content: Mapped[str] = mapped_column(Text)
+    content: Mapped[str] = mapped_column(Text, nullable=True)
     slug: Mapped[str] = mapped_column(String(255))
     meta_title: Mapped[str] = mapped_column(String(255))
 
     posts = relationship("Post", back_populates="category")
+
+    @classmethod
+    def create(cls, title, slug, meta_title, content=None) -> "Category":
+        new_category = Category(
+            title=title,
+            slug=slug,
+            meta_title=meta_title,
+            content=content,
+        )
+        db.session.add(new_category)
+        db.session.commit()
+
+        return Category.query.get(new_category.id)
+
+    def update(self, title, slug, meta_title, content=None) -> "Category":
+        self.title = title
+        self.slug = slug
+        self.meta_title = meta_title
+        self.content = content
+        db.session.add(self)
+        db.session.commit()
+        return Category.query.get(self.id)
+
+    def delete(self) -> None:
+        default_category = Category.query.first()
+        if self is default_category:
+            logger.warning(f"Cannot delete default category!!!")
+            return None
+        for post in self.posts:
+            post.category = default_category
+            db.session.add(post)
+        db.session.commit()
+        db.session.delete(self)
+        db.session.commit()
 
 
 class Comment(db.Model):
@@ -182,8 +216,8 @@ class Comment(db.Model):
     from_owner: Mapped[bool] = mapped_column(Boolean, default=False)
     timestamp: Mapped[datetime] = mapped_column(DateTime, default=datetime.today())
 
-    post = relationship("Post", back_populates="comments")
-    post_id: Mapped[int] = mapped_column(Integer, ForeignKey("post.id"))
+    # post = relationship("Post", back_populates="comments")
+    # post_id: Mapped[int] = mapped_column(Integer, ForeignKey("post.id"))
 
     reply_to = relationship("Comment", back_populates="reply_me", remote_side=[id])
     reply_to_id: Mapped[int] = mapped_column(
