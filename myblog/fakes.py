@@ -4,16 +4,12 @@ Author: Gao Tianchi
 """
 
 
-from datetime import datetime
-from pathlib import Path
-from random import randint
+import random
 
 from faker import Faker
 
 from .flaskexten import db
 from .model.database import Category, Comment, Post, User
-from .model.fileitem import PostFile
-from .model.render import get_render
 
 fake = Faker()
 
@@ -31,42 +27,38 @@ def fake_user():
     return new_user
 
 
-def fake_categories(count: int = 5):
-    Category.create("Uncategorized")
+def fake_categories(count: int = 2):
+    default_category = Category.create(
+        "Uncategorized", slug="Uncategorized", meta_title="Uncategorized"
+    )
+    categories = [default_category]
     for _ in range(count):
-        Category.create(title=fake.word())
+        title = fake.word()
+        c = Category.create(title=title, slug=title, meta_title=title)
+        categories.append(c)
+    return categories
 
 
-def fake_posts(count: int = 50):
+def fake_posts(count: int = 10):
+    posts = []
     for _ in range(count):
         title: str = fake.sentence(nb_words=6, variable_nb_words=True)[:-1]
-
-        paragraphs: list = [fake.paragraph(nb_sentences=15)]
+        content = ""
         for i in range(15):
-            paragraph = fake.paragraph(nb_sentences=15)
-            if i % 5 == 0:
-                paragraph = "## " + fake.sentence()[:-1] + "\n\n" + paragraph
-            paragraphs.append(paragraph)
+            paragraph = "<p>" + fake.paragraph(nb_sentences=15) + "</p>"
+            content += paragraph
 
-        category = Category.query.get(randint(1, Category.query.count()))
-        start_date = datetime(2021, 1, 1, 1, 1, 1)
-        p = PostFile(Path("/test"))
-        p.body = "\n\n".join(paragraphs)
-        render = get_render("post")
-        p = render(p)
-
-        post = Post(
-            title=title,
-            body=p.html,
-            toc=p.toc,
-            author=fake.name(),
-            category=category,
-            summary=fake.paragraph(nb_sentences=7),
-            created=fake.date_time_between(start_date=start_date),
+        published = random.choice([False, True])
+        slug = title.lower().replace(" ", "-")
+        meta_title = title
+        author = User.query.first()
+        category = Category.query.get(random.randint(1, Category.query.count()))
+        new_post = Post.create(
+            title, content, published, slug, meta_title, author, category
         )
+        posts.append(new_post)
 
-        db.session.add(post)
-    db.session.commit()
+    return posts
 
 
 def fake_comments(count: int = 100):
@@ -74,14 +66,14 @@ def fake_comments(count: int = 100):
         comment = Comment(
             content=fake.sentence(),
             timestamp=fake.date_time_this_year(),
-            post=Post.query.get(randint(1, Post.query.count())),
+            post=Post.query.get(random.randint(1, Post.query.count())),
         )
         db.session.add(comment)
 
     db.session.commit()
 
     for _ in range(count):
-        reply_to = Comment.query.get(randint(1, Comment.query.count()))
+        reply_to = Comment.query.get(random.randint(1, Comment.query.count()))
         post = reply_to.post
         comment = Comment(
             content=fake.sentence(),
