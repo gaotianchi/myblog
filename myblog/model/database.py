@@ -93,6 +93,78 @@ class Post(db.Model):
     author = relationship("User", back_populates="posts")
     category = relationship("Category", back_populates="posts")
 
+    @classmethod
+    def create(
+        cls,
+        title,
+        content,
+        published,
+        slug,
+        meta_title,
+        author,
+        category,
+        summary=None,
+        toc=None,
+    ) -> "Post":
+        created_at = get_local_datetime(author.timezone)
+        published_at = created_at if published else None
+        new_post = Post(
+            title=title,
+            content=content,
+            summary=summary,
+            toc=toc,
+            created_at=created_at,
+            updated_at=created_at,
+            published=published,
+            published_at=published_at,
+            slug=slug,
+            meta_title=meta_title,
+            author=author,
+            category=category,
+        )
+        db.session.add(new_post)
+        db.session.commit()
+        return Post.query.get(new_post.id)
+
+    def update(
+        self,
+        title,
+        content,
+        published,
+        slug,
+        meta_title,
+        author,
+        category,
+        summary=None,
+        toc=None,
+    ) -> "Post":
+        updated_at = get_local_datetime(author.timezone)
+        published_at = updated_at if published else None
+
+        self.title = title
+        self.content = content
+        self.summary = summary
+        self.toc = toc
+        self.updated_at = updated_at
+        self.published = published
+        self.published_at = published_at
+        self.slug = slug
+        self.meta_title = meta_title
+        self.author = author
+        self.category = category
+
+        db.session.add(self)
+        db.session.commit()
+
+        return Post.query.get(self.id)
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def __repr__(self) -> str:
+        return f"<Post {self.title}>"
+
 
 class Category(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
