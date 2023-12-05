@@ -3,11 +3,18 @@ Created: 2023-12-01
 Author: Gao Tianchi
 """
 
-
 import re
 from collections import defaultdict
+from datetime import datetime
 
+import pytz
 from cryptography.fernet import Fernet
+
+
+def get_local_datetime(timezone: str) -> datetime:
+    city_timezone = pytz.timezone(timezone)
+    local_time = datetime.now().astimezone(city_timezone).now()
+    return local_time
 
 
 def title_to_url(title: str) -> str:
