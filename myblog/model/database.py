@@ -80,101 +80,16 @@ class User(db.Model):
 
 class Post(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    title: Mapped[str] = mapped_column(
-        String(PostFile.TITLE_MAX_LENGTH), unique=True, nullable=False
-    )
-    body: Mapped[str] = mapped_column(Text, nullable=False)
-    toc: Mapped[str] = mapped_column(Text, nullable=True)
+    title: Mapped[str] = mapped_column(String(255))
+    content: Mapped[str] = mapped_column(Text)
     summary: Mapped[str] = mapped_column(Text, nullable=True)
-    author: Mapped[str] = mapped_column(
-        String(PostFile.AUTHOR_MAX_LENGTH), nullable=False
-    )
-    created: Mapped[datetime] = mapped_column(DateTime, default=datetime.today())
-    modified: Mapped[datetime] = mapped_column(DateTime, default=datetime.today())
-    category_id: Mapped[int] = mapped_column(Integer, ForeignKey("category.id"))
-
-    category = relationship("Category", back_populates="posts")
-    comments = relationship("Comment", back_populates="post")
-
-    @classmethod
-    def create(
-        cls,
-        title: str,
-        body: str,
-        category_id: int,
-        author=None,
-        toc=None,
-        summary=None,
-    ) -> "Post":
-        old_item = cls.query.filter_by(title=title).first()
-        if old_item:
-            logger.warning(f"{old_item} already exists, please change the post name.")
-            return old_item
-
-        author = author if author else PostFile.AUTHOR_DEFAULT_NAME
-
-        new_item = Post(
-            title=title,
-            body=body,
-            author=author,
-            category_id=category_id,
-            toc=toc,
-            summary=summary,
-        )
-        db.session.add(new_item)
-        db.session.commit()
-
-        new_item = Post.query.get(new_item.id)
-        logger.info(f"Created new post {new_item}.")
-        return new_item
-
-    def modify(
-        self,
-        title: str,
-        body: str,
-        category_id: int,
-        author=None,
-        toc=None,
-        summary=None,
-    ) -> "Post":
-        self.title = title
-        self.body = body
-        self.toc = toc
-        self.author = author if author else PostFile.AUTHOR_DEFAULT_NAME
-        self.summary = summary
-        self.category_id = category_id
-
-        self.modified = datetime.today()
-
-        db.session.add(self)
-        db.session.commit()
-
-        new_item = Post.query.get(self.id)
-        logger.info(f"Modfied post {self}.")
-        return new_item
-
-    def delete(self) -> None:
-        logger.info(f"Deleted post {self}.")
-        db.session.delete(self)
-        db.session.commit()
-
-    def to_json(self) -> str:
-        data = dict(
-            id=self.id,
-            title=self.title,
-            body=self.body,
-            author=self.author,
-            toc=self.toc,
-            summary=self.summary,
-            modified=self.modified.isoformat(),
-            created=self.created.isoformat(),
-            category=self.category.title,
-        )
-
-        return json.dumps(data)
-
-    def __repr__(self) -> str:
-        return f"<Post {self.title}>"
+    toc: Mapped[str] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime)
+    updated_at: Mapped[datetime] = mapped_column(DateTime)
+    published: Mapped[bool] = mapped_column(Boolean)
+    published_at: Mapped[datetime] = mapped_column(DateTime)
+    slug: Mapped[str] = mapped_column(String(255))
+    meta_title: Mapped[str] = mapped_column(String(255))
 
 
 class Category(db.Model):
