@@ -133,3 +133,11 @@ def add_post():
     )
 
     return jsonify(f"Created post {new_post.title}"), 201
+
+
+@author.route("/delete/post/<id>", methods=["DELETE"])
+def delete_post(id: int):
+    post = Post.query.get(id)
+    title = post.title
+    post.delete()
+    return jsonify(f"Deleted post {title}."), 200
