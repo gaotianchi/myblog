@@ -51,6 +51,16 @@ class Blog(db.Model):
         db.session.delete(self)
         db.session.commit()
 
+    def to_dict(self):
+        return dict(
+            id=self.id,
+            title=self.title,
+            subtitle=self.subtitle,
+            language=self.language,
+            link=self.link,
+            description=self.description,
+        )
+
 
 class User(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -130,6 +140,20 @@ class User(db.Model):
 
     def validate_password(self, password: str) -> bool:
         return check_password_hash(self.password_hash, password)
+
+    def to_dict(self) -> dict:
+        return dict(
+            id=self.id,
+            name=self.name,
+            username=self.username,
+            email=self.email,
+            registered_at=self.registered_at,
+            last_login=self.last_login,
+            intro=self.intro,
+            detail=self.detail,
+            timezone=self.timezone,
+            blog=self.blog.to_dict(),
+        )
 
     def __repr__(self) -> str:
         return f"<User {self.name}>"
@@ -227,6 +251,23 @@ class Post(db.Model):
         db.session.delete(self)
         db.session.commit()
 
+    def to_dict(self) -> dict:
+        return dict(
+            id=self.id,
+            title=self.title,
+            content=self.content,
+            summary=self.summary,
+            toc=self.toc,
+            created_at=self.created_at,
+            updated_at=self.updated_at,
+            published=self.published,
+            published_at=self.published_at,
+            slug=self.slug,
+            meta_title=self.meta_title,
+            category=self.category.to_dict(),
+            author=self.author.to_dict(),
+        )
+
     def __repr__(self) -> str:
         return f"<Post {self.title}>"
 
@@ -273,6 +314,15 @@ class Category(db.Model):
         db.session.commit()
         db.session.delete(self)
         db.session.commit()
+
+    def to_dict(self) -> dict:
+        return dict(
+            id=self.id,
+            title=self.title,
+            content=self.content,
+            slug=self.slug,
+            meta_title=self.meta_title,
+        )
 
 
 class Comment(db.Model):
