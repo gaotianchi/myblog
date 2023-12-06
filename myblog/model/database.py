@@ -17,6 +17,17 @@ logger = logging.getLogger("model.database")
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
+class Blog(db.Model):
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    title: Mapped[str] = mapped_column(String(255))
+    subtitle: Mapped[str] = mapped_column(String(255))
+    language: Mapped[str] = mapped_column(String(255), default="en-us")
+    link: Mapped[str] = mapped_column(String(255))
+    description: Mapped[str] = mapped_column(String(255))
+
+    owner = relationship("User", back_populates="blog")
+
+
 class User(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(255))
@@ -28,12 +39,14 @@ class User(db.Model):
     intro: Mapped[str] = mapped_column(String(255), nullable=True)
     detail: Mapped[str] = mapped_column(Text, nullable=True)
     timezone: Mapped[str] = mapped_column(String(255))
+    blog_id: Mapped[int] = mapped_column(Integer, ForeignKey("blog.id"))
 
     posts = relationship("Post", back_populates="author")
+    blog = relationship("Blog", back_populates="owner")
 
     @classmethod
     def create(
-        cls, name, email, password, intro=None, timezone=None, detail=None
+        cls, name, email, password, intro=None, timezone=None, detail=None, blog=None
     ) -> "User":
         password_hash = generate_password_hash(password)
         timezone = timezone if timezone else "Asia/Shanghai"
