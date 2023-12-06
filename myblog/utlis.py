@@ -3,12 +3,20 @@ Created: 2023-12-01
 Author: Gao Tianchi
 """
 
+import json
 import re
 from collections import defaultdict
 from datetime import datetime
 
 import pytz
 from cryptography.fernet import Fernet
+
+
+class DateTimeEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        return super().default(obj)
 
 
 def get_username(name: str):
