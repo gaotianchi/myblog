@@ -199,7 +199,12 @@ class Post(db.Model):
         toc=None,
     ) -> "Post":
         updated_at = get_local_datetime(author.timezone)
-        published_at = updated_at if published else None
+        if self.published:
+            published_at = self.published_at
+        elif published:
+            published_at = updated_at
+        else:
+            published_at = None
 
         self.title = title
         self.content = content

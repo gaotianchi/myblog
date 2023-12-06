@@ -59,6 +59,35 @@ def add_category():
     return jsonify(f"Created category {new_category.title}"), 201
 
 
+@author.route("/update/post/<id>", methods=["PATCH"])
+def update_post(id: int):
+    form = request.form
+    title = form.get("title")
+    content = form.get("content")
+    published = form.get("published", type=bool)
+    slug = form.get("slug")
+    meta_title = form.get("meta_title")
+    author = g.user
+    category = Category.query.filter_by(title=form.get("category")).first()
+    summary = form.get("summary")
+    toc = form.get("toc")
+
+    post = Post.query.get(id)
+    post.update(
+        title=title,
+        content=content,
+        published=published,
+        slug=slug,
+        meta_title=meta_title,
+        author=author,
+        category=category,
+        summary=summary,
+        toc=toc,
+    )
+
+    return jsonify(f"Updated post {post.title}"), 200
+
+
 @author.route("/add/post", methods=["POST"])
 def add_post():
     form = request.form
