@@ -59,6 +59,25 @@ def add_category():
     return jsonify(f"Created category {new_category.title}"), 201
 
 
+@author.route("/update/category/<id>", methods=["PATCH"])
+def update_category(id: int):
+    form = request.form
+    title = form.get("title")
+    slug = form.get("slug")
+    meta_title = form.get("meta_title")
+    content = form.get("content")
+
+    category = Category.query.get(id)
+    category.update(
+        title=title,
+        slug=slug,
+        meta_title=meta_title,
+        content=content,
+    )
+
+    return jsonify(f"Updated category {category.title}."), 200
+
+
 @author.route("/update/post/<id>", methods=["PATCH"])
 def update_post(id: int):
     form = request.form
