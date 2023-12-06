@@ -7,7 +7,7 @@ Author: Gao Tianchi
 
 import json
 
-from flask import Blueprint, abort, jsonify, request, url_for
+from flask import Blueprint, abort, jsonify, request, session, url_for
 
 from myblog.email import send_email
 from myblog.model.database import Blog, User
@@ -117,6 +117,8 @@ def sign_in():
         # Validate the form information.
         if not user.validate_password(password):
             return jsonify("Password was invalid."), 401
+
+        session["user_id"] = user.id
 
         return jsonify(f"Successfully log in. Welcome {user.name}."), 200
 
