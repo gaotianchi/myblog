@@ -10,7 +10,7 @@ from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from myblog.flaskexten import db
-from myblog.utlis import get_local_datetime
+from myblog.utlis import get_local_datetime, get_username
 
 logger = logging.getLogger("model.database")
 
@@ -19,47 +19,64 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 class User(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    name: Mapped[str] = mapped_column(String(255), nullable=False)
-    email: Mapped[str] = mapped_column(String(255), nullable=False)
-    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
-    registered_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    last_login: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    intro: Mapped[str] = mapped_column(String(255), nullable=False)
-    profile: Mapped[str] = mapped_column(Text, nullable=True)
-    timezone: Mapped[str] = mapped_column(String(255), default="Asia/Shanghai")
+    name: Mapped[str] = mapped_column(String(255))
+    username: Mapped[str] = mapped_column(String(255))
+    email: Mapped[str] = mapped_column(String(255))
+    password_hash: Mapped[str] = mapped_column(String(255))
+    registered_at: Mapped[datetime] = mapped_column(DateTime)
+    last_login: Mapped[datetime] = mapped_column(DateTime)
+    intro: Mapped[str] = mapped_column(String(255), nullable=True)
+    detail: Mapped[str] = mapped_column(Text, nullable=True)
+    timezone: Mapped[str] = mapped_column(String(255))
 
     posts = relationship("Post", back_populates="author")
 
     @classmethod
-    def create(cls, name, email, password, intro, timezone, profile=None) -> "User":
+    def create(
+        cls, name, email, password, intro=None, timezone=None, detail=None
+    ) -> "User":
         password_hash = generate_password_hash(password)
+        timezone = timezone if timezone else "Asia/Shanghai"
         registered_at = get_local_datetime(timezone)
+        username = get_username(name)
         new_user = User(
             name=name,
+            username=username,
             email=email,
             password_hash=password_hash,
             registered_at=registered_at,
             last_login=registered_at,
             intro=intro,
-            profile=profile,
+            detail=detail,
             timezone=timezone,
         )
         db.session.add(new_user)
         db.session.commit()
         return User.query.get(new_user.id)
 
-    def update_information(self, name, email, intro, profile=None, timezone=None):
+    def update_information(
+        self, name, username, timezone=None, intro=None, detail=None
+    ):
         self.name = name
-        self.email = email
+        self.username = username
         self.intro = intro
-        self.profile = profile
+        self.detail = detail
         self.timezone = timezone if timezone else self.timezone
 
         db.session.add(self)
         db.session.commit()
 
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
     def update_activity(self):
         self.last_login = get_local_datetime(self.timezone)
+        db.session.add(self)
+        db.session.commit()
+
+    def update_email(self, new_email: str):
+        self.email = new_email
         db.session.add(self)
         db.session.commit()
 
