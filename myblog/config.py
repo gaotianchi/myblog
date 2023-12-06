@@ -32,6 +32,11 @@ class Base:
 
     COMMENT_PER_PAGE: int = 10
 
+    MAIL_SERVER = os.getenv("MAIL_SERVER")
+    MAIL_PORT = int(os.getenv("MAIL_PORT"))
+    MAIL_USERNAME = os.getenv("MAIL_USERNAME")
+    MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
+
 
 class Dev(Base):
     SQLALCHEMY_DATABASE_URI: str = prefix + str(Base.PATH_ROOT.joinpath("data-dev.db"))

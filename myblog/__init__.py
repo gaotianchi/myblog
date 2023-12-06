@@ -10,7 +10,7 @@ from .command import regisiter_command
 from .config import get_config
 from .contexthelp import register_context_processor
 from .controller import bp_owner, bp_visitor
-from .flaskexten import db
+from .flaskexten import db, mail
 
 
 def create_app(environment: str = None) -> Flask:
@@ -23,6 +23,7 @@ def create_app(environment: str = None) -> Flask:
     )
     app.config.from_object(config)
     db.init_app(app)
+    mail.init_app(app)
     app.register_blueprint(bp_owner)
     app.register_blueprint(bp_visitor)
     regisiter_command(app)
