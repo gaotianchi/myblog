@@ -24,7 +24,7 @@ def create_app(environment: str = None) -> Flask:
     app.config.from_object(config)
     db.init_app(app)
     mail.init_app(app)
-    app.register_blueprint(bp_owner)
+    # app.register_blueprint(bp_owner)
     app.register_blueprint(bp_visitor)
     app.register_blueprint(bp_account)
     app.register_blueprint(bp_author)
