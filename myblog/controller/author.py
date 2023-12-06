@@ -41,3 +41,19 @@ def load_author():
 
         # Validate this api.
         ...
+
+
+@author.route("/add/category", methods=["POST"])
+def add_category():
+    form = request.form
+    title = form.get("title")
+    slug = form.get("slug")
+    meta_title = form.get("meta_title")
+    content = form.get("content")
+    new_category = Category.create(
+        title=title,
+        slug=slug,
+        meta_title=meta_title,
+        content=content,
+    )
+    return jsonify(f"Created category {new_category.title}"), 201
