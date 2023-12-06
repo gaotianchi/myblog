@@ -70,12 +70,13 @@ class User(db.Model):
 
     @classmethod
     def create(
-        cls, name, email, password, intro=None, timezone=None, detail=None, blog=None
+        cls, name, email, password, intro=None, timezone=None, detail=None
     ) -> "User":
         password_hash = generate_password_hash(password)
         timezone = timezone if timezone else "Asia/Shanghai"
         registered_at = get_local_datetime(timezone)
         username = get_username(name)
+        blog = Blog.create()
         new_user = User(
             name=name,
             username=username,
@@ -86,6 +87,7 @@ class User(db.Model):
             intro=intro,
             detail=detail,
             timezone=timezone,
+            blog=blog,
         )
         db.session.add(new_user)
         db.session.commit()
@@ -104,8 +106,12 @@ class User(db.Model):
         db.session.commit()
 
     def delete(self):
+        blog_id = self.blog_id
         db.session.delete(self)
         db.session.commit()
+
+        blog = Blog.query.get(blog_id)
+        blog.delete()
 
     def update_activity(self):
         self.last_login = get_local_datetime(self.timezone)
