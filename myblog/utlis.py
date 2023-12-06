@@ -11,6 +11,10 @@ import pytz
 from cryptography.fernet import Fernet
 
 
+def get_username(name: str):
+    return name.lower().replace(" ", "")
+
+
 def get_local_datetime(timezone: str) -> datetime:
     city_timezone = pytz.timezone(timezone)
     local_time = datetime.now().astimezone(city_timezone).now()
