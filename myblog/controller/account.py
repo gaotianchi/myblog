@@ -22,6 +22,7 @@ def delete_account(id: int):
     user = User.query.get(id)
     # Verify and confirm.
     user.delete()
+    return jsonify("Deleted account."), 200
 
 
 @account.route("/update/email/<id>", methods=["PATCH", "GET"])
