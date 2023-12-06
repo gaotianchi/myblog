@@ -10,7 +10,7 @@ import json
 from flask import Blueprint, abort, jsonify, request, url_for
 
 from myblog.email import send_email
-from myblog.model.database import User
+from myblog.model.database import Blog, User
 
 from .auth import decrypt_data, encrypt_data
 
@@ -49,8 +49,32 @@ def update_email(id: int):
     return abort(400)
 
 
-@account.route("/update/information/<id>", methods=["PATCH"])
-def update_information(id):
+@account.route("/update/blog/information/<id>", methods=["PATCH"])
+def update_blog_information(id: int):
+    blog = Blog.query.get(id)
+    if request.form:
+        form = request.form
+        title = form.get("title")
+        subtitle = form.get("subtitle")
+        language = form.get("language")
+        link = form.get("link")
+        description = form.get("description")
+
+        new_blog = blog.update(
+            title=title,
+            subtitle=subtitle,
+            language=language,
+            link=link,
+            description=description,
+        )
+
+        return jsonify(f"Update blog {new_blog.title}"), 200
+
+    return abort(400)
+
+
+@account.route("/update/user/information/<id>", methods=["PATCH"])
+def update_user_information(id):
     user = User.query.get(id)
     if request.form:
         form = request.form
