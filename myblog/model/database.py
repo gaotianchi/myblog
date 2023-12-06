@@ -19,13 +19,37 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 class Blog(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    title: Mapped[str] = mapped_column(String(255))
-    subtitle: Mapped[str] = mapped_column(String(255))
+    title: Mapped[str] = mapped_column(String(255), default="My personal blog")
+    subtitle: Mapped[str] = mapped_column(String(255), default="Record my life.")
     language: Mapped[str] = mapped_column(String(255), default="en-us")
-    link: Mapped[str] = mapped_column(String(255))
-    description: Mapped[str] = mapped_column(String(255))
+    link: Mapped[str] = mapped_column(String(255), nullable=True)
+    description: Mapped[str] = mapped_column(String(255), nullable=True)
 
     owner = relationship("User", back_populates="blog")
+
+    @classmethod
+    def create(cls) -> "Blog":
+        new_blog = Blog()
+        db.session.add(new_blog)
+        db.session.commit()
+
+        return Blog.query.get(new_blog.id)
+
+    def update(
+        self, title=None, subtitle=None, language=None, link=None, description=None
+    ):
+        self.title = title if title else self.title
+        self.subtitle = subtitle if subtitle else self.subtitle
+        self.language = language if language else self.language
+        self.link = link
+        self.description = description
+        db.session.add(self)
+        db.session.commit()
+        return Blog.query.get(self.id)
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
 
 
 class User(db.Model):
@@ -38,7 +62,7 @@ class User(db.Model):
     last_login: Mapped[datetime] = mapped_column(DateTime)
     intro: Mapped[str] = mapped_column(String(255), nullable=True)
     detail: Mapped[str] = mapped_column(Text, nullable=True)
-    timezone: Mapped[str] = mapped_column(String(255))
+    timezone: Mapped[str] = mapped_column(String(255), default="Asia/Shanghai")
     blog_id: Mapped[int] = mapped_column(Integer, ForeignKey("blog.id"))
 
     posts = relationship("Post", back_populates="author")
