@@ -14,6 +14,8 @@ auth = Blueprint("auth", __name__)
 
 @auth.before_app_request
 def load_author():
+    if not request.endpoint:
+        return None
     if request.endpoint.startswith("author"):
         # Method 1: load user from session.
         if session.get("user_id"):
